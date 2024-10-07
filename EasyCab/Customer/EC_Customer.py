@@ -1,4 +1,4 @@
-from confluent_kafka import Producer
+from kafka import Producer
 
 # Configurar Kafka Producer para enviar solicitudes a la central
 producer_conf = {'bootstrap.servers': "localhost:9092"}

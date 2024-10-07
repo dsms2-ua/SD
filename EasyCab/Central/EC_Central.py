@@ -1,13 +1,25 @@
 import socket
 import threading
-from confluent_kafka import Producer, Consumer
+from kafka import Producer, Consumer
 
 # Diccionario para almacenar los taxis autenticados
 authenticated_taxis = {}
 
-# Kafka Producer para enviar mensajes a taxis
+# Kafka Producer para enviar instrucciones a los taxis
 producer_conf = {'bootstrap.servers': "localhost:9092"}
 producer = Producer(**producer_conf)
+
+# Configurar Kafka Consumer para recibir solicitudes de clientes
+consumer_conf = {
+    'bootstrap.servers': "localhost:9092",
+    'group.id': "central_group",
+    'auto.offset.reset': 'earliest'
+}
+consumer = Consumer(**consumer_conf)
+consumer.subscribe(['service_requests'])  # Suscribirse al topic de solicitudes de clientes
+
+# Diccionario para manejar los taxis disponibles
+taxis_disponibles = {}
 
 # Función para manejar la autenticación de taxis a través de sockets
 def handle_authentication(client_socket, addr):
@@ -22,6 +34,7 @@ def handle_authentication(client_socket, addr):
         if auth_message.startswith("AUTH"):
             _, taxi_id = auth_message.split(',')
             authenticated_taxis[taxi_id] = addr  # Registrar taxi autenticado
+            taxis_disponibles[taxi_id] = 'ROJO'  # Taxi está libre (estado ROJO)
             print(f"Taxi {taxi_id} autenticado correctamente.")
             client_socket.send(f"Taxi {taxi_id} autenticado".encode('utf-8'))
 
@@ -47,76 +60,42 @@ def start_auth_server():
         client_handler = threading.Thread(target=handle_authentication, args=(client_socket, addr))
         client_handler.start()
 
-# Iniciar el servidor de autenticación
+# Función para manejar solicitudes de clientes y enviar instrucciones a los taxis
+def handle_kafka_messages():
+    print("Esperando solicitudes de clientes...")
+    while True:
+        msg = consumer.poll(1.0)  # Esperar 1 segundo por nuevos mensajes
+        if msg is None:
+            continue
+        if msg.error():
+            print(f"Error en Consumer: {msg.error()}")
+            continue
+
+        # Procesar solicitud de cliente
+        solicitud = msg.value().decode('utf-8')
+        print(f"Solicitud recibida: {solicitud}")
+
+        # Buscar un taxi disponible
+        taxi_asignado = None
+        for taxi_id, estado in taxis_disponibles.items():
+            if estado == 'ROJO':  # Taxi libre
+                taxi_asignado = taxi_id
+                taxis_disponibles[taxi_id] = 'VERDE'  # Marcar como ocupado
+                break
+
+        # Enviar respuesta al cliente y asignar taxi
+        if taxi_asignado:
+            print(f"Asignando {taxi_asignado} a la solicitud {solicitud}")
+            producer.produce('taxi_instructions', key=taxi_asignado, value=f'IR A {solicitud}')
+            producer.flush()
+        else:
+            print("No hay taxis disponibles en este momento")
+
+# Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":
-    start_auth_server()
+    # Iniciar el servidor de autenticación en un hilo
+    auth_thread = threading.Thread(target=start_auth_server)
+    auth_thread.start()
 
-
-#from confluent_kafka import Consumer, Producer
-
-# Configurar Kafka Producer para enviar instrucciones a los taxis
-producer_conf = {'bootstrap.servers': "localhost:9092"}
-producer = Producer(**producer_conf)
-
-# Configurar Kafka Consumer para recibir solicitudes de los clientes
-consumer_conf = {
-    'bootstrap.servers': "localhost:9092",
-    'group.id': "central_group",
-    'auto.offset.reset': 'earliest'
-}
-consumer = Consumer(**consumer_conf)
-consumer.subscribe(['service_requests'])  # Suscribirse al topic de solicitudes de clientes
-
-# Diccionario para manejar los taxis disponibles
-taxis_disponibles = {'taxi_1': 'ROJO', 'taxi_2': 'ROJO'}  # ROJO significa que están libres
-
-# Bucle para escuchar las solicitudes de los clientes
-while True:
-    msg = consumer.poll(1.0)  # Esperar 1 segundo por nuevos mensajes
-    if msg is None:
-        continue
-    if msg.error():
-        print(f"Error en Consumer: {msg.error()}")
-        continue
-
-    # Procesar solicitud de cliente
-    solicitud = msg.value().decode('utf-8')
-    print(f"Solicitud recibida: {solicitud}")
-
-    # Buscar un taxi disponible
-    taxi_asignado = None
-    for taxi_id, estado in taxis_disponibles.items():
-        if estado == 'ROJO':  # Taxi libre
-            taxi_asignado = taxi_id
-            taxis_disponibles[taxi_id] = 'VERDE'  # Marcar como ocupado
-            break
-
-    # Enviar respuesta al cliente y asignar taxi
-    if taxi_asignado:
-        print(f"Asignando {taxi_asignado} a la solicitud {solicitud}")
-        producer.produce('taxi_instructions', key=taxi_asignado, value=f'IR A {solicitud}')
-        producer.flush()
-    else:
-        print("No hay taxis disponibles en este momento")
-
-
-# Configurar Kafka Consumer para recibir actualizaciones de los taxis
-consumer.subscribe(['taxi_updates'])
-
-# Bucle para escuchar las actualizaciones de los taxis
-while True:
-    msg = consumer.poll(1.0)  # Esperar 1 segundo por nuevos mensajes
-    if msg is None:
-        continue
-    if msg.error():
-        print(f"Error en Consumer: {msg.error()}")
-        continue
-
-    # Procesar actualización del taxi
-    actualizacion = msg.value().decode('utf-8')
-    taxi_id, estado = actualizacion.split(',')
-    print(f"Actualización recibida de {taxi_id}: {estado}")
-
-    # Actualizar el estado del taxi
-    taxis_disponibles[taxi_id] = estado
-    print(f"Estado del taxi {taxi_id} actualizado a {estado}")
+    # Manejar Kafka en el hilo principal
+    handle_kafka_messages()
