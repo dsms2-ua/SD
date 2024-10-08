@@ -2,6 +2,7 @@ import threading
 import time
 from kafka import Producer, Consumer
 
+
 # Configurar Kafka Producer para enviar el estado del taxi
 producer_conf = {
     'bootstrap.servers': "localhost:9092"
