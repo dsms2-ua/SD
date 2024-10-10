@@ -220,4 +220,29 @@ def generarAleatoria(locs, taxis, clientes):
     return Casilla(x, y)
 
         
+class Servicio:
+    def __init__(self,cliente,destino):
+        self.cliente = cliente
+        self.origen = None
+        self.destino = destino
+        self.taxi = None
+
+    def getCliente(self):
+        return self.cliente
+
+    def getOrigen(self):
+        return self.origen
+
+    def getDestino(self):
+        return self.destino
+
+    def getTaxi(self):
+        return self.taxi
+
+    def setTaxi(self,taxi):
+        self.taxi = taxi
+
+    def setOrigen(self,origen):
+        self.origen = origen
+    
 

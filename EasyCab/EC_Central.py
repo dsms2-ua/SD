@@ -123,6 +123,25 @@ def readClients():
 
         CLIENTES.append(client)
 
+def serviceRequest():
+    #Crear un consumidor de Kafka
+    consumer = KafkaConsumer('service_requests', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    #Recibir los clientes
+    for message in consumer:
+        servicio = pickle.loads(message.value)
+        print(f"Cliente {servicio.getCliente().getId()} solicita un taxi")
+        #Buscamos un taxi libre
+        for taxi in TAXIS:
+            if taxi.getEstado():
+                taxi.setEstado(False)
+                taxi.setCliente(servicio.getCliente())
+                taxi.setDestino(servicio.getDestino())
+                break
+                
+
+        #Si no hay taxis libres, lo añadimos a la lista de espera
+
+        
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -146,10 +165,15 @@ def main():
     #Leer los clientes
     clients_thread = threading.Thread(target=readClients)
     clients_thread.start()
+
+    #Leer los servicios
+    services_thread = threading.Thread(target=serviceRequest)
+    services_thread.start()
     
     auth_thread.join()
     map_thread.join()
     clients_thread.join()
+    services_thread.join()
 
     #print(mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES))
 
