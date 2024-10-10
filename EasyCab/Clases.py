@@ -55,7 +55,7 @@ class Mapa:
 
                 for cliente in self.clientes:
                     print(cliente.getId() + " " + idCustomer)
-                    if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and cliente.getId() == str(idCustomer):
+                    if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and str(cliente.getId()) == idCustomer:
                         mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
                         isCliente = True
                         break

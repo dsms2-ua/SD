@@ -19,7 +19,7 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        print(mapa.cadenaMapaCustomer(str(id)))
+        print(mapa.cadenaMapaCustomer(str(sys.argv[3])))
 
 def main():
     if len(sys.argv) != 4:
