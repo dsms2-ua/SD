@@ -55,9 +55,7 @@ def createConsumer(topic, group, bootstrapServer):
 def autheticate_taxi():
     #Creamos el socket del servidor con la direccion por parametros
     server_socket = socket.socket()
-    bootstrap = int(sys.argv[3])
-    server = sys.argv[2]
-    server_socket.bind((server, bootstrap))
+    server_socket.bind(('localhost', int(sys.argv[1])))
     server_socket.listen(5)
 
     while True:

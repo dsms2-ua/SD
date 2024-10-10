@@ -42,17 +42,17 @@ class Mapa:
                         isTaxi = True
                         # Cambiamos el color del fondo según el estado del taxi
                         if taxi.getEstado() == False:
-                            mapa_str += Back.RED + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
                         elif taxi.getDestino() is None:
-                            mapa_str += Back.RED + Fore.BLACK + str(taxi.getId()) + Style.RESET_ALL
+                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                         else:
-                            mapa_str += Back.GREEN + Fore.BLACK + str(taxi.getId()) + taxi.getDestino() + Style.RESET_ALL
+                            mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getDestino() + Style.RESET_ALL
                         break
 
                 # Comprobamos si hay un cliente
                 for cliente in clientes:
                     if cliente.getX() == i and cliente.getY() == j:
-                        mapa_str += Back.YELLOW + Fore.BLACK + cliente.getId() + Style.RESET_ALL
+                        mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
                         isCliente = True
                         break
 
