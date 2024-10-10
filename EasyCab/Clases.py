@@ -42,7 +42,7 @@ class Mapa:
                 
                 for taxi in self.taxis:
                     if(taxi.getCliente() is not None):
-                        if taxi.getX() == j and taxi.getY() == i and taxi.getCliente().getId() == idCustomer:
+                        if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer:
                             isTaxi = True
                             # Cambiamos el color del fondo según el estado del taxi
                             if taxi.getEstado() == False:

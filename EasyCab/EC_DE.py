@@ -45,6 +45,17 @@ def receiveMap():
         mapa = pickle.loads(message.value)
         print(mapa.cadenaMapa())
 
+def receiveServices():
+    #Creamos el consumer de Kafka
+    consumer = KafkaConsumer('service_assigned', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+    #Recibimos los servicios
+    for message in consumer:
+        servicio = pickle.loads(message.value)
+        print(f"Taxi {servicio.getTaxi()} asignado al cliente {servicio.getCliente()}")
+        
+
+    
+    
 
 def main():
     #Comprobamos que los argumetos sean correctos
@@ -58,6 +69,13 @@ def main():
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)
     map_thread.start()
+
+
+    #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
+    services_thread = threading.Thread(target=receiveServices)
+    services_thread.start()
+
+    
 
 
 
