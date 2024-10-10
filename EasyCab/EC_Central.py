@@ -55,7 +55,9 @@ def createConsumer(topic, group, bootstrapServer):
 def autheticate_taxi():
     #Creamos el socket del servidor con la direccion por parametros
     server_socket = socket.socket()
-    server_socket.bind(('localhost', 8010))
+    bootstrap = int(sys.argv[3])
+    server = sys.argv[2]
+    server_socket.bind((server, bootstrap))
     server_socket.listen(5)
 
     while True:
@@ -91,14 +93,15 @@ def autheticate_taxi():
 #Función para enviar el mapa
 def sendMap():
     #Creamos el productor de Kafka
-    #producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Añadimos el mapa
 
     mapa = Mapa()
     while True:
         cadena = mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES)
+        producer.send('map', cadena.encode('utf-8'))
         #Aquí esperamos un segundo y lo volvemos a mandar
-        print(cadena)
+        #print(cadena)
         time.sleep(1)
 
 """
@@ -153,6 +156,7 @@ def main():
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
     
+    '''
     res = subprocess.run(['kafka-server-stop.bat'],check=True)
     res1 = subprocess.run(['zookeeper-server-stop.bat'],check=True)
     
@@ -164,6 +168,7 @@ def main():
     kfk_thread.start()
 
     time.sleep(5)
+    '''
     
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)

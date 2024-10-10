@@ -119,6 +119,8 @@ def main():
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)
+    map_thread.start()
+    
 
 
 # Ejecución principal
