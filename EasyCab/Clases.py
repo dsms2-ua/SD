@@ -15,15 +15,16 @@ class Mapa:
 
         # Índices de las columnas en la parte superior
         mapa_str += "   "  # Espacio para el índice de las filas
-        for col in range(self.ancho):
-            mapa_str += f"{col:2} "  # Coloca el índice de columna (números) en la parte superior
-        mapa_str += "\n" + "   " + "---" * self.ancho + "\n"  # Separador horizontal debajo del índice de columnas
+        for col in range(1, self.ancho + 1):
+            mapa_str += f"{Back.LIGHTBLACK_EX}{col:2} {Style.RESET_ALL} "  # Coloca el índice de columna (números) en la parte superior
+        mapa_str += "\n"
+        #mapa_str += "\n" + "   " + "---" * self.ancho + "\n"  # Separador horizontal debajo del índice de columnas
 
-        for i in range(self.alto):
+        for i in range(1, self.alto + 1):
             # Índice de fila en el lado izquierdo
-            mapa_str += f"{i:2} |"  # Índice de fila con separador vertical
+            mapa_str += f"{Back.LIGHTBLACK_EX}{i:2}{Style.RESET_ALL}|"  # Índice de fila con separador vertical
 
-            for j in range(self.ancho):
+            for j in range(1, self.ancho + 1):
                 isPos = False
                 isTaxi = False
                 isCliente = False
@@ -31,7 +32,7 @@ class Mapa:
                 # Comprobamos si hay una posición
                 for pos in posiciones:
                     if posiciones[pos].getX() == i and posiciones[pos].getY() == j:
-                        mapa_str += Back.WHITE + Fore.BLUE + pos + Style.RESET_ALL
+                        mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
                         isPos = True
                         break
 
@@ -41,37 +42,37 @@ class Mapa:
                         isTaxi = True
                         # Cambiamos el color del fondo según el estado del taxi
                         if taxi.getEstado() == False:
-                            mapa_str += Back.WHITE + Fore.RED + taxi.getId() + "!" + Style.RESET_ALL
+                            mapa_str += Back.RED + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
                         elif taxi.getDestino() is None:
-                            mapa_str += Back.WHITE + Fore.RED + taxi.getId() + Style.RESET_ALL
+                            mapa_str += Back.RED + Fore.BLACK + str(taxi.getId()) + Style.RESET_ALL
                         else:
-                            mapa_str += Back.WHITE + Fore.GREEN + taxi.getId() + taxi.getDestino() + Style.RESET_ALL
+                            mapa_str += Back.GREEN + Fore.BLACK + str(taxi.getId()) + taxi.getDestino() + Style.RESET_ALL
                         break
 
                 # Comprobamos si hay un cliente
                 for cliente in clientes:
                     if cliente.getX() == i and cliente.getY() == j:
-                        mapa_str += Back.WHITE + Fore.BLACK + cliente.getId() + Style.RESET_ALL
+                        mapa_str += Back.YELLOW + Fore.BLACK + cliente.getId() + Style.RESET_ALL
                         isCliente = True
                         break
 
                 # Si no hay ningún elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
-                    mapa_str += Back.WHITE + "  " + Style.RESET_ALL
+                    mapa_str += Back.WHITE + " . " + Style.RESET_ALL
 
                 # Añadir separador vertical entre las celdas
                 mapa_str += "|"
 
             # Salto de línea al final de cada fila con separador horizontal
-            mapa_str += "\n" + "   " + "---" * self.ancho + "\n"
+            mapa_str += "\n"
 
         return mapa_str
 
 
 class Casilla:
     def __init__(self, x=1, y=1):
-        self.x = 1
-        self.y = 1
+        self.x = x
+        self.y = y
 
     def __str__(self):
         return f"({self.x}, {self.y})"

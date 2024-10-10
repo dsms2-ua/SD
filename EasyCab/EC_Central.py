@@ -104,6 +104,7 @@ def sendMap():
     while True:
         cadena = mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES)
         #Aquí esperamos un segundo y lo volvemos a mandar
+        print(cadena)
         time.sleep(1)
 
 """
@@ -156,8 +157,14 @@ def main():
     # Iniciar el servidor de autenticación en un hilo
     auth_thread = threading.Thread(target=autheticate_taxi)
     auth_thread.start()
-    print(mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES))
+
+    map_thread = threading.Thread(target=sendMap)
+    map_thread.start()
+    
     auth_thread.join()
+    map_thread.join()
+
+    #print(mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES))
 
     '''
     # Crear el productor y consumidor de Kafka
