@@ -136,11 +136,16 @@ def handle_kafka_messages():
 
 def start_zookeeper():
     try:
-        res1 = subprocess.run(['zookeeper-server-stop.bat'],check=True)
         result = subprocess.run(['zookeeper-server-start.bat', 'C:/kafka/config/zookeeper.properties'], check=True)
         print("ZooKeeper iniciado con éxito")
     except subprocess.CalledProcessError as e:
         print(f"Error al iniciar ZooKeeper: {e}")
+    
+def start_kafka():
+    try:
+        result = subprocess.run(['kafka-server-start.bat', 'C:/kafka/config/server.properties'], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error al iniciar Kafka: {e}")
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -148,8 +153,17 @@ def main():
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
     
+    res = subprocess.run(['kafka-server-stop.bat'],check=True)
+    res1 = subprocess.run(['zookeeper-server-stop.bat'],check=True)
+    
     zk_thread = threading.Thread(target=start_zookeeper)
     zk_thread.start()
+    time.sleep(5)
+
+    kfk_thread = threading.Thread(target=start_kafka)
+    kfk_thread.start()
+
+    time.sleep(5)
     
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
