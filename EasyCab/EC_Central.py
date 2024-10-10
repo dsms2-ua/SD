@@ -91,7 +91,7 @@ def autheticate_taxi():
 #Función para enviar el mapa
 def sendMap():
     #Creamos el productor de Kafka
-    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    #producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Añadimos el mapa
 
     mapa = Mapa()
@@ -136,6 +136,7 @@ def handle_kafka_messages():
 
 def start_zookeeper():
     try:
+        res1 = subprocess.run(['zookeeper-server-stop.bat'],check=True)
         result = subprocess.run(['zookeeper-server-start.bat', 'C:/kafka/config/zookeeper.properties'], check=True)
         print("ZooKeeper iniciado con éxito")
     except subprocess.CalledProcessError as e:
