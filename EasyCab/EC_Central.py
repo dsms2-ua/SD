@@ -7,6 +7,7 @@ if sys.version_info >= (3, 12, 0):
 import socket
 import threading
 import time
+import subprocess
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -100,6 +101,10 @@ def socketServer(port):
 
 #Función para enviar el mapa
 def sendMap():
+    #Creamos el productor de Kafka
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    #Añadimos el mapa
+
     mapa = Mapa()
     while True:
         cadena = mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES)
@@ -144,6 +149,12 @@ def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
+        sys.exit(1)
+
+    try:
+        subprocess.run(['C:/Kafka/bin/windows/zookeeper-server-start.bat', 'C:/Kafka/config/zookeeper.properties'], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al iniciar el servidor de Zookeeper")
         sys.exit(1)
 
     # Leer las localizaciones y taxis disponibles

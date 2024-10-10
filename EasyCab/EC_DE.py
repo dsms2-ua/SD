@@ -97,6 +97,15 @@ def authenticateTaxi():
         print("Error en la autenticación del taxi")
         client_socket.close()
         return False
+    
+def receiveMap():
+    #Creamos el consumer de Kafka
+    consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+
+    #Recibimos el mapa
+    for message in consumer:
+        mapa = message.value.decode('utf-8')
+        print(mapa)
 
 
 def main():
@@ -108,7 +117,9 @@ def main():
     if not authenticateTaxi():
         return
     
-    #Seguimos con la ejecución
+    #Creamos el hilo que lleva al consumidor Kafka del mapa
+    map_thread = threading.Thread(target=receiveMap)
+
 
 # Ejecución principal
 if __name__ == "__main__":
