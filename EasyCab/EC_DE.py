@@ -7,6 +7,7 @@ if sys.version_info >= (3, 12, 0):
 import threading
 import time
 from kafka import KafkaProducer, KafkaConsumer
+import pickle
 import socket
 from Clases import *
 
@@ -41,8 +42,8 @@ def receiveMap():
 
     #Recibimos el mapa
     for message in consumer:
-        mapa = message.value.decode('utf-8')
-        print(mapa)
+        mapa = pickle.loads(message.value)
+        print(mapa.cadenaMapa())
 
 
 def main():

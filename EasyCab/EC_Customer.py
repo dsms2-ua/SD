@@ -8,6 +8,7 @@ import socket
 import threading
 import time
 import subprocess
+import pickle
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -17,8 +18,8 @@ def receiveMap():
 
     #Recibimos el mapa
     for message in consumer:
-        mapa = message.value.decode('utf-8')
-        print(mapa)
+        mapa = pickle.loads(message.value)
+        print(mapa.cadenaMapaCustomer(str(id)))
 
 def main():
     if len(sys.argv) != 4:
@@ -26,6 +27,7 @@ def main():
         sys.exit(1)
 
     id = sys.argv[3]
+    print(f"Cliente {id} conectado")
 
     #Comunicamos por Kafka la existencia del cliente
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')

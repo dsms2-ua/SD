@@ -7,7 +7,7 @@ if sys.version_info >= (3, 12, 0):
 import socket
 import threading
 import time
-import subprocess
+import pickle
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -102,13 +102,15 @@ def sendMap():
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Añadimos el mapa
 
-    mapa = Mapa()
+    mapa = Mapa(LOCALIZACIONES, TAXIS, CLIENTES)
     while True:
-        cadena = mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES)
-        producer.send('map', cadena.encode('utf-8'))
+        serialized = pickle.dumps(mapa)
+        producer.send('map', serialized)
         #Aquí esperamos un segundo y lo volvemos a mandar
         #print(cadena)
         time.sleep(1)
+
+
 
 def readClients():
     #Crear un consumidor de Kafka
@@ -132,9 +134,7 @@ def main():
     leerLocalizaciones(LOCALIZACIONES)
     leerTaxis(TAXIS_DISPONIBLES)
 
-    # Crear el mapa
-    mapa = Mapa()
-    
+    # Crear el mapa    
 
     # Iniciar el servidor de autenticación en un hilo
     auth_thread = threading.Thread(target=autheticate_taxi)
