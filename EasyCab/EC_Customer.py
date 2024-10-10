@@ -1,14 +1,42 @@
-from kafka import Producer
+import sys
 
-# Configurar Kafka Producer para enviar solicitudes a la central
-producer_conf = {'bootstrap.servers': "localhost:9092"}
-producer = Producer(**producer_conf)
+if sys.version_info >= (3, 12, 0):
+    import six
+    sys.modules['kafka.vendor.six.moves'] = six.moves
 
-# Enviar una solicitud de servicio de taxi
-cliente_id = "cliente_1"
-destino_x, destino_y = 5, 7
-solicitud = f"SOLICITUD,{destino_x},{destino_y}"
-producer.produce('service_requests', key=cliente_id, value=solicitud)
-producer.flush()
+import socket
+import threading
+import time
+import subprocess
+from kafka import KafkaProducer, KafkaConsumer
+from Clases import *
 
-print(f"Solicitud enviada: {solicitud}")
+def receiveMap():
+     #Creamos el consumer de Kafka
+    consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+
+    #Recibimos el mapa
+    for message in consumer:
+        mapa = message.value.decode('utf-8')
+        print(mapa)
+
+def main():
+    if len(sys.argv) != 4:
+        print("Uso: python EC_Customer.py <Bootstrap_IP> <Bootstrap_Port> <ID>")
+        sys.exit(1)
+
+    id = sys.argv[3]
+
+    #Comunicamos por Kafka la existencia del cliente
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+    producer.send('clients', value = f"{id}".encode('utf-8'))
+
+
+    #Creamos el hilo que recibe el mapa
+    map_thread = threading.Thread(target=receiveMap)
+    map_thread.start()
+
+    map_thread.join()
+
+if __name__ == "__main__":
+    main()

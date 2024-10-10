@@ -81,7 +81,7 @@ def authenticateTaxi():
 
     #Nos conectamos a la central por sockets
     client_socket = socket.socket()
-    client_socket.connect(('localhost', 8010))
+    client_socket.connect(('localhost', central_port))
 
     #Enviamos el id del taxi para comprobar
     taxi_id = int(sys.argv[5])
@@ -120,7 +120,7 @@ def main():
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)
     map_thread.start()
-    
+
 
 
 # Ejecución principal

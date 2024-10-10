@@ -102,6 +102,17 @@ def sendMap():
         #print(cadena)
         time.sleep(1)
 
+def readClients():
+    #Crear un consumidor de Kafka
+    consumer = KafkaConsumer('clients', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    #Recibir los clientes
+    for message in consumer:
+        id = message.value.decode('utf-8')
+        print(f"Cliente {id} conectado")
+        client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
+
+        CLIENTES.append(client)
+
 """
 # Función para manejar solicitudes de clientes y enviar instrucciones a los taxis
 def handle_kafka_messages():
@@ -182,9 +193,14 @@ def main():
 
     map_thread = threading.Thread(target=sendMap)
     map_thread.start()
+
+    #Leer los clientes
+    clients_thread = threading.Thread(target=readClients)
+    clients_thread.start()
     
     auth_thread.join()
     map_thread.join()
+    clients_thread.join()
 
     #print(mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES))
 

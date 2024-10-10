@@ -1,4 +1,5 @@
 from colorama import init, Fore, Back, Style
+import random
 
 class Mapa:
     def __init__(self):
@@ -31,14 +32,14 @@ class Mapa:
 
                 # Comprobamos si hay una posición
                 for pos in posiciones:
-                    if posiciones[pos].getX() == i and posiciones[pos].getY() == j:
+                    if posiciones[pos].getX() == j and posiciones[pos].getY() == i:
                         mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
                         isPos = True
                         break
 
                 # Comprobamos si hay un taxi
                 for taxi in taxis:
-                    if taxi.getX() == i and taxi.getY() == j:
+                    if taxi.getX() == j and taxi.getY() == i:
                         isTaxi = True
                         # Cambiamos el color del fondo según el estado del taxi
                         if taxi.getEstado() == False:
@@ -51,7 +52,7 @@ class Mapa:
 
                 # Comprobamos si hay un cliente
                 for cliente in clientes:
-                    if cliente.getX() == i and cliente.getY() == j:
+                    if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
                         mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
                         isCliente = True
                         break
@@ -89,6 +90,7 @@ class Taxi:
         self.casilla = Casilla()
         self.destino = None
         self.estado = True
+        self.cliente = None
 
     def setCasilla(self, casilla):
         self.casilla = casilla
@@ -98,6 +100,9 @@ class Taxi:
 
     def setDestino(self, destino):
         self.destino = destino
+
+    def setCliente(self, cliente):
+        self.cliente = cliente
 
     def getId(self):
         return self.id
@@ -114,10 +119,43 @@ class Taxi:
     def getEstado(self):
         return self.estado
     
+    def setCliente(self):
+        return self.cliente
+    
 class Cliente():
-    def __init__(self, id):
+    def __init__(self, id, locs, taxis, clientes):
         self.id = id
-        self.posicion = None
+        self.posicion = generarAleatoria(locs, taxis, clientes)
     
     def getId(self):
         return self.id
+
+    def getPosicion(self):
+        return self.posicion
+
+def generarAleatoria(locs, taxis, clientes):
+    valida = False
+    while not valida:
+
+        x = random.randint(1, 20)
+        y = random.randint(1, 20)
+
+        valida = True
+
+        #Que no coincida con locs
+        for loc in locs:
+            if locs[loc].getX() == x and locs[loc].getY() == y:
+                valida = False
+
+        for taxi in taxis:
+            if taxi.getX() == x and taxi.getY() == y:
+                valida = False
+
+        for cliente in clientes:
+            if cliente.getPosicion().getX() == x and cliente.getPosicion().getY() == y:
+                valida = False
+
+    return Casilla(x, y)
+
+        
+
