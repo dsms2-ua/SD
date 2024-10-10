@@ -88,17 +88,6 @@ def autheticate_taxi():
             client.close()
 
 
-#Función que crea el servidor de sockets
-def socketServer(port):
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('0.0.0.0', int(port)))
-    server_socket.listen(5)
-
-    while True:
-        client_socket, addr = server_socket.accept()
-        client_handler = threading.Thread(target=autheticate_taxi, args=(client_socket, addr))
-        client_handler.start()
-
 #Función para enviar el mapa
 def sendMap():
     #Creamos el productor de Kafka
@@ -145,18 +134,22 @@ def handle_kafka_messages():
             print("No hay taxis disponibles en este momento")
 """
 
+def start_zookeeper():
+    try:
+        result = subprocess.run(['zookeeper-server-start.bat', 'C:/kafka/config/zookeeper.properties'], check=True)
+        print("ZooKeeper iniciado con éxito")
+    except subprocess.CalledProcessError as e:
+        print(f"Error al iniciar ZooKeeper: {e}")
+
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
-
-    try:
-        subprocess.run(['C:/Kafka/bin/windows/zookeeper-server-start.bat', 'C:/Kafka/config/zookeeper.properties'], check=True)
-    except subprocess.CalledProcessError:
-        print("Error al iniciar el servidor de Zookeeper")
-        sys.exit(1)
-
+    
+    zk_thread = threading.Thread(target=start_zookeeper)
+    zk_thread.start()
+    
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
     leerTaxis(TAXIS_DISPONIBLES)
