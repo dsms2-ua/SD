@@ -73,10 +73,18 @@ def autheticate_taxi():
                 taxi = Taxi(id)
                 #Borramos el taxi de la lista de taxis disponibles
                 TAXIS_DISPONIBLES.remove(id)
+
+                #cComprobamos que la posicion del taxi no esta ocupada por otro taxi
+                for t in TAXIS:
+                    if t.getX() == 1 and t.getY() == 1:
+                        t.setCasilla(Casilla(2,1))
+                        break
+
                 #Añadimos el taxi a la lista de taxis
                 TAXIS.append(taxi)
                 #Respondemos con un OK
                 client.send("OK".encode('utf-8'))
+                print(f"Taxi {id} autenticado correctamente")
                 #Cerramos la conexión
                 client.close()
             else:
@@ -113,71 +121,12 @@ def readClients():
 
         CLIENTES.append(client)
 
-"""
-# Función para manejar solicitudes de clientes y enviar instrucciones a los taxis
-def handle_kafka_messages():
-    print("Esperando solicitudes de clientes...")
-    while True:
-        msg = consumer.poll(1.0)  # Esperar 1 segundo por nuevos mensajes
-        if msg is None:
-            continue
-        if msg.error():
-            print(f"Error en Consumer: {msg.error()}")
-            continue
-
-        # Procesar solicitud de cliente
-        solicitud = msg.value().decode('utf-8')
-        print(f"Solicitud recibida: {solicitud}")
-
-        # Buscar un taxi disponible
-        taxi_asignado = None
-        for taxi_id, estado in taxis_disponibles.items():
-            if estado == 'ROJO':  # Taxi libre
-                taxi_asignado = taxi_id
-                taxis_disponibles[taxi_id] = 'VERDE'  # Marcar como ocupado
-                break
-
-        # Enviar respuesta al cliente y asignar taxi
-        if taxi_asignado:
-            print(f"Asignando {taxi_asignado} a la solicitud {solicitud}")
-            producer.produce('taxi_instructions', key=taxi_asignado, value=f'IR A {solicitud}')
-            producer.flush()
-        else:
-            print("No hay taxis disponibles en este momento")
-"""
-
-def start_zookeeper():
-    try:
-        result = subprocess.run(['zookeeper-server-start.bat', 'C:/kafka/config/zookeeper.properties'], check=True)
-        print("ZooKeeper iniciado con éxito")
-    except subprocess.CalledProcessError as e:
-        print(f"Error al iniciar ZooKeeper: {e}")
-    
-def start_kafka():
-    try:
-        result = subprocess.run(['kafka-server-start.bat', 'C:/kafka/config/server.properties'], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error al iniciar Kafka: {e}")
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
-    
-    '''
-    res = subprocess.run(['kafka-server-stop.bat'],check=True)
-    res1 = subprocess.run(['zookeeper-server-stop.bat'],check=True)
-    
-    zk_thread = threading.Thread(target=start_zookeeper)
-    zk_thread.start()
-    time.sleep(5)
-
-    kfk_thread = threading.Thread(target=start_kafka)
-    kfk_thread.start()
-
-    time.sleep(5)
-    '''
     
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
