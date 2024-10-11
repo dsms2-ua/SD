@@ -116,13 +116,18 @@ def serviceRequest():
     #Recibir los clientes
     for message in consumer:
         servicio = pickle.loads(message.value)
-        print(f"Cliente {servicio.getCliente().getId()} solicita un taxi")
+        for cliente in CLIENTES:
+            if cliente.getId() == servicio.getCliente():
+                servicio.setOrigen(cliente.getPosicion())
+        print(f"Cliente {servicio.getCliente()} solicita un taxi")
         #Buscamos un taxi libre
         for taxi in TAXIS:
             if taxi.getEstado():
                 taxi.setEstado(False)
                 taxi.setCliente(servicio.getCliente())
-                taxi.setDestino(servicio.getDestino())
+                print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
+                producer = KafkaProducer('service_assigned',bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+                producer.send('service_assigned', value = pickle.dumps(servicio))
                 break
                 
 

@@ -41,9 +41,10 @@ def main():
     #leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
     with open("servicios.txt", "r") as file:
         for line in file:
-            producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+            producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
             servicio = Servicio(sys.argv[3], line)
             producer.send('service_requests', value = pickle.dumps(servicio))
+            time.sleep(100)
 
     map_thread.join()
 

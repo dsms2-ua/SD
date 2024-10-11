@@ -46,33 +46,19 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        #print(mapa.cadenaMapa())
+        print(mapa.cadenaMapa())
 
-def sendAlerts():
-    #Creamos el socket de conexión con los sensores
-    server_socket = socket.socket()
-    server_socket.bind(('localhost', 5000))
-    server_socket.listen(5)
+def receiveServices():
+    #Creamos el consumer de Kafka
+    consumer = KafkaConsumer('service_assigned', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+    #Recibimos los servicios
+    for message in consumer:
+        servicio = pickle.loads(message.value)
+        print(f"Taxi {servicio.getTaxi()} asignado al cliente {servicio.getCliente()}")
+        
 
-    #Creamos el productor de Kafka para mandar las alertas
-    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
-
-    while True:
-        client, addr = server_socket.accept()
-        data = client.recv(1024).decode('utf-8')
-
-        print(data)
-
-        if data == "KO":
-            print("Alerta: Taxi parado")
-            #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
-            producer.send('taxiUpdate', value = f"{ID} KO".encode('utf-8'))
-
-        else:
-            producer.send('taxiUpdate', value = f"{ID} OK".encode('utf-8'))
-            
-        time.sleep(1)
-            
+    
+    
 
 def main():
     global ID
@@ -90,9 +76,13 @@ def main():
     map_thread = threading.Thread(target=receiveMap)
     map_thread.start()
 
-    #Creamos el hilo que recibe las alertas de los sensores
-    alert_thread = threading.Thread(target=sendAlerts)
-    alert_thread.start()
+
+    #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
+    services_thread = threading.Thread(target=receiveServices)
+    services_thread.start()
+
+    
+
 
     map_thread.join()
     alert_thread.join()
