@@ -1,55 +1,57 @@
 import socket
 import time
 import threading
+import sys
 
-# Función para enviar mensajes al Digital Engine (EC_DE)
-def enviar_estado(client_socket, taxi_id):
+OK = True
+
+def sendOk(socket_server):
+    global OK
+    #Cada segundo mandamos un OK al Digital Engine
     while True:
-        # Por defecto, enviar "OK" cada segundo
-        client_socket.send(f"TAXI_{taxi_id},OK".encode('utf-8'))
-        print(f"TAXI_{taxi_id}: OK enviado")
+        if OK:
+            socket_server.send("OK".encode('utf-8'))
+        else:
+            socket_server.send("KO".encode('utf-8'))
         time.sleep(1)
 
-# Función para detectar incidencias con el teclado
-def detectar_incidencias(client_socket, taxi_id):
+def sendAlert():
+    global OK
+    #Si presionamos cualquier tecla se envía un mensaje
     while True:
-        input("Presiona ENTER para simular una incidencia (KO)")
-        client_socket.send(f"TAXI_{taxi_id},KO".encode('utf-8'))
-        print(f"TAXI_{taxi_id}: KO enviado (Incidencia)")
+        input("Presiona cualquier tecla para parar el taxi: ")
+        OK = False
 
-# Función principal para iniciar EC_S
-def iniciar_ec_s(ip_ec_de, puerto_ec_de, taxi_id):
-    # Crear un socket TCP/IP
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #Para volver a iniciar el coche presionamos otra tecla
+        input("Presiona cualquier tecla para iniciar el taxi: ")
+        OK = True
 
-    try:
-        # Conectar con el Digital Engine (EC_DE)
-        client_socket.connect((ip_ec_de, puerto_ec_de))
-        print(f"Conectado a EC_DE en {ip_ec_de}:{puerto_ec_de}")
 
-        # Iniciar hilo para enviar el estado periódicamente
-        hilo_estado = threading.Thread(target=enviar_estado, args=(client_socket, taxi_id))
-        hilo_estado.start()
+def main():
+    #Comprobamos los argumentos
+    if len(sys.argv) != 3:
+        print("Error: Usage python EC_S.py EC_DE_IP EC_DE_Port")
+        sys.exit(1)
 
-        # Iniciar hilo para detectar y enviar incidencias
-        hilo_incidencias = threading.Thread(target=detectar_incidencias, args=(client_socket, taxi_id))
-        hilo_incidencias.start()
+    # Recoger los argumentos
+    ip_ec_de = sys.argv[1]
+    puerto_ec_de = int(sys.argv[2])
 
-        # Esperar a que ambos hilos terminen (aunque en realidad se ejecutarán indefinidamente)
-        hilo_estado.join()
-        hilo_incidencias.join()
+    #Creamos el socket de conexión y conectamos con el taxi
+    server_socket = socket.socket()
+    #Conectamos con el Digital Engine del taxi
+    server_socket.connect((ip_ec_de, puerto_ec_de))
 
-    except Exception as e:
-        print(f"Error en la conexión con EC_DE: {e}")
-    finally:
-        client_socket.close()
+    #Creamos los hilos
+    ok_thread = threading.Thread(target=sendOk, args=(server_socket,))
+    ok_thread.start()
+
+    messages_thread = threading.Thread(target=sendAlert)
+    messages_thread.start()
+
+    ok_thread.join()
+    messages_thread.join()
 
 # Ejecución principal
 if __name__ == "__main__":
-    # Parámetros de entrada: IP y puerto del EC_DE y el ID del taxi
-    ip_ec_de = "127.0.0.1"  # IP del EC_DE
-    puerto_ec_de = 8080  # Puerto del EC_DE
-    taxi_id = "1"  # ID del taxi
-
-    # Iniciar EC_S
-    iniciar_ec_s(ip_ec_de, puerto_ec_de, taxi_id)
+    main()

@@ -38,19 +38,6 @@ def leerTaxis(taxis):
             id = int(linea.strip())
             taxis.append(id)
 
-'''
-#Definimos las funciones para crear el consumidor y el productor
-def createProducer(bootstrapServer):
-    conf = {'bootstrap.serves':bootstrapServer}
-    return Producer(conf)
-
-def createConsumer(topic, group, bootstrapServer):
-    conf = {'bootstrap.serves': bootstrapServer, 'group.id': group, 'auto.offset.reset': 'earliest'}
-    consumer = Consumer(conf)
-    consumer.subscribe([topic])
-    return consumer
-'''
-
 #Creamos la función que gestiona la autenticación por sockets
 def autheticate_taxi():
     #Creamos el socket del servidor con la direccion por parametros
@@ -141,7 +128,24 @@ def serviceRequest():
 
         #Si no hay taxis libres, lo añadimos a la lista de espera
 
-        
+def readTaxiUpdate():
+    #Crear un consumidor de Kafka
+    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    #Recibir los clientes
+    while True:
+        for message in consumer:
+            id, estado = message.value.decode('utf-8').split()
+            print(message.value.decode('utf-8'))    
+            for taxi in TAXIS:
+                if taxi.getId() == int(id):
+                    if estado == "KO":
+                        taxi.setEstado(False) #Establecemos el taxi con estado KO
+                        #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
+
+                    elif estado == "OK" and taxi.getEstado() == False:
+                        taxi.setEstado(True)
+
+                    break
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -169,11 +173,16 @@ def main():
     #Leer los servicios
     services_thread = threading.Thread(target=serviceRequest)
     services_thread.start()
+
+    #Leer las actualizaciones de los taxis
+    taxiUpdate_thread = threading.Thread(target=readTaxiUpdate)
+    taxiUpdate_thread.start()
     
     auth_thread.join()
     map_thread.join()
     clients_thread.join()
     services_thread.join()
+    taxiUpdate_thread.join()
 
     #print(mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES))
 

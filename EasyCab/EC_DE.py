@@ -11,6 +11,9 @@ import pickle
 import socket
 from Clases import *
 
+#Variable global para guardar el id del taxi
+ID = 0
+
 
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
@@ -43,10 +46,36 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        print(mapa.cadenaMapa())
+        #print(mapa.cadenaMapa())
 
+def sendAlerts():
+    #Creamos el socket de conexión con los sensores
+    server_socket = socket.socket()
+    server_socket.bind(('localhost', 5000))
+    server_socket.listen(5)
+
+    #Creamos el productor de Kafka para mandar las alertas
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+
+    while True:
+        client, addr = server_socket.accept()
+        data = client.recv(1024).decode('utf-8')
+
+        print(data)
+
+        if data == "KO":
+            print("Alerta: Taxi parado")
+            #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
+            producer.send('taxiUpdate', value = f"{ID} KO".encode('utf-8'))
+
+        else:
+            producer.send('taxiUpdate', value = f"{ID} OK".encode('utf-8'))
+            
+        time.sleep(1)
+            
 
 def main():
+    global ID
     #Comprobamos que los argumetos sean correctos
     if len(sys.argv) != 6:
         print("Error: Usage python EC_DE.py Central_IP Central_Port Bootstrap_IP Bootstrap_Port Taxi_ID")
@@ -54,12 +83,19 @@ def main():
     #Autenticamos con sockets la existencia del taxi
     if not authenticateTaxi():
         return
+
+    ID = sys.argv[5]
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)
     map_thread.start()
 
+    #Creamos el hilo que recibe las alertas de los sensores
+    alert_thread = threading.Thread(target=sendAlerts)
+    alert_thread.start()
 
+    map_thread.join()
+    alert_thread.join()
 
 
 # Ejecución principal
