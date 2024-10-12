@@ -98,7 +98,6 @@ def sendMap():
         time.sleep(1)
 
 
-
 def readClients():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('clients', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -115,23 +114,36 @@ def serviceRequest():
     consumer = KafkaConsumer('service_requests', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Recibir los clientes
     for message in consumer:
-        servicio = pickle.loads(message.value)
+        #Cogemos el mensaje y creamos el objeto servicio
+        id, destino = message.value.decode('utf-8').split()
+        servicio = Servicio(id, destino)
+
+        #Iteramos sobre la lista de clientes activos para obtener la posición del cliente
         for cliente in CLIENTES:
             if cliente.getId() == servicio.getCliente():
                 servicio.setOrigen(cliente.getPosicion())
+
         print(f"Cliente {servicio.getCliente()} solicita un taxi")
+
+        asignado = False
+        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
         #Buscamos un taxi libre
         for taxi in TAXIS:
-            if taxi.getEstado():
-                taxi.setEstado(False)
+            if not taxi.getOcupado():
+                asignado = True
+                taxi.setOcupado(True)
                 taxi.setCliente(servicio.getCliente())
-                print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
-                producer = KafkaProducer('service_assigned',bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-                producer.send('service_assigned', value = pickle.dumps(servicio))
-                break
-                
+                taxi.setOrigen(taxi.getCasilla()) #Desde donde partimos
+                taxi.setposCliente(servicio.getOrigen()) #Desde donde parte el cliente
+                taxi.setDestino(servicio.getDestino()) #A donde va el cliente
 
-        #Si no hay taxis libres, lo añadimos a la lista de espera
+                print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
+                producer.send('service_assigned', value = f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
+
+        #Si no hay taxis disponibles, informamos al cliente
+        if not asignado:
+            print(f"{servicio.getCliente()} KO")
+            producer.send('service_assigned', value = f"No hay taxis disponibles, has sido añadido a la lista de espera".encode('utf-8'))
 
 def readTaxiUpdate():
     #Crear un consumidor de Kafka
@@ -139,10 +151,10 @@ def readTaxiUpdate():
     #Recibir los clientes
     while True:
         for message in consumer:
-            id, estado = message.value.decode('utf-8').split()
-            print(message.value.decode('utf-8'))    
+            id, estado = message.value.decode('utf-8').split() 
             for taxi in TAXIS:
-                if taxi.getId() == int(id):
+                print(f"{id} {estado}")
+                if taxi.getId() == int(id): 
                     if estado == "KO":
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
                         #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?

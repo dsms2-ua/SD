@@ -21,6 +21,23 @@ def receiveMap():
         mapa = pickle.loads(message.value)
         print(mapa.cadenaMapaCustomer(str(sys.argv[3])))
 
+def receiveService(id):
+    #Creamos el consumer de Kafka
+    consumer = KafkaConsumer('service_assigned', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+
+    #Recibimos el servicio
+    for message in consumer:
+        print(message.value.decode('utf-8'))
+        #Sólo podemos imprimir los mensajes que llegan para nosotros
+        data = message.value.decode('utf-8').split(" ")
+        if len(data) > 2:
+            #El servicio se ha asignado correctamente
+            print(f"El servicio ha sido asignado correctamente y el taxi {data[3]} se dirige a tu posición.")
+        else:
+            #El servicio no se ha podido asignar
+            print("No se ha podido asignar el servicio. Inténtalo más tarde.")
+
+
 def main():
     if len(sys.argv) != 4:
         print("Uso: python EC_Customer.py <Bootstrap_IP> <Bootstrap_Port> <ID>")
@@ -38,15 +55,21 @@ def main():
     map_thread = threading.Thread(target=receiveMap)
     map_thread.start()
 
-    #leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
+    #Creamos el hilo que recibe los servicios
+    service_thread = threading.Thread(target=receiveService, args=(id, ))
+    service_thread.start()
+
+    #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
     with open("servicios.txt", "r") as file:
         for line in file:
             producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
-            servicio = Servicio(sys.argv[3], line)
-            producer.send('service_requests', value = pickle.dumps(servicio))
+            producer.send('service_requests', value = f"{id} {line}".encode('utf-8'))
             time.sleep(100)
+            #Aquí tiene que esperar hasta que acabe el servicio y se le asigne otro
+            break #Este break está puesto de prueba
 
     map_thread.join()
+    service_thread.join()
 
 if __name__ == "__main__":
     main()

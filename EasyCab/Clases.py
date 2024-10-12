@@ -45,16 +45,17 @@ class Mapa:
                         if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer:
                             isTaxi = True
                             # Cambiamos el color del fondo según el estado del taxi
-                            if taxi.getEstado() == False:
-                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
-                            elif taxi.getDestino() is None:
+                            if not taxi.getOcupado():
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            else:
-                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getDestino() + Style.RESET_ALL
-                            break    
+                            elif not taxi.getEstado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                            elif taxi.getOcupado() and not taxi.getRecogido():
+                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                            elif taxi.getOcupado() and taxi.getRecogido():
+                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                            break   
 
                 for cliente in self.clientes:
-                    print(cliente.getId() + " " + idCustomer)
                     if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and str(cliente.getId()) == idCustomer:
                         mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
                         isCliente = True
@@ -103,14 +104,15 @@ class Mapa:
                 for taxi in self.taxis:
                     if taxi.getX() == j and taxi.getY() == i:
                         isTaxi = True
-                        # Cambiamos el color del fondo según el estado del taxi
-                        if taxi.getEstado() == False:
-                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
-                        elif taxi.getDestino() is None:
+                        if not taxi.getOcupado():
                             mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                        else:
-                            mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getDestino() + Style.RESET_ALL
-                        break
+                        elif not taxi.getEstado():
+                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                        elif taxi.getOcupado() and not taxi.getRecogido():
+                            mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                        elif taxi.getOcupado() and taxi.getRecogido():
+                            mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                        break  
 
                 # Comprobamos si hay un cliente
                 for cliente in self.clientes:
@@ -150,9 +152,13 @@ class Taxi:
     def __init__(self, id):
         self.id = id
         self.casilla = Casilla()
-        self.destino = None
-        self.estado = True
-        self.cliente = None
+        self.estado = True #True si está operativo, False si no
+        self.ocupado = False #True si está ocupado, False si no
+        self.cliente = None #ID del cliente que vamos a dar servicio
+        self.destino = None #Desde donde parte el taxi
+        self.posCliente = None #Posición del cliente que debemos recoger
+        self.destino = None #Localización a la que quiere ir el cliente
+        self.recogido = False #Indica si hemos recogido al cliente o no
 
     def setCasilla(self, casilla):
         self.casilla = casilla
@@ -160,18 +166,31 @@ class Taxi:
     def setEstado(self, estado):
         self.estado = estado
 
-    def setDestino(self, destino):
-        self.destino = destino
+    def setOcupado(self, ocupado):
+        self.ocupado = ocupado
 
     def setCliente(self, cliente):
         self.cliente = cliente
 
+    def setOrigen(self, origen):
+        self.origen = origen
+
+    def setPosCliente(self, posCliente):
+        self.posCliente = posCliente
+
+    def setDestino(self, destino):
+        self.destino = destino
+
+    def setRecogido(self, recogido):
+        self.recogido = recogido
+
+
     def getId(self):
         return self.id
     
-    def getDestino(self):
-        return self.destino
-
+    def getCasilla(self):
+        return self.casilla
+    
     def getX(self):
         return self.casilla.getX()
     
@@ -181,8 +200,24 @@ class Taxi:
     def getEstado(self):
         return self.estado
     
+    def getOcupado(self):
+        return self.ocupado
+    
     def getCliente(self):
         return self.cliente
+    
+    def getOrigen(self):
+        return self.origen
+    
+    def getPosCliente(self):
+        return self.posCliente
+    
+    def getDestino(self):
+        return self.destino   
+    
+    def getRecogido(self):
+        return self.recogido
+    
     
 class Cliente():
     def __init__(self, id, locs, taxis, clientes):
