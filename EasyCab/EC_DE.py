@@ -12,6 +12,7 @@ import socket
 import os
 from Clases import *
 
+operativo = True
 
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
@@ -44,18 +45,22 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        #os.system('cls')
+        os.system('cls')
         print(mapa.cadenaMapa())
 
 def handleAlerts(client_socket, producer, id):
-    global ID
+    global operativo
     while True:
         data = client_socket.recv(1024).decode('utf-8')
         if data == "KO":
             #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
-            producer.send('taxiUpdate', value = f"{ID} KO".encode('utf-8'))
+            producer.send('taxiUpdate', value = f"{id} KO".encode('utf-8'))
+            if operativo:
+                operativo = False
         else:
-            producer.send('taxiUpdate', value = f"{ID} OK".encode('utf-8'))
+            producer.send('taxiUpdate', value = f"{id} OK".encode('utf-8'))
+            if not operativo:
+                operativo = True
 
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
@@ -95,19 +100,21 @@ def receiveServices(id):
 
             recogido = False
             while not recogido:
-                Pos = moverTaxi(Pos, posCliente)
-                producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
-                if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
-                    recogido = True
-                time.sleep(1)
+                if operativo:
+                    Pos = moverTaxi(Pos, posCliente)
+                    producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
+                    if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
+                        recogido = True
+                    time.sleep(1)
 
             llegada = False
             while not llegada:
-                Pos = moverTaxi(Pos, destino)
-                producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
-                if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
-                    llegada = True
-                time.sleep(1)
+                if operativo:
+                    Pos = moverTaxi(Pos, destino)
+                    producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
+                    if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
+                        llegada = True
+                    time.sleep(1)
 
 def main():
     #Comprobamos que los argumetos sean correctos

@@ -95,7 +95,7 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES)
-        #os.system('cls')
+        os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -146,7 +146,7 @@ def serviceRequest():
                 taxi.setOcupado(True)
                 taxi.setCliente(servicio.getCliente())
                 taxi.setOrigen(taxi.getCasilla()) #Desde donde partimos
-                taxi.setPosCliente(servicio.getOrigen()) #Desde donde parte el cliente
+                taxi.setPosCliente(servicio.getPosCliente()) #Desde donde parte el cliente
                 taxi.setDestino(servicio.getDestino()) #A donde va el cliente
 
                 for loc in LOCALIZACIONES:

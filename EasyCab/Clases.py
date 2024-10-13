@@ -39,27 +39,29 @@ class Mapa:
                         mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
                         isPos = True
                         break
-                
-                for taxi in self.taxis:
-                    if(taxi.getCliente() is not None):
-                        if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer:
-                            isTaxi = True
-                            # Cambiamos el color del fondo según el estado del taxi
-                            if not taxi.getEstado():
-                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
-                            elif not taxi.getOcupado():
-                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            elif taxi.getOcupado() and not taxi.getRecogido():
-                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            elif taxi.getOcupado() and taxi.getRecogido():
-                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
-                            break   
 
-                for cliente in self.clientes:
-                    if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and str(cliente.getId()) == idCustomer:
-                        mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
-                        isCliente = True
-                        break
+                if not isPos:
+                    for taxi in self.taxis:
+                        if(taxi.getCliente() is not None):
+                            if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer:
+                                isTaxi = True
+                                # Cambiamos el color del fondo según el estado del taxi
+                                if not taxi.getEstado():
+                                    mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                                elif not taxi.getOcupado():
+                                    mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                                elif taxi.getOcupado() and not taxi.getRecogido():
+                                    mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                                elif taxi.getOcupado() and taxi.getRecogido():
+                                    mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                                break  
+                             
+                if not isPos and not isTaxi:
+                    for cliente in self.clientes:
+                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and str(cliente.getId()) == idCustomer:
+                            mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
+                            isCliente = True
+                            break
                 
                 # Si no hay ningún elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
@@ -99,25 +101,25 @@ class Mapa:
                         mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
                         isPos = True
                         break
-
-                # Comprobamos si hay un taxi
-                for taxi in self.taxis:
-                    if taxi.getX() == j and taxi.getY() == i:
-                        isTaxi = True
-                        if not taxi.getEstado():
-                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
-                        elif not taxi.getOcupado():
-                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                        elif not taxi.getEstado():
-                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
-                        elif taxi.getOcupado() and not taxi.getRecogido():
-                            mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                        elif taxi.getOcupado() and taxi.getRecogido():
-                            mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
-                        break  
+                if not isPos:
+                    # Comprobamos si hay un taxi
+                    for taxi in self.taxis:
+                        if taxi.getX() == j and taxi.getY() == i:
+                            isTaxi = True
+                            if not taxi.getEstado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                            elif not taxi.getOcupado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                            elif not taxi.getEstado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                            elif taxi.getOcupado() and not taxi.getRecogido():
+                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                            elif taxi.getOcupado() and taxi.getRecogido():
+                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                            break  
 
                 # Comprobamos si hay un cliente, siempre que no haya un taxi
-                if not isTaxi:
+                if not isTaxi and not isPos:
                     for cliente in self.clientes:
                         if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
                             mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
@@ -242,6 +244,9 @@ class Cliente():
 
     def setDestino(self, destino):
         self.destino = destino
+
+    def setPosicion(self, posicion):
+        self.posicion = posicion
     
     def getId(self):
         return self.id
