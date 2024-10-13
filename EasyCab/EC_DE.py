@@ -9,6 +9,7 @@ import time
 from kafka import KafkaProducer, KafkaConsumer
 import pickle
 import socket
+import os
 from Clases import *
 
 #Variable global para guardar el id del taxi
@@ -46,6 +47,7 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
+        os.system('cls')
         print(mapa.cadenaMapa())
 
 def handleAlerts(client_socket, producer):

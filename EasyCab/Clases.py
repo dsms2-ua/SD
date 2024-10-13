@@ -223,12 +223,20 @@ class Cliente():
     def __init__(self, id, locs, taxis, clientes):
         self.id = id
         self.posicion = generarAleatoria(locs, taxis, clientes)
+        self.destino = None
+
+    def setDestino(self, destino):
+        self.destino = destino
     
     def getId(self):
         return self.id
 
     def getPosicion(self):
         return self.posicion
+    
+    def getDestino(self):
+        return self.destino
+        
 
 def generarAleatoria(locs, taxis, clientes):
     valida = False
@@ -281,3 +289,85 @@ class Servicio:
         self.origen = origen
     
 
+def generarTabla(TAXIS, CLIENTES):
+    strTabla =  "_______________________________________________________\n"
+    strTabla += "|                    ***EASYCAB***                    |\n"
+    strTabla += "|-----------------------------------------------------|\n"
+    strTabla += "|                       TAXIS                         |\n"
+    strTabla += "|-----------------------------------------------------|\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |\n"
+    
+    for taxi in TAXIS:
+        #Si el esado del taxi es KO, todo el texto está en color rojo
+        #Primero imprimimos el ID
+        strTabla +=  "|      "
+        if not taxi.getEstado():
+            strTabla += Fore.RED + str(taxi.getId()) + Style.RESET_ALL
+        else:
+            strTabla += str(taxi.getId())
+        strTabla += "      "
+
+        #Ahora imprimimos el destino
+        strTabla += "|           "
+        if not taxi.getOcupado():
+            if not taxi.getEstado():
+                strTabla += Fore.RED + "-" + Style.RESET_ALL
+            else:
+                strTabla += "-"
+        elif not taxi.getRecogido():
+            if not taxi.getEstado():
+                strTabla += Fore.RED + taxi.getCliente() + Style.RESET_ALL
+            else: 
+                strTabla += taxi.getCliente()
+        else:
+            if not taxi.getEstado():
+                strTabla += Fore.RED + taxi.getDestino() + Style.RESET_ALL
+            else:
+                strTabla += taxi.getDestino()
+        strTabla += "         |"
+
+        #Ahora imprimimos el estado
+        if taxi.getEstado():
+            strTabla += "  OK."
+            if taxi.getOcupado():
+                strTabla += " Servicio " + taxi.getCliente() + " |"
+            else:
+                strTabla += " Parado" + "  |"
+        else:
+            #Esto lo imprimimos en rojo
+            strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
+
+        strTabla += "\n"
+    
+    strTabla += "|-----------------------------------------------------|\n"
+    strTabla += "|                     CLIENTES                        |\n"
+    strTabla += "|-----------------------------------------------------|\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |\n"
+    for cliente in CLIENTES:
+        strTabla += "|      " + cliente.getId() + "      |" + "          "
+
+        if cliente.getDestino() is None:
+            strTabla += "-"
+        else:
+            strTabla += cliente.getDestino() 
+        strTabla += "          |"
+
+        #Buscamos si el cliente tiene un taxi asignado
+        asignado = False
+        id = None
+        for taxi in TAXIS:
+            if taxi.getCliente() == cliente.getId():
+                id = taxi.getId()
+                asignado = True
+                break
+        
+        if asignado:
+            strTabla += "    OK.Taxi " + str(id) + "    |"
+        else:
+            strTabla += "   OK. Sin Taxi    |"
+        
+        strTabla += "\n"
+    
+    strTabla += "|_____________________________________________________|\n"
+
+    return strTabla

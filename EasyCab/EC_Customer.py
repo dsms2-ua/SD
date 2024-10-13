@@ -4,10 +4,9 @@ if sys.version_info >= (3, 12, 0):
     import six
     sys.modules['kafka.vendor.six.moves'] = six.moves
 
-import socket
 import threading
 import time
-import subprocess
+import os
 import pickle
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
@@ -19,6 +18,7 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
+        os.system('cls')
         print(mapa.cadenaMapaCustomer(str(sys.argv[3])))
 
 def receiveService(id):

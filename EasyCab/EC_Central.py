@@ -8,6 +8,7 @@ import socket
 import threading
 import time
 import pickle
+import os
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -83,7 +84,7 @@ def autheticate_taxi():
             client.close()
 
 
-#Función para enviar el mapa
+#Función para enviar el mapa y para mostrar la tabla
 def sendMap():
     #Creamos el productor de Kafka
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -93,8 +94,12 @@ def sendMap():
     while True:
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
+        str = generarTabla(TAXIS, CLIENTES)
+        os.system('cls')
+        print(str)
+        print(mapa.cadenaMapa())
+
         #Aquí esperamos un segundo y lo volvemos a mandar
-        #print(cadena)
         time.sleep(1)
 
 
@@ -122,6 +127,7 @@ def serviceRequest():
         for cliente in CLIENTES:
             if cliente.getId() == servicio.getCliente():
                 servicio.setOrigen(cliente.getPosicion())
+                cliente.setDestino(destino)
 
         print(f"Cliente {servicio.getCliente()} solicita un taxi")
 
@@ -134,7 +140,7 @@ def serviceRequest():
                 taxi.setOcupado(True)
                 taxi.setCliente(servicio.getCliente())
                 taxi.setOrigen(taxi.getCasilla()) #Desde donde partimos
-                taxi.setposCliente(servicio.getOrigen()) #Desde donde parte el cliente
+                taxi.setPosCliente(servicio.getOrigen()) #Desde donde parte el cliente
                 taxi.setDestino(servicio.getDestino()) #A donde va el cliente
 
                 print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
@@ -153,9 +159,8 @@ def readTaxiUpdate():
         for message in consumer:
             id, estado = message.value.decode('utf-8').split() 
             for taxi in TAXIS:
-                print(f"{id} {estado}")
-                if taxi.getId() == int(id): 
-                    if estado == "KO":
+                if taxi.getId() == int(id):
+                    if estado == "KO" and taxi.getEstado() == True:
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
                         #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
 
@@ -173,13 +178,13 @@ def main():
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
     leerTaxis(TAXIS_DISPONIBLES)
-
-    # Crear el mapa    
+   
 
     # Iniciar el servidor de autenticación en un hilo
     auth_thread = threading.Thread(target=autheticate_taxi)
     auth_thread.start()
 
+    # Enviar el mapa
     map_thread = threading.Thread(target=sendMap)
     map_thread.start()
 
