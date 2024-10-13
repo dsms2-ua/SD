@@ -23,19 +23,20 @@ def receiveMap():
 
 def receiveService(id):
     #Creamos el consumer de Kafka
-    consumer = KafkaConsumer('service_assigned', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+    consumer = KafkaConsumer('service_assigned_client', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
     #Recibimos el servicio
     for message in consumer:
         print(message.value.decode('utf-8'))
         #Sólo podemos imprimir los mensajes que llegan para nosotros
         data = message.value.decode('utf-8').split(" ")
-        if len(data) > 2:
-            #El servicio se ha asignado correctamente
-            print(f"El servicio ha sido asignado correctamente y el taxi {data[3]} se dirige a tu posición.")
-        else:
-            #El servicio no se ha podido asignar
-            print("No se ha podido asignar el servicio. Inténtalo más tarde.")
+        if data[0] == id:
+            if len(data) > 2:
+                #El servicio se ha asignado correctamente
+                print(f"El servicio ha sido asignado correctamente y el taxi {data[3]} se dirige a tu posición.")
+            else:
+                #El servicio no se ha podido asignar
+                print("No se ha podido asignar el servicio. Inténtalo más tarde.")
 
 
 def main():

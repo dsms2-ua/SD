@@ -45,10 +45,10 @@ class Mapa:
                         if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer:
                             isTaxi = True
                             # Cambiamos el color del fondo según el estado del taxi
-                            if not taxi.getOcupado():
-                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            elif not taxi.getEstado():
+                            if not taxi.getEstado():
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                            elif not taxi.getOcupado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             elif taxi.getOcupado() and not taxi.getRecogido():
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             elif taxi.getOcupado() and taxi.getRecogido():
@@ -104,7 +104,9 @@ class Mapa:
                 for taxi in self.taxis:
                     if taxi.getX() == j and taxi.getY() == i:
                         isTaxi = True
-                        if not taxi.getOcupado():
+                        if not taxi.getEstado():
+                            mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                        elif not taxi.getOcupado():
                             mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                         elif not taxi.getEstado():
                             mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
@@ -114,12 +116,13 @@ class Mapa:
                             mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
                         break  
 
-                # Comprobamos si hay un cliente
-                for cliente in self.clientes:
-                    if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
-                        mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
-                        isCliente = True
-                        break
+                # Comprobamos si hay un cliente, siempre que no haya un taxi
+                if not isTaxi:
+                    for cliente in self.clientes:
+                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
+                            mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
+                            isCliente = True
+                            break
 
                 # Si no hay ningún elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
@@ -148,6 +151,11 @@ class Casilla:
     def getY(self):
         return self.y
     
+    def __eq__(self, other):
+        if isinstance(other, Casilla):
+            return self.getX() == other.getX() and self.getY() == other.getY()
+        return False
+    
 class Taxi:
     def __init__(self, id):
         self.id = id
@@ -155,9 +163,10 @@ class Taxi:
         self.estado = True #True si está operativo, False si no
         self.ocupado = False #True si está ocupado, False si no
         self.cliente = None #ID del cliente que vamos a dar servicio
-        self.destino = None #Desde donde parte el taxi
+        self.origen = None 
         self.posCliente = None #Posición del cliente que debemos recoger
         self.destino = None #Localización a la que quiere ir el cliente
+        self.posDestino = None
         self.recogido = False #Indica si hemos recogido al cliente o no
 
     def setCasilla(self, casilla):
@@ -180,6 +189,9 @@ class Taxi:
 
     def setDestino(self, destino):
         self.destino = destino
+
+    def setPosDestino(self, posDestino):
+        self.posDestino = posDestino
 
     def setRecogido(self, recogido):
         self.recogido = recogido
@@ -213,7 +225,10 @@ class Taxi:
         return self.posCliente
     
     def getDestino(self):
-        return self.destino   
+        return self.destino
+
+    def getPosDestino(self):
+        return self.posDestino 
     
     def getRecogido(self):
         return self.recogido
@@ -268,6 +283,8 @@ class Servicio:
         self.cliente = cliente
         self.origen = None
         self.destino = destino
+        self.posDestino = None
+        self.posCliente = None
         self.taxi = None
 
     def getCliente(self):
@@ -278,15 +295,30 @@ class Servicio:
 
     def getDestino(self):
         return self.destino
+    
+    def getPosDestino(self):
+        return self.posDestino
+    
+    def getPosCliente(self):
+        return self.posCliente
 
     def getTaxi(self):
         return self.taxi
+    
+    def setCliente(self,cliente):
+        self.cliente = cliente
 
     def setTaxi(self,taxi):
         self.taxi = taxi
 
+    def setPosDestino(self, posDestino):
+        self.posDestino = posDestino
+
     def setOrigen(self,origen):
         self.origen = origen
+
+    def setPosCliente(self,posCliente):
+        self.posCliente = posCliente
     
 
 def generarTabla(TAXIS, CLIENTES):
@@ -328,11 +360,10 @@ def generarTabla(TAXIS, CLIENTES):
 
         #Ahora imprimimos el estado
         if taxi.getEstado():
-            strTabla += "  OK."
             if taxi.getOcupado():
-                strTabla += " Servicio " + taxi.getCliente() + " |"
+                strTabla += "   OK.Servicio " + taxi.getCliente() + " |"
             else:
-                strTabla += " Parado" + "  |"
+                strTabla += "    OK.Parado" + "    |"
         else:
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
@@ -344,13 +375,13 @@ def generarTabla(TAXIS, CLIENTES):
     strTabla += "|-----------------------------------------------------|\n"
     strTabla += "|      ID     |        Destino      |      Estado     |\n"
     for cliente in CLIENTES:
-        strTabla += "|      " + cliente.getId() + "      |" + "          "
+        strTabla += "|      " + cliente.getId() + "      |" + "           "
 
         if cliente.getDestino() is None:
             strTabla += "-"
         else:
             strTabla += cliente.getDestino() 
-        strTabla += "          |"
+        strTabla += "         |"
 
         #Buscamos si el cliente tiene un taxi asignado
         asignado = False
@@ -364,10 +395,48 @@ def generarTabla(TAXIS, CLIENTES):
         if asignado:
             strTabla += "    OK.Taxi " + str(id) + "    |"
         else:
-            strTabla += "   OK. Sin Taxi    |"
+            strTabla += "   OK. Sin Taxi  |"
         
         strTabla += "\n"
     
     strTabla += "|_____________________________________________________|\n"
 
     return strTabla
+
+def distanciaMasCorta(actual, objetivo):
+    #Tenemos en cuenta que el mapa es esférico
+    tam = 20
+    dist = (objetivo - actual) % tam
+
+    if dist > tam / 2:
+        dist = dist - tam
+    return dist
+
+def moverTaxi(actual, objetivo):
+    actualX = actual.getX()
+    actualY = actual.getY()
+
+    objetivoX = objetivo.getX()
+    objetivoY = objetivo.getY()
+
+    #Calculamos la distancia más corta en los dos ejes
+    distX = distanciaMasCorta(actualX, objetivoX)
+    distY = distanciaMasCorta(actualY, objetivoY)
+
+    #Determinamos la dirección del movimiento en X
+    if distX > 0:
+        nuevoX = (actualX + 1) % 20
+    elif distX < 0:
+        nuevoX = (actualX - 1) % 20
+    else:
+        nuevoX = actualX
+
+    #Hacemos lo mismo con el eje Y
+    if distY > 0:
+        nuevoY = (actualY + 1) % 20
+    elif distY < 0:
+        nuevoY = (actualY - 1) % 20
+    else:
+        nuevoY = actualY
+
+    return Casilla(nuevoX, nuevoY)

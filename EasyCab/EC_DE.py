@@ -12,9 +12,6 @@ import socket
 import os
 from Clases import *
 
-#Variable global para guardar el id del taxi
-ID = 0
-
 
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
@@ -47,10 +44,10 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        os.system('cls')
+        #os.system('cls')
         print(mapa.cadenaMapa())
 
-def handleAlerts(client_socket, producer):
+def handleAlerts(client_socket, producer, id):
     global ID
     while True:
         data = client_socket.recv(1024).decode('utf-8')
@@ -60,7 +57,7 @@ def handleAlerts(client_socket, producer):
         else:
             producer.send('taxiUpdate', value = f"{ID} OK".encode('utf-8'))
 
-def sendAlerts():
+def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
     server_socket = socket.socket()
     server_socket.bind(('localhost', 5000))
@@ -72,33 +69,47 @@ def sendAlerts():
     while True:
         client, addr = server_socket.accept()
 
-        client_handler = threading.Thread(target=handleAlerts, args=(client, producer))
+        client_handler = threading.Thread(target=handleAlerts, args=(client, producer, id))
         client_handler.start()
             
         time.sleep(1)
 
-def receiveServices():
+def receiveServices(id):
     #Creamos el consumer de Kafka
-    consumer = KafkaConsumer('service_assigned', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+    consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+
+    #Creamos el producer de Kafka para mandar los movimientos
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+
     #Recibimos los servicios
     for message in consumer:
+        #Sólo podemos procesar los mensajes dirigidos a nosotros
         servicio = pickle.loads(message.value)
-        print(f"Taxi {servicio.getTaxi()} asignado al cliente {servicio.getCliente()}")
 
-#En esta función se implementarán los movimientos del taxi
-def movements():
-    return 
+        if int(servicio.getTaxi()) == id:            
+            origen = servicio.getOrigen()
+            destino = servicio.getPosDestino()
+            posCliente = servicio.getPosCliente()
 
-#Comunicamos con otro productor de Kafka los movimientos de cada segundo del taxi
-def sendMovements():
-    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
-    while True:
-        #Aquí se enviarán los movimientos
-        move = movements()
-        time.sleep(1)
+            Pos = origen
+
+            recogido = False
+            while not recogido:
+                Pos = moverTaxi(Pos, posCliente)
+                producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
+                if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
+                    recogido = True
+                time.sleep(1)
+
+            llegada = False
+            while not llegada:
+                Pos = moverTaxi(Pos, destino)
+                producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
+                if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
+                    llegada = True
+                time.sleep(1)
 
 def main():
-    global ID
     #Comprobamos que los argumetos sean correctos
     if len(sys.argv) != 6:
         print("Error: Usage python EC_DE.py Central_IP Central_Port Bootstrap_IP Bootstrap_Port Taxi_ID")
@@ -107,21 +118,19 @@ def main():
     if not authenticateTaxi():
         return
 
-    ID = sys.argv[5]
+    ID = int(sys.argv[5])
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)
     map_thread.start()
 
     #Creamos el hilo que comunica las alertas al consumidor
-    alert_thread = threading.Thread(target=sendAlerts)
+    alert_thread = threading.Thread(target=sendAlerts, args = (ID, ))
     alert_thread.start()
 
     #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
-    services_thread = threading.Thread(target=receiveServices)
+    services_thread = threading.Thread(target=receiveServices, args=(ID, ))
     services_thread.start()
-
-    
 
     map_thread.join()
     alert_thread.join()

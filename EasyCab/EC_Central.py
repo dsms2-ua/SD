@@ -95,7 +95,7 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES)
-        os.system('cls')
+        #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -126,8 +126,11 @@ def serviceRequest():
         #Iteramos sobre la lista de clientes activos para obtener la posición del cliente
         for cliente in CLIENTES:
             if cliente.getId() == servicio.getCliente():
-                servicio.setOrigen(cliente.getPosicion())
+                servicio.setPosCliente(cliente.getPosicion())
                 cliente.setDestino(destino)
+                for loc in LOCALIZACIONES:
+                    if loc == destino:
+                        servicio.setPosDestino(LOCALIZACIONES[loc])
 
         print(f"Cliente {servicio.getCliente()} solicita un taxi")
 
@@ -136,6 +139,9 @@ def serviceRequest():
         #Buscamos un taxi libre
         for taxi in TAXIS:
             if not taxi.getOcupado():
+                servicio.setOrigen(taxi.getCasilla())
+                servicio.setTaxi(taxi.getId())
+
                 asignado = True
                 taxi.setOcupado(True)
                 taxi.setCliente(servicio.getCliente())
@@ -143,13 +149,19 @@ def serviceRequest():
                 taxi.setPosCliente(servicio.getOrigen()) #Desde donde parte el cliente
                 taxi.setDestino(servicio.getDestino()) #A donde va el cliente
 
+                for loc in LOCALIZACIONES:
+                    if loc == destino:
+                        taxi.setPosDestino(LOCALIZACIONES[loc])
+
                 print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
-                producer.send('service_assigned', value = f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
+                producer.send('service_assigned_client', value = f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
+
+                #Mandamos el objeto servicio
+                producer.send('service_assigned_taxi', pickle.dumps(servicio))
 
         #Si no hay taxis disponibles, informamos al cliente
         if not asignado:
-            print(f"{servicio.getCliente()} KO")
-            producer.send('service_assigned', value = f"No hay taxis disponibles, has sido añadido a la lista de espera".encode('utf-8'))
+            producer.send('service_assigned', value = f"{servicio.getCliente()} KO".encode('utf-8'))
 
 def readTaxiUpdate():
     #Crear un consumidor de Kafka
@@ -168,6 +180,38 @@ def readTaxiUpdate():
                         taxi.setEstado(True)
 
                     break
+
+def readTaxiMovements():
+    #Crear un consumidor de Kafka
+    consumer = KafkaConsumer('taxiMovements', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    for message in consumer:
+        id, x, y = message.value.decode('utf-8').split()
+        for taxi in TAXIS:
+            if taxi.getId() == int(id):
+                taxi.setCasilla(Casilla(int(x), int(y)))
+                if taxi.getRecogido():
+                    #Tenemos que actualizar la posición del cliente
+                    for cliente in CLIENTES:
+                        if cliente.getId() == taxi.getCliente():
+                            cliente.setPosicion(taxi.getCasilla())
+                            break
+
+                if taxi.getPosCliente() == taxi.getCasilla():
+                    taxi.setRecogido(True)
+
+                if taxi.getDestino() == taxi.getCasilla():
+                    #El cliente ya ha llegado y tenemos que actualizar todos los datos
+                    for cliente in CLIENTES:
+                        if cliente.getId() == taxi.getCliente():
+                            cliente.setDestino(None)
+                            break
+
+                    taxi.setOcupado(False)
+                    taxi.setRecogido(False)
+                    taxi.setCliente(None)
+
+                break
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -199,32 +243,17 @@ def main():
     #Leer las actualizaciones de los taxis
     taxiUpdate_thread = threading.Thread(target=readTaxiUpdate)
     taxiUpdate_thread.start()
+
+    #Leer los movimientos de los taxis
+    taxiMovement_thread = threading.Thread(target=readTaxiMovements)
+    taxiMovement_thread.start()
     
     auth_thread.join()
     map_thread.join()
     clients_thread.join()
     services_thread.join()
     taxiUpdate_thread.join()
-
-    #print(mapa.cadenaMapa(LOCALIZACIONES, TAXIS, CLIENTES))
-
-    '''
-    # Crear el productor y consumidor de Kafka
-    bootstrap_server = f"{sys.argv[2]}:{sys.argv[3]}"
-    producer = createProducer(bootstrap_server)
-    consumer = createConsumer("service_requests", "central_group", bootstrap_server)
-
-
-    # Iniciar el hilo para enviar el mapa
-    mapa_thread = threading.Thread(target=sendMap)
-    mapa_thread.start()
-
-    
-
-    # Manejar Kafka en el hilo principal
-    handle_kafka_messages()
-    '''
-
+    taxiMovement_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":
