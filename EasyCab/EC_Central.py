@@ -9,6 +9,7 @@ import threading
 import time
 import pickle
 import os
+import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -23,15 +24,13 @@ CLIENTES = []
 
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
-    with open("map_config.txt", "r") as file:
-        for linea in file:
-            linea = linea.strip()
-            if linea:
-                partes = linea.split()
-                id = partes[0]
-                x = int(partes[1])
-                y = int(partes[2])
-                localizaciones[id] = Casilla(x, y)
+    with open("EC_locations.json", "r") as file:
+        data = json.load(file)
+        for item in data['locations']:
+            id = item['Id']
+            pos = item['POS']
+            x, y = map(int, pos.split(','))
+            localizaciones[id] = Casilla(x, y)
 
 def leerTaxis(taxis):
     with open("taxis.txt", "r") as file:
@@ -59,14 +58,29 @@ def autheticate_taxi():
             if id in TAXIS_DISPONIBLES:
                 #Creamos el objeto taxi
                 taxi = Taxi(id)
+                taxi.setCasilla(Casilla(1, 1))
                 #Borramos el taxi de la lista de taxis disponibles
                 TAXIS_DISPONIBLES.remove(id)
-
-                #cComprobamos que la posicion del taxi no esta ocupada por otro taxi
-                for t in TAXIS:
-                    if t.getX() == 1 and t.getY() == 1:
-                        t.setCasilla(Casilla(2,1))
-                        break
+                ocupada = True
+                while ocupada:
+                    ocupada = False
+                    for t in TAXIS:
+                        if t.getCasilla() == taxi.getCasilla():
+                            # Intentar mover en la dirección X primero
+                            nueva_x = taxi.getCasilla().getX() + 1
+                            nueva_y = taxi.getCasilla().getY()
+                            
+                            # Si la nueva posición en X está ocupada, intentar mover en la dirección Y
+                            while any(t.getCasilla() == Casilla(nueva_x, nueva_y) for t in TAXIS):
+                                nueva_x += 1
+                                if nueva_x == 20:
+                                    nueva_x = 1
+                                    nueva_y += 1
+                            
+                            taxi.setCasilla(Casilla(nueva_x, nueva_y))
+                            ocupada = True
+                            break
+    
 
                 #Añadimos el taxi a la lista de taxis
                 TAXIS.append(taxi)
