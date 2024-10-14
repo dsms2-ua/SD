@@ -172,7 +172,7 @@ def serviceRequest():
 
                 #Mandamos el objeto servicio
                 producer.send('service_assigned_taxi', pickle.dumps(servicio))
-
+                break
         #Si no hay taxis disponibles, informamos al cliente
         if not asignado:
             producer.send('service_assigned', value = f"{servicio.getCliente()} KO".encode('utf-8'))
