@@ -200,12 +200,16 @@ def readTaxiMovements():
                 if taxi.getPosCliente() == taxi.getCasilla():
                     taxi.setRecogido(True)
 
-                if taxi.getDestino() == taxi.getCasilla():
+                if taxi.getPosDestino() == taxi.getCasilla():
                     #El cliente ya ha llegado y tenemos que actualizar todos los datos
                     for cliente in CLIENTES:
                         if cliente.getId() == taxi.getCliente():
                             cliente.setDestino(None)
                             break
+                    
+                    #Tengo que notificar al cliente que ha llegado a la posición y puedo procesar la siguiente petición
+                    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+                    producer.send('service_completed', value = f"{taxi.getCliente()} OK".encode('utf-8'))
 
                     taxi.setOcupado(False)
                     taxi.setRecogido(False)

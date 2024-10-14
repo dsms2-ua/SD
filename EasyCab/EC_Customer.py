@@ -38,6 +38,28 @@ def receiveService(id):
                 #El servicio no se ha podido asignar
                 print("No se ha podido asignar el servicio. Inténtalo más tarde.")
 
+def services(id):
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+    consumer = KafkaConsumer('service_completed', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+
+    completed = False #Nos marca si el servicio ha sido completado
+    #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
+    with open("servicios.txt", "r") as file:
+        for line in file:
+            producer.send('service_requests', value = f"{id} {line}".encode('utf-8'))
+
+            while not completed:
+                for message in consumer:
+                    data = message.value.decode('utf-8').split()
+                    #Comprobamos que el mensaje es para nosotros
+                    if data[0] == id:
+                        #El viaje se ha completado y puedo procesar el siguiente
+                        completed = True
+                        time.sleep(4)
+                        break
+                        
+
+
 
 def main():
     if len(sys.argv) != 4:
@@ -60,17 +82,13 @@ def main():
     service_thread = threading.Thread(target=receiveService, args=(id, ))
     service_thread.start()
 
-    #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
-    with open("servicios.txt", "r") as file:
-        for line in file:
-            producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
-            producer.send('service_requests', value = f"{id} {line}".encode('utf-8'))
-            time.sleep(100)
-            #Aquí tiene que esperar hasta que acabe el servicio y se le asigne otro
-            break #Este break está puesto de prueba
+    #Creamos el hilo que envía los servicios
+    services_thread = threading.Thread(target=services, args=(id, ))
+    services_thread.start()
 
     map_thread.join()
     service_thread.join()
+    services_thread.join()
 
 if __name__ == "__main__":
     main()
