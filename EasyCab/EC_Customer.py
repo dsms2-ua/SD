@@ -8,6 +8,7 @@ import threading
 import time
 import os
 import pickle
+import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -44,19 +45,24 @@ def services(id):
 
     completed = False #Nos marca si el servicio ha sido completado
     #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
-    with open("servicios.txt", "r") as file:
-        for line in file:
-            producer.send('service_requests', value = f"{id} {line}".encode('utf-8'))
+    with open("EC_Requests.json", "r") as file:
+        data = json.load(file)
+        for request in data['Requests']:
+            request_id = request['Id']
+            producer.send('service_requests', value=f"{id} {request_id}".encode('utf-8'))
 
             while not completed:
                 for message in consumer:
                     data = message.value.decode('utf-8').split()
-                    #Comprobamos que el mensaje es para nosotros
+                    # Comprobamos que el mensaje es para nosotros
                     if data[0] == id:
-                        #El viaje se ha completado y puedo procesar el siguiente
+                        # El viaje se ha completado y puedo procesar el siguiente
                         completed = True
                         time.sleep(4)
                         break
+                if completed:
+                    completed = False  # Reset completed for the next request
+                    break
                         
 
 
