@@ -13,6 +13,7 @@ import os
 from Clases import *
 
 operativo = True
+estado="Esperando asignación"
 
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
@@ -39,6 +40,7 @@ def authenticateTaxi():
         return False
     
 def receiveMap():
+    global estado
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -46,13 +48,16 @@ def receiveMap():
     for message in consumer:
         mapa = pickle.loads(message.value)
         #os.system('cls')
-        print(mapa.cadenaMapaTaxi(str(sys.argv[5])))
+        cadena = f"\n{Back.WHITE}{Fore.BLACK}{estado}{Style.RESET_ALL}"
+        print(mapa.cadenaMapaTaxi(str(sys.argv[5])) + cadena)
 
 def handleAlerts(client_socket, producer, id):
     global operativo
+    global estado
     while True:
         data = client_socket.recv(1024).decode('utf-8')
         if data == "KO":
+            estado = "Taxi parado por avería"
             #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
             producer.send('taxiUpdate', value = f"{id} KO".encode('utf-8'))
             if operativo:
@@ -83,6 +88,7 @@ def receiveServices(id):
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
+    global estado
     #Creamos el producer de Kafka para mandar los movimientos
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -95,13 +101,13 @@ def receiveServices(id):
 
             #creamos producer de Kafka para notificar al cliente de la asignacion con el topic taxi_assigned
             producer.send('taxi_assigned', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
-
+            
             origen = servicio.getOrigen()
             destino = servicio.getPosDestino()
             posCliente = servicio.getPosCliente()
 
             Pos = origen
-
+            estado = f"Yendo a recoger al cliente {servicio.getCliente()}"
             recogido = False
             while not recogido:
                 if operativo:
@@ -111,6 +117,7 @@ def receiveServices(id):
                         recogido = True
                     time.sleep(1)
 
+            estado = f"Cliente {servicio.getCliente()} recogido, yendo a {servicio.getDestino()}"
             producer.send('picked_up', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
             llegada = False
@@ -121,7 +128,7 @@ def receiveServices(id):
                     if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
                         llegada = True
                     time.sleep(1)
-
+            estado = f"Servicio completado. Esperando asignación"
             producer.send('arrived', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
 def main():
@@ -132,7 +139,6 @@ def main():
     #Autenticamos con sockets la existencia del taxi
     if not authenticateTaxi():
         return
-
     ID = int(sys.argv[5])
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa

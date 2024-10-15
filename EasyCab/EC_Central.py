@@ -243,7 +243,6 @@ def readTaxiMovements():
                     taxi.setOcupado(False)
                     taxi.setRecogido(False)
                     taxi.setCliente(None)
-
                 break
 
 def main():
@@ -255,7 +254,6 @@ def main():
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
     leerTaxis(TAXIS_DISPONIBLES)
-   
 
     # Iniciar el servidor de autenticación en un hilo
     auth_thread = threading.Thread(target=autheticate_taxi)
