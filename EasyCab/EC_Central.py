@@ -189,7 +189,7 @@ def serviceRequest():
                     time.sleep(3)
 
         if not asignado:
-            producer.send('service_assigned', value=f"{servicio.getCliente()} KO".encode('utf-8'))
+            producer.send('service_completed', value=f"{servicio.getCliente()} KO".encode('utf-8'))
 
             
 def readTaxiUpdate():

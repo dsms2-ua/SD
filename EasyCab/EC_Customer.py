@@ -83,10 +83,10 @@ def services(id):
                     data = message.value.decode('utf-8').split()
                     # Comprobamos que el mensaje es para nosotros
                     if data[0] == id:
-                        # El viaje se ha completado y puedo procesar el siguiente
-                        completed = True
-                        time.sleep(4)
-                        break
+                            # El viaje se ha completado y puedo procesar el siguiente
+                            completed = True
+                            time.sleep(4)
+                            break
                 if completed:
                     completed = False  # Reset completed for the next request
                     break
