@@ -12,15 +12,36 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
+taxi_updates = ""
+
 def receiveMap():
+    global taxi_updates
      #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        os.system('cls')
-        print(mapa.cadenaMapaCustomer(str(sys.argv[3])))
+        #os.system('cls')
+        cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
+        print(cadena)
+
+def receiveTaxiUpdates():
+    global taxi_updates
+    # Creamos el consumer de Kafka para los topics taxi_assigned, picked_up, y arrived
+    consumer = KafkaConsumer('taxi_assigned', 'picked_up', 'arrived', bootstrap_servers=f'{sys.argv[1]}:{sys.argv[2]}')
+    # Recibimos las actualizaciones del taxi
+    for message in consumer:
+        topic = message.topic
+        taxi, cliente, destino = message.value.decode('utf-8').split()
+        print(f"Taxi: {taxi}, Cliente: {cliente}, Destino: {destino}, topic: {topic}")
+        if cliente == sys.argv[3]:
+            if topic == 'taxi_assigned':
+                taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Taxi {taxi} asignado al cliente {cliente} para ir a {destino}{Style.RESET_ALL}"
+            elif topic == 'picked_up':
+                taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Pasajero recogido. Taxi {taxi} yendo a {destino}{Style.RESET_ALL}"
+            elif topic == 'arrived':
+                taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Has llegado a su destino{Style.RESET_ALL}"
 
 def receiveService(id):
     #Creamos el consumer de Kafka
@@ -38,6 +59,7 @@ def receiveService(id):
             else:
                 #El servicio no se ha podido asignar
                 print("No se ha podido asignar el servicio. Inténtalo más tarde.")
+
 
 def services(id):
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
@@ -92,9 +114,13 @@ def main():
     services_thread = threading.Thread(target=services, args=(id, ))
     services_thread.start()
 
+    taxi_thread = threading.Thread(target=receiveTaxiUpdates)
+    taxi_thread.start()
+
     map_thread.join()
     service_thread.join()
     services_thread.join()
+    taxi_thread.join()
 
 if __name__ == "__main__":
     main()

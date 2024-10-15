@@ -91,7 +91,12 @@ def receiveServices(id):
         #Sólo podemos procesar los mensajes dirigidos a nosotros
         servicio = pickle.loads(message.value)
 
+
         if int(servicio.getTaxi()) == id:            
+
+            #creamos producer de Kafka para notificar al cliente de la asignacion con el topic taxi_assigned
+            producer.send('taxi_assigned', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
+
             origen = servicio.getOrigen()
             destino = servicio.getPosDestino()
             posCliente = servicio.getPosCliente()
@@ -107,6 +112,8 @@ def receiveServices(id):
                         recogido = True
                     time.sleep(1)
 
+            producer.send('picked_up', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
+
             llegada = False
             while not llegada:
                 if operativo:
@@ -115,6 +122,8 @@ def receiveServices(id):
                     if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
                         llegada = True
                     time.sleep(1)
+
+            producer.send('arrived', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
 def main():
     #Comprobamos que los argumetos sean correctos
