@@ -29,12 +29,15 @@ def receiveMap():
 def receiveTaxiUpdates():
     global taxi_updates
     # Creamos el consumer de Kafka para los topics taxi_assigned, picked_up, y arrived
-    consumer = KafkaConsumer('taxi_assigned', 'picked_up', 'arrived', bootstrap_servers=f'{sys.argv[1]}:{sys.argv[2]}')
+    consumer = KafkaConsumer('taxi_assigned', 'picked_up', 'arrived', 'client_service', bootstrap_servers=f'{sys.argv[1]}:{sys.argv[2]}')
     # Recibimos las actualizaciones del taxi
     for message in consumer:
         topic = message.topic
-        taxi, cliente, destino = message.value.decode('utf-8').split()
-        print(f"Taxi: {taxi}, Cliente: {cliente}, Destino: {destino}, topic: {topic}")
+        if(topic == 'client_service'):
+            cliente, destino = message.value.decode('utf-8').split()
+        else:
+            taxi, cliente, destino = message.value.decode('utf-8').split()
+        
         if cliente == sys.argv[3]:
             if topic == 'taxi_assigned':
                 taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Taxi {taxi} asignado al cliente {cliente} para ir a {destino}{Style.RESET_ALL}"
@@ -42,6 +45,8 @@ def receiveTaxiUpdates():
                 taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Pasajero recogido. Taxi {taxi} yendo a {destino}{Style.RESET_ALL}"
             elif topic == 'arrived':
                 taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Has llegado a su destino{Style.RESET_ALL}"
+            elif topic == 'client_service':
+                taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Solicitud de servicio a destino {destino}{Style.RESET_ALL}"
 
 def receiveService(id):
     #Creamos el consumer de Kafka

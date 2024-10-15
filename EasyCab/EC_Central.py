@@ -128,14 +128,20 @@ def readClients():
 
         CLIENTES.append(client)
 
+
 def serviceRequest():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('service_requests', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    #crear productor de Kafka
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Recibir los clientes
     for message in consumer:
         #Cogemos el mensaje y creamos el objeto servicio
         id, destino = message.value.decode('utf-8').split()
         servicio = Servicio(id, destino)
+
+        #Enviamos con el producer el cliente que ha solicitado un servicio
+        producer.send('client_service', value = f"{id} {destino}".encode('utf-8'))
 
         #Iteramos sobre la lista de clientes activos para obtener la posición del cliente
         for cliente in CLIENTES:
@@ -146,37 +152,46 @@ def serviceRequest():
                     if loc == destino:
                         servicio.setPosDestino(LOCALIZACIONES[loc])
 
-        print(f"Cliente {servicio.getCliente()} solicita un taxi")
-
-        asignado = False
-        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+        print(f"Cliente {servicio.getCliente()} solicita un taxi")        
         #Buscamos un taxi libre
-        for taxi in TAXIS:
-            if not taxi.getOcupado():
-                servicio.setOrigen(taxi.getCasilla())
-                servicio.setTaxi(taxi.getId())
+        asignado = False
+        intentos = 0
+        max_intentos = 3
 
-                asignado = True
-                taxi.setOcupado(True)
-                taxi.setCliente(servicio.getCliente())
-                taxi.setOrigen(taxi.getCasilla()) #Desde donde partimos
-                taxi.setPosCliente(servicio.getPosCliente()) #Desde donde parte el cliente
-                taxi.setDestino(servicio.getDestino()) #A donde va el cliente
+        while not asignado and intentos < max_intentos:
+            for taxi in TAXIS:
+                if not taxi.getOcupado():
+                    servicio.setOrigen(taxi.getCasilla())
+                    servicio.setTaxi(taxi.getId())
 
-                for loc in LOCALIZACIONES:
-                    if loc == destino:
-                        taxi.setPosDestino(LOCALIZACIONES[loc])
+                    asignado = True
+                    taxi.setOcupado(True)
+                    taxi.setCliente(servicio.getCliente())
+                    taxi.setOrigen(taxi.getCasilla()) # Desde donde partimos
+                    taxi.setPosCliente(servicio.getPosCliente()) # Desde donde parte el cliente
+                    taxi.setDestino(servicio.getDestino()) # A donde va el cliente
 
-                print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
-                producer.send('service_assigned_client', value = f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
+                    for loc in LOCALIZACIONES:
+                        if loc == servicio.getDestino():
+                            taxi.setPosDestino(LOCALIZACIONES[loc])
 
-                #Mandamos el objeto servicio
-                producer.send('service_assigned_taxi', pickle.dumps(servicio))
-                break
-        #Si no hay taxis disponibles, informamos al cliente
+                    print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
+                    producer.send('service_assigned_client', value=f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
+
+                    # Mandamos el objeto servicio
+                    producer.send('service_assigned_taxi', pickle.dumps(servicio))
+                    break
+
+            if not asignado:
+                intentos += 1
+                if intentos < max_intentos:
+                    print(f"Intento {intentos} fallido. Reintentando en 3 segundos...")
+                    time.sleep(3)
+
         if not asignado:
-            producer.send('service_assigned', value = f"{servicio.getCliente()} KO".encode('utf-8'))
+            producer.send('service_assigned', value=f"{servicio.getCliente()} KO".encode('utf-8'))
 
+            
 def readTaxiUpdate():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
