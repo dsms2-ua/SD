@@ -45,8 +45,8 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        os.system('cls')
-        print(mapa.cadenaMapa())
+        #os.system('cls')
+        print(mapa.cadenaMapaTaxi(str(sys.argv[5])))
 
 def handleAlerts(client_socket, producer, id):
     global operativo
@@ -90,7 +90,6 @@ def receiveServices(id):
     for message in consumer:
         #Sólo podemos procesar los mensajes dirigidos a nosotros
         servicio = pickle.loads(message.value)
-
 
         if int(servicio.getTaxi()) == id:            
 

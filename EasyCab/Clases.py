@@ -14,6 +14,66 @@ class Mapa:
 
     from colorama import Fore, Back, Style
 
+    # Método para generar el mapa del taxista
+    def cadenaMapaTaxi(self,idTaxi):
+        mapa_str = ""
+        print("ID TAXI: ",idTaxi)
+        # Índices de las columnas en la parte superior
+        mapa_str += "   "  # Espacio para el índice de las filas    
+        for col in range(1, self.ancho + 1):
+            mapa_str += f"{Back.LIGHTBLACK_EX}{col:2} {Style.RESET_ALL} "
+        mapa_str += "\n"
+
+        for i in range(1, self.alto + 1):
+            # Índice de fila en el lado izquierdo
+            mapa_str += f"{Back.LIGHTBLACK_EX}{i:2}{Style.RESET_ALL}|"
+
+            for j in range(1, self.ancho + 1):
+                isPos = False
+                isTaxi = False
+                isCliente = False
+
+                # Comprobamos si hay una posición
+                for pos in self.posiciones:
+                    if self.posiciones[pos].getX() == j and self.posiciones[pos].getY() == i:
+                        mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
+                        isPos = True
+                        break
+
+                if not isPos:
+                    for taxi in self.taxis:
+                        if taxi.getX() == j and taxi.getY() == i and str(taxi.getId()) == idTaxi:
+                            isTaxi = True
+                            # Cambiamos el color del fondo según el estado del taxi
+                            if not taxi.getEstado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
+                            elif not taxi.getOcupado():
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                            elif taxi.getOcupado() and not taxi.getRecogido():
+                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
+                            elif taxi.getOcupado() and taxi.getRecogido():
+                                mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                            break  
+                             
+                if not isPos and not isTaxi and taxi.getOcupado():
+                    for cliente in self.clientes:
+                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and str(cliente.getId()) == taxi.getCliente():
+                            mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
+                            isCliente = True
+                            break
+                
+                # Si no hay ningún elemento, añadimos un espacio con fondo blanco
+                if not isPos and not isTaxi and not isCliente:
+                    mapa_str += Back.WHITE + " . " + Style.RESET_ALL
+
+                # Añadir separador vertical entre las celdas
+                mapa_str += "|"
+
+            # Salto de línea al final de cada fila con separador horizontal
+            mapa_str += "\n"
+
+        return mapa_str
+
     # Método para generar el mapa del cliente, en el que solo aparece su taxi asignado y las posiciones
     def cadenaMapaCustomer(self,idCustomer):
         mapa_str = ""
