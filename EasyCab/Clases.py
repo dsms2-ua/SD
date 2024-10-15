@@ -490,17 +490,25 @@ def moverTaxi(actual, objetivo):
 
     #Determinamos la dirección del movimiento en X
     if distX > 0:
-        nuevoX = (actualX + 1) % 20
+        nuevoX = actualX + 1
+        if nuevoX > 20:
+            nuevoX = 1
     elif distX < 0:
-        nuevoX = (actualX - 1) % 20
+        nuevoX = actualX - 1
+        if nuevoX < 1:
+            nuevoX = 20
     else:
         nuevoX = actualX
 
-    #Hacemos lo mismo con el eje Y
+    # Hacemos lo mismo con el eje Y
     if distY > 0:
-        nuevoY = (actualY + 1) % 20
+        nuevoY = actualY + 1
+        if nuevoY > 20:
+            nuevoY = 1
     elif distY < 0:
-        nuevoY = (actualY - 1) % 20
+        nuevoY = actualY - 1
+        if nuevoY < 1:
+            nuevoY = 20
     else:
         nuevoY = actualY
 
