@@ -10,6 +10,8 @@ import time
 import pickle
 import os
 import json
+import subprocess
+import keyboard
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -245,6 +247,62 @@ def readTaxiMovements():
                     taxi.setCliente(None)
                 break
 
+def handleCommands():
+        
+        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+        while True:
+            command = input("Ingrese un comando (parar, reanudar, ir_a_destino, volver_a_base): ").strip().lower()
+            taxi_id = input("Ingrese el ID del taxi: ").strip()
+
+            if command == "parar":
+                for taxi in TAXIS:
+
+                    if str(taxi.getId()) == taxi_id:
+                        taxi.setEstado(False)
+                        print(f"Taxi {taxi_id} ha parado.")
+                        producer.send('taxi_commands', value = f"{taxi_id} KO".encode('utf-8'))
+                        break
+            elif command == "reanudar":
+                for taxi in TAXIS:
+                    if taxi.getId() == int(taxi_id):
+                        taxi.setEstado(True)
+                        print(f"Taxi {taxi_id} ha reanudado el servicio.")
+                        producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
+                        break
+            elif command == "ir_a_destino":
+                destino_x = int(input("Ingrese la coordenada X del destino: ").strip())
+                destino_y = int(input("Ingrese la coordenada Y del destino: ").strip())
+                for taxi in TAXIS:
+                    if taxi.getId() == int(taxi_id):
+                        taxi.setDestino(Casilla(destino_x, destino_y))
+                        producer.send('taxi_commands', value = f"{taxi_id} {destino_x} {destino_y}".encode('utf-8'))
+                        print(f"Taxi {taxi_id} se dirige a ({destino_x}, {destino_y}).")
+                        break
+            elif command == "volver_a_base":
+                for taxi in TAXIS:
+                    if taxi.getId() == int(taxi_id):
+                        taxi.setDestino(Casilla(1, 1))
+                        producer.send('taxi_commands', value = f"{taxi_id} {1} {1}".encode('utf-8'))
+                        print(f"Taxi {taxi_id} vuelve a la base (1, 1).")
+                        break
+            else:
+                print("Comando no reconocido.")
+
+def open_command_terminal():
+    path = os.getcwd().replace("\\", "\\\\")
+    if sys.platform == "win32":
+        subprocess.Popen(["start", "cmd", "/k", "python", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands()'], shell=True)
+    else:
+        subprocess.Popen(["gnome-terminal", "--", "python3", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands()'])
+
+
+def leerTeclado():
+    while True:
+        if keyboard.is_pressed('t'):
+            open_command_terminal()
+            time.sleep(5)
+
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
@@ -278,6 +336,10 @@ def main():
     #Leer los movimientos de los taxis
     taxiMovement_thread = threading.Thread(target=readTaxiMovements)
     taxiMovement_thread.start()
+
+    teclado_thread = threading.Thread(target=leerTeclado)
+    teclado_thread.daemon = True
+    teclado_thread.start()
     
     auth_thread.join()
     map_thread.join()
@@ -285,6 +347,7 @@ def main():
     services_thread.join()
     taxiUpdate_thread.join()
     taxiMovement_thread.join()
+    teclado_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":
