@@ -24,6 +24,8 @@ TAXIS = []
 #Lista de clientes
 CLIENTES = []
 
+stop_threads = False
+
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
     with open("EC_locations.json", "r") as file:
@@ -47,7 +49,7 @@ def autheticate_taxi():
     server_socket.bind(('localhost', int(sys.argv[1])))
     server_socket.listen(5)
 
-    while True:
+    while not stop_threads:
         #Permitimos la conexión y recibimos los datos
         client, addr = server_socket.accept()
 
@@ -107,7 +109,7 @@ def sendMap():
     #Añadimos el mapa
 
     mapa = Mapa(LOCALIZACIONES, TAXIS, CLIENTES)
-    while True:
+    while not stop_threads:
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES)
@@ -198,7 +200,7 @@ def readTaxiUpdate():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Recibir los clientes
-    while True:
+    while not stop_threads:
         for message in consumer:
             id, estado = message.value.decode('utf-8').split() 
             for taxi in TAXIS:
@@ -247,11 +249,18 @@ def readTaxiMovements():
                     taxi.setCliente(None)
                 break
 
-def handleCommands():
-        
-        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+def handleCommands(producer):
+        #Enviamos el productor por comandos
+        #producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
 
-        while True:
+        while not stop_threads:
+            print("Órdenes disponibles:")
+            print("1. Parar")
+            print("2. Reanudar")
+            print("3. Ir a destino")
+            print("4. Volver a base")
+            
+            
             command = input("Ingrese un comando (parar, reanudar, ir_a_destino, volver_a_base): ").strip().lower()
             taxi_id = input("Ingrese el ID del taxi: ").strip()
 
@@ -298,10 +307,12 @@ def open_command_terminal():
 
 
 def leerTeclado():
-    while True:
+    global stop_threads
+    while not stop_threads:
         if keyboard.is_pressed('t'):
-            open_command_terminal()
+            stop_threads = True
             time.sleep(5)
+    
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -336,6 +347,9 @@ def main():
     #Leer los movimientos de los taxis
     taxiMovement_thread = threading.Thread(target=readTaxiMovements)
     taxiMovement_thread.start()
+    
+    #Iniciar la terminal que lee los comandos
+    open_command_terminal()
 
     teclado_thread = threading.Thread(target=leerTeclado)
     teclado_thread.daemon = True

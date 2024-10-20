@@ -4,19 +4,27 @@ import threading
 import sys
 
 OK = True
+id = 0
 
 def sendOk(socket_server):
     global OK
-    #Cada segundo mandamos un OK al Digital Engine
+    global id
+    #Mandamos primero un mensaje diciendo que somos el sensor
+    socket_server.send("SENSOR".encode('utf-8'))
+    #Recibimos el ID
+    id = socket_server.recv(1024).decode('utf-8')
+    #Cada segundo mandamos un OK al Digital Engine con nuestro ID
     while True:
         if OK:
-            socket_server.send("OK".encode('utf-8'))
+            socket_server.send(f"{id} OK".encode('utf-8'))
         else:
-            socket_server.send("KO".encode('utf-8'))
+            socket_server.send(f"{id} KO".encode('utf-8'))
         time.sleep(1)
 
 def sendAlert():
     global OK
+    #Cuando nos conectamos por primera vez, se nos asigna un ID y luego lo utilizamos para mandar el mensaje
+    
     #Si presionamos cualquier tecla se envía un mensaje
     while True:
         input("Presiona cualquier tecla para parar el taxi: ")

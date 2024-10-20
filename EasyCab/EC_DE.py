@@ -14,6 +14,7 @@ from Clases import *
 
 operativo = True
 estado="Esperando asignación"
+sensores = {} #Aquí guardamos los sensores y su estado
 
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
@@ -39,6 +40,16 @@ def authenticateTaxi():
         client_socket.close()
         return False
     
+def sensoresStates():
+    global sensores
+    global operativo
+    while True:
+        for sensor in sensores:
+            if operativo and not sensores[sensor]:
+                operativo = False
+                estado = "Taxi parado por sensores"
+            
+    
 def receiveMap():
     global estado
     #Creamos el consumer de Kafka
@@ -48,6 +59,14 @@ def receiveMap():
     for message in consumer:
         mapa = pickle.loads(message.value)
         #os.system('cls')
+        #Vamos a imprimir el estado de todos los sensores también
+        print("Sensores         |         Estado")
+        for sensor in sensores:
+            print(f"   {sensor}             |           ", end="")
+            if sensores[sensor] == False:
+                print(f"{Fore.RED}KO{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.GREEN}OK{Style.RESET_ALL}")
         cadena = f"\n{Back.WHITE}{Fore.BLACK}{estado}{Style.RESET_ALL}"
         print(mapa.cadenaMapaTaxi(str(sys.argv[5])) + cadena)
 
@@ -56,16 +75,27 @@ def handleAlerts(client_socket, producer, id):
     global estado
     while True:
         data = client_socket.recv(1024).decode('utf-8')
-        if data == "KO":
-            estado = "Taxi parado por avería"
-            #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
-            producer.send('taxiUpdate', value = f"{id} KO".encode('utf-8'))
-            if operativo:
-                operativo = False
-        else:
-            producer.send('taxiUpdate', value = f"{id} OK".encode('utf-8'))
-            if not operativo:
-                operativo = True
+        if len(data.split()) == 1:
+            sensor = len(sensores) + 1
+            est = data.split()[0]
+            sensores[sensor] = est
+            
+            client_socket.send(f"{sensor}".encode('utf-8'))
+        if len(data.split()) == 2:
+            sensor = int(data.split()[0])
+            est = data.split()[1]
+            
+            if est == "KO":
+                sensores[sensor] = False
+                #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
+                producer.send('taxiUpdate', value = f"{id} KO".encode('utf-8'))
+                if operativo:
+                    operativo = False
+            else:
+                sensores[sensor] = True
+                producer.send('taxiUpdate', value = f"{id} OK".encode('utf-8'))
+                if not operativo:
+                    operativo = True
 
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
@@ -153,6 +183,7 @@ def main():
     #Comprobamos que los argumetos sean correctos
     if len(sys.argv) != 6:
         print("Error: Usage python EC_DE.py Central_IP Central_Port Bootstrap_IP Bootstrap_Port Taxi_ID")
+        return -1
 
     #Autenticamos con sockets la existencia del taxi
     if not authenticateTaxi():
