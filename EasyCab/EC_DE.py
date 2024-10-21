@@ -126,12 +126,21 @@ def sendAlerts(id):
         client_handler = threading.Thread(target=handleAlerts, args=(client, producer, id))
         client_handler.start()
 
-        
+def irA(destino,inicial):
+    # Implement the logic to move the taxi to the destination
+    #inicializamos pos a la posición del taxi
+    
+    pos = Casilla(int(inicial.split(",")[0]), int(inicial.split(",")[1]))
+    while pos.getX() != destino.getX() or pos.getY() != destino.getY():
+        pos = moverTaxi(pos, destino)
+        time.sleep(1)
+    estado = "Esperando asignación"
+
+
 def process_commands():
     global operativo
     # Configurar el consumidor de Kafka
     consumer = KafkaConsumer('taxi_orders', bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
-
     # Recibir los mensajes
     for message in consumer:
         data = message.value.decode('utf-8').split()
@@ -142,8 +151,12 @@ def process_commands():
                     operativo = False
                 elif data[1] == "OK":
                     operativo = True
-            
-        
+                #recibimos en data[1] el destino al que tenemos que ir
+                else:
+                    #creamos una casilla con las coordenadas del destino
+                    destino = Casilla(int(data[1].split(",")[0]), int(data[1].split(",")[1]))
+                    irA(destino, data[2])
+
 def receiveServices(id):
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')

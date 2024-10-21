@@ -164,7 +164,7 @@ def serviceRequest():
 
         while not asignado and intentos < max_intentos:
             for taxi in TAXIS:
-                if not taxi.getOcupado():
+                if not taxi.getOcupado() and taxi.getEstado():
                     servicio.setOrigen(taxi.getCasilla())
                     servicio.setTaxi(taxi.getId())
 
@@ -268,6 +268,8 @@ def receiveCommand():
             for taxi in TAXIS:
                 if taxi.getId() == int(taxi_id):
                     taxi.setEstado(False)
+                    taxi.setCliente(None)
+                    taxi.setOcupado(False)
                     producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
                     break
         elif action == "OK":
@@ -304,11 +306,24 @@ def handleCommands(ip,port):
             elif command == "2":
                 producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
             elif command == "3":
-                destino = input("Ingrese el destino (x,y): ")
-                producer.send('taxi_commands', value = f"{taxi_id} {destino}".encode('utf-8'))
+                print("Taxis disponibles:")
+                for taxi in TAXIS:
+                    print(taxi.getId())
+                    if int(taxi.getId()) == int(taxi_id):
+                        print("siuu")
+                        inicialX = taxi.getCasilla().getX()
+                        inicialY = taxi.getCasilla().getY()
+                        break
+                destino = input("Ingrese el destino x,y: ")
+                producer.send('taxi_commands', value = f"{taxi_id} {destino} {inicialX} {inicialY}".encode('utf-8'))
             elif command == "4":
+                for taxi in TAXIS:
+                    if taxi.getId() == int(taxi_id):
+                        inicialX = taxi.getCasilla().getX()
+                        inicialY = taxi.getCasilla().getY()
+                        break
                 destino = "1,1"
-                producer.send('taxi_commands', value = f"{taxi_id} {destino}".encode('utf-8'))
+                producer.send('taxi_commands', value = f"{taxi_id} {destino} {inicialX} {inicialY}".encode('utf-8'))
             else:
                 print("Comando no válido")
                 continue
