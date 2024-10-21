@@ -249,10 +249,62 @@ def readTaxiMovements():
                     taxi.setCliente(None)
                 break
 
-def handleCommands():
-        #Enviamos el productor por comandos
-        #producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+def receiveCommand():
+    
+    #creamos consumer dekafka
+    consumer = KafkaConsumer('taxi_commands', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
 
+    #creamos producer de Kafka
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    for message in consumer:
+        command = message.value.decode('utf-8').split()
+        taxi_id = command[0]
+        action = command[1]
+
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        print(f"Taxi {taxi_id} ha recibido la orden {action}")
+        
+
+        if action == "KO":
+            for taxi in TAXIS:
+                if taxi.getId() == int(taxi_id):
+                    taxi.setEstado(False)
+                    producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
+                    break
+        elif action == "OK":
+            for taxi in TAXIS:
+                if taxi.getId() == int(taxi_id):
+                    taxi.setEstado(True)
+                    producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
+                    break
+        else:
+            for taxi in TAXIS:
+                if taxi.getId() == int(taxi_id):
+                    producer.send('taxi_orders', value = f"{taxi_id} {action}".encode('utf-8'))
+                    break     
+
+def handleCommands(ip,port):
+        
+        #Enviamos el productor por comandos
+        from kafka import KafkaProducer
+
+        producer = KafkaProducer(bootstrap_servers=f'{ip}:{port}')
+        
         while not stop_threads:
             print("Órdenes disponibles:")
             print("1. Parar")
@@ -260,53 +312,29 @@ def handleCommands():
             print("3. Ir a destino")
             print("4. Volver a base")
             
-            
             command = input("Ingrese una opción : ")
-            print("Estos son los taxis disponibles: ", end = "")
-            for taxi in TAXIS:
-                print(taxi.getId(), end = " ")
             taxi_id = input("Ingrese el ID del taxi: ")
 
-            if command == "parar":
-                for taxi in TAXIS:
-
-                    if str(taxi.getId()) == taxi_id:
-                        taxi.setEstado(False)
-                        print(f"Taxi {taxi_id} ha parado.")
-                        producer.send('taxi_commands', value = f"{taxi_id} KO".encode('utf-8'))
-                        break
-            elif command == "reanudar":
-                for taxi in TAXIS:
-                    if taxi.getId() == int(taxi_id):
-                        taxi.setEstado(True)
-                        print(f"Taxi {taxi_id} ha reanudado el servicio.")
-                        producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
-                        break
-            elif command == "ir_a_destino":
-                destino_x = int(input("Ingrese la coordenada X del destino: ").strip())
-                destino_y = int(input("Ingrese la coordenada Y del destino: ").strip())
-                for taxi in TAXIS:
-                    if taxi.getId() == int(taxi_id):
-                        taxi.setDestino(Casilla(destino_x, destino_y))
-                        producer.send('taxi_commands', value = f"{taxi_id} {destino_x} {destino_y}".encode('utf-8'))
-                        print(f"Taxi {taxi_id} se dirige a ({destino_x}, {destino_y}).")
-                        break
-            elif command == "volver_a_base":
-                for taxi in TAXIS:
-                    if taxi.getId() == int(taxi_id):
-                        taxi.setDestino(Casilla(1, 1))
-                        producer.send('taxi_commands', value = f"{taxi_id} {1} {1}".encode('utf-8'))
-                        print(f"Taxi {taxi_id} vuelve a la base (1, 1).")
-                        break
+            if command == "1":
+                producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
+            elif command == "2":
+                producer.send('taxi_commands', value = f"{taxi_id} KO".encode('utf-8'))
+            elif command == "3":
+                destino = input("Ingrese el destino (x,y): ")
+                producer.send('taxi_commands', value = f"{taxi_id} {destino}".encode('utf-8'))
+            elif command == "4":
+                destino = "1,1"
+                producer.send('taxi_commands', value = f"{taxi_id} {destino}".encode('utf-8'))
             else:
-                print("Comando no reconocido.")
+                print("Comando no válido")
+                continue
 
 def open_command_terminal():
     path = os.getcwd().replace("\\", "\\\\")
     if sys.platform == "win32":
-        subprocess.Popen(["start", "cmd", "/k", "python", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands()'], shell=True)
+        subprocess.Popen(["start", "cmd", "/k", "python", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands("{sys.argv[2]}","{sys.argv[3]}")'], shell=True)
     else:
-        subprocess.Popen(["gnome-terminal", "--", "python3", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands()'])
+        subprocess.Popen(["gnome-terminal", "--", "python3", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands("{sys.argv[2]}","{sys.argv[3]}")'])
 
 
 def leerTeclado():
@@ -355,11 +383,14 @@ def main():
     taxiMovement_thread.start()
     
     #Iniciar la terminal que lee los comandos
-    open_command_terminal(producer)
+    open_command_terminal()
     
     teclado_thread = threading.Thread(target=leerTeclado)
     teclado_thread.daemon = True
     teclado_thread.start()
+
+    receiveCommand_thread = threading.Thread(target=receiveCommand)
+    receiveCommand_thread.start()
     
     auth_thread.join()
     map_thread.join()
@@ -368,6 +399,7 @@ def main():
     taxiUpdate_thread.join()
     taxiMovement_thread.join()
     teclado_thread.join()
+    receiveCommand_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":

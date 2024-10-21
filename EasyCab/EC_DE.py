@@ -128,20 +128,17 @@ def sendAlerts(id):
 def process_commands():
     global operativo
     # Configurar el consumidor de Kafka
-    consumer = KafkaConsumer('taxi_commands', bootstrap_servers=f'{sys.argv[1]}:{sys.argv[2]}')
+    consumer = KafkaConsumer('taxi_orders', bootstrap_servers=f'{sys.argv[1]}:{sys.argv[2]}')
 
+    # Recibir los mensajes
     for message in consumer:
-        command = message.value.decode('utf-8').split()
-        taxi_id = command[0]
-        action = command[1]
-
-        if int(taxi_id) == int(sys.argv[5]):
-            if action == "KO":
+        data = message.value.decode('utf-8').split()
+        if data[0] == sys.argv[5]:
+            if data[1] == "KO":
                 operativo = False
-            elif action == "OK":
+            elif data[1] == "OK":
                 operativo = True
-            else:
-                operativo = False
+            
         
 def receiveServices(id):
     #Creamos el consumer de Kafka

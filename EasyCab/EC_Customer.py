@@ -94,8 +94,6 @@ def services(id):
                     break
                         
 
-
-
 def main():
     if len(sys.argv) != 4:
         print("Uso: python EC_Customer.py <Bootstrap_IP> <Bootstrap_Port> <ID>")
