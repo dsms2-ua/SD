@@ -261,8 +261,11 @@ def handleCommands(producer):
             print("4. Volver a base")
             
             
-            command = input("Ingrese un comando (parar, reanudar, ir_a_destino, volver_a_base): ").strip().lower()
-            taxi_id = input("Ingrese el ID del taxi: ").strip()
+            command = input("Ingrese una opción : ")
+            print("Estos son los taxis disponibles: ", end = "")
+            for taxi in TAXIS:
+                print(taxi.getId(), end = " ")
+            taxi_id = input("Ingrese el ID del taxi: ")
 
             if command == "parar":
                 for taxi in TAXIS:
@@ -308,9 +311,12 @@ def open_command_terminal():
 
 def leerTeclado():
     global stop_threads
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     while not stop_threads:
         if keyboard.is_pressed('t'):
             stop_threads = True
+            #Aquí deberiamos comunicar a los taxis y a los clientes que el sistema se ha parado
+            producer.send('system_stop', value = "STOP".encode('utf-8'))
             time.sleep(5)
     
 

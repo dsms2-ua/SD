@@ -2,6 +2,9 @@ import socket
 import time
 import threading
 import sys
+import keyboard
+
+stop_threads = False
 
 OK = True
 id = 0
@@ -14,7 +17,7 @@ def sendOk(socket_server):
     #Recibimos el ID
     id = socket_server.recv(1024).decode('utf-8')
     #Cada segundo mandamos un OK al Digital Engine con nuestro ID
-    while True:
+    while not stop_threads:
         if OK:
             socket_server.send(f"{id} OK".encode('utf-8'))
         else:
@@ -26,7 +29,7 @@ def sendAlert():
     #Cuando nos conectamos por primera vez, se nos asigna un ID y luego lo utilizamos para mandar el mensaje
     
     #Si presionamos cualquier tecla se envía un mensaje
-    while True:
+    while not stop_threads:
         input("Presiona cualquier tecla para parar el taxi: ")
         OK = False
 
@@ -34,6 +37,13 @@ def sendAlert():
         input("Presiona cualquier tecla para iniciar el taxi: ")
         OK = True
 
+def stopSensor(socket_server):
+    global stop_threads
+    while not stop_threads:
+        if keyboard.is_pressed('Ctrl + C'):
+            stop_threads = True
+            #Comunicamos al Digital Engine que paramos el sensor
+            socket_server.send(f"{id} STOP".encode('utf-8'))
 
 def main():
     #Comprobamos los argumentos

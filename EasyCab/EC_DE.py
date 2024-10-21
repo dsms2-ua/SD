@@ -9,12 +9,16 @@ import time
 from kafka import KafkaProducer, KafkaConsumer
 import pickle
 import socket
+import keyboard
 import os
 from Clases import *
+
+stop_threads = False
 
 operativo = True
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
+centralOperativa = True
 
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
@@ -43,7 +47,7 @@ def authenticateTaxi():
 def sensoresStates():
     global sensores
     global operativo
-    while True:
+    while not stop_threads:
         for sensor in sensores:
             if operativo and not sensores[sensor]:
                 operativo = False
@@ -73,29 +77,34 @@ def receiveMap():
 def handleAlerts(client_socket, producer, id):
     global operativo
     global estado
-    while True:
+    while not stop_threads:
         data = client_socket.recv(1024).decode('utf-8')
+        #Si recibimos el mensaje con solo una palabra, es de conexion
         if len(data.split()) == 1:
-            sensor = len(sensores) + 1
+            sensor = sensores[len(sensores) - 1] + 1
             est = data.split()[0]
             sensores[sensor] = est
             
             client_socket.send(f"{sensor}".encode('utf-8'))
+        
+        #Si recibimos el mensaje con dos palabras, es de estado  
         if len(data.split()) == 2:
             sensor = int(data.split()[0])
-            est = data.split()[1]
-            
+            est = data.split()[1]        
             if est == "KO":
                 sensores[sensor] = False
                 #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
                 producer.send('taxiUpdate', value = f"{id} KO".encode('utf-8'))
                 if operativo:
                     operativo = False
-            else:
+            elif est == "OK":
                 sensores[sensor] = True
                 producer.send('taxiUpdate', value = f"{id} OK".encode('utf-8'))
                 if not operativo:
-                    operativo = True
+                    operativo = True                   
+            elif est == "STOP":
+                #Borramos ese sensor del diccionario
+                sensores.pop(sensor)
 
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
@@ -106,7 +115,7 @@ def sendAlerts(id):
     #Creamos el productor de Kafka para mandar las alertas
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
-    while True:
+    while not stop_threads:
         client, addr = server_socket.accept()
 
         client_handler = threading.Thread(target=handleAlerts, args=(client, producer, id))
@@ -179,6 +188,17 @@ def receiveServices(id):
             estado = f"Servicio completado. Esperando asignación"
             producer.send('arrived', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
+#Creamos la función que nos va controlar si se cierra la conexión del Digital Engine
+def stopTaxi():
+    global stop_threads
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+    while not stop_threads:
+        if keyboard.is_pressed('Ctrl + C'):
+            stop_threads = True
+            #Comunicamos a la central y al customer que paramos el taxi
+            producer.send('taxiStop', value = f"{sys.argv[5]} STOP".encode('utf-8'))
+        
+
 def main():
     #Comprobamos que los argumetos sean correctos
     if len(sys.argv) != 6:
@@ -201,9 +221,14 @@ def main():
     #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
     services_thread = threading.Thread(target=receiveServices, args=(ID, ))
     services_thread.start()
+    
+    #Creamos el hilo que nos sirve para identificar que paramos el servicio
+    stop_thread = threading.Thread(target=stopTaxi)
+    stop_thread.start()
 
     map_thread.join()
     alert_thread.join()
+    stop_thread.join()
 
 
 # Ejecución principal

@@ -12,6 +12,8 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
+stop_threads = False
+
 taxi_updates = ""
 
 def receiveMap():

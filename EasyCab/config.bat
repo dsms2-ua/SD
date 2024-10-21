@@ -1,7 +1,9 @@
 @echo off
-REM
+echo Installing packages..
 
-SET KAFKA = C:\Kafka
+pip install kafka-python
+pip install colorama
+pip install keyboard
+pip install six
 
-REM
-%KAFKA%\bin\windows
+echo Installation completed
