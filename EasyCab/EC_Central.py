@@ -46,7 +46,7 @@ def leerTaxis(taxis):
 def autheticate_taxi():
     #Creamos el socket del servidor con la direccion por parametros
     server_socket = socket.socket()
-    server_socket.bind(('localhost', int(sys.argv[1])))
+    server_socket.bind(('0.0.0.0', int(sys.argv[1])))
     server_socket.listen(5)
 
     while not stop_threads:
@@ -249,7 +249,7 @@ def readTaxiMovements():
                     taxi.setCliente(None)
                 break
 
-def handleCommands(producer):
+def handleCommands():
         #Enviamos el productor por comandos
         #producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
 
@@ -355,8 +355,8 @@ def main():
     taxiMovement_thread.start()
     
     #Iniciar la terminal que lee los comandos
-    open_command_terminal()
-
+    open_command_terminal(producer)
+    
     teclado_thread = threading.Thread(target=leerTeclado)
     teclado_thread.daemon = True
     teclado_thread.start()

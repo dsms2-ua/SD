@@ -20,6 +20,8 @@ estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
 
+init(autoreset=True)
+
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
@@ -27,7 +29,7 @@ def authenticateTaxi():
 
     #Nos conectamos a la central por sockets
     client_socket = socket.socket()
-    client_socket.connect(('localhost', central_port))
+    client_socket.connect((central_ip, central_port))
 
     #Enviamos el id del taxi para comprobar
     taxi_id = int(sys.argv[5])
