@@ -263,22 +263,6 @@ def receiveCommand():
         action = command[1]
 
         print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
-        
 
         if action == "KO":
             for taxi in TAXIS:
@@ -316,9 +300,9 @@ def handleCommands(ip,port):
             taxi_id = input("Ingrese el ID del taxi: ")
 
             if command == "1":
-                producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
-            elif command == "2":
                 producer.send('taxi_commands', value = f"{taxi_id} KO".encode('utf-8'))
+            elif command == "2":
+                producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
             elif command == "3":
                 destino = input("Ingrese el destino (x,y): ")
                 producer.send('taxi_commands', value = f"{taxi_id} {destino}".encode('utf-8'))

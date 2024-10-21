@@ -107,6 +107,7 @@ def handleAlerts(client_socket, producer, id):
             elif est == "STOP":
                 #Borramos ese sensor del diccionario
                 sensores.pop(sensor)
+        time.sleep(0.5)
 
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
@@ -122,9 +123,8 @@ def sendAlerts(id):
 
         client_handler = threading.Thread(target=handleAlerts, args=(client, producer, id))
         client_handler.start()
-            
-        time.sleep(1)
 
+        
 def process_commands():
     global operativo
     # Configurar el consumidor de Kafka
@@ -133,7 +133,8 @@ def process_commands():
     # Recibir los mensajes
     for message in consumer:
         data = message.value.decode('utf-8').split()
-        if data[0] == sys.argv[5]:
+        if data[0] == str(sys.argv[5]):
+            print(f"Recibido mensaje de la central: {data[1]}")
             if data[1] == "KO":
                 operativo = False
             elif data[1] == "OK":
