@@ -19,6 +19,8 @@ operativo = True
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
+lock_operativo = threading.Lock()  # Creamos el Lock
+
 
 init(autoreset=True)
 
@@ -128,17 +130,18 @@ def sendAlerts(id):
 def process_commands():
     global operativo
     # Configurar el consumidor de Kafka
-    consumer = KafkaConsumer('taxi_orders', bootstrap_servers=f'{sys.argv[1]}:{sys.argv[2]}')
+    consumer = KafkaConsumer('taxi_orders', bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
 
     # Recibir los mensajes
     for message in consumer:
         data = message.value.decode('utf-8').split()
         if data[0] == str(sys.argv[5]):
             print(f"Recibido mensaje de la central: {data[1]}")
-            if data[1] == "KO":
-                operativo = False
-            elif data[1] == "OK":
-                operativo = True
+            with lock_operativo:  # Acceso protegido con Lock
+                if data[1] == "KO":
+                    operativo = False
+                elif data[1] == "OK":
+                    operativo = True
             
         
 def receiveServices(id):
@@ -146,6 +149,7 @@ def receiveServices(id):
     consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
     global estado
+    global operativo
     #Creamos el producer de Kafka para mandar los movimientos
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -168,12 +172,20 @@ def receiveServices(id):
             recogido = False
             while not recogido:
                 if operativo:
+                    print("aqui andamos")
                     Pos = moverTaxi(Pos, posCliente)
                     producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
                     if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
                         recogido = True
                     time.sleep(1)
-
+                else:
+                    estado = "Taxi detenido. Servicio cancelado"
+                    producer.send('service_completed', value = f"{servicio.getCliente()} KO".encode('utf-8'))
+                    print(f"Taxi {id} detenido mientras iba a recoger al cliente {servicio.getCliente()}")
+                    #pasamos a la siguiente iteración del bucle for
+                    break
+            if not operativo:
+                continue
             estado = f"Cliente {servicio.getCliente()} recogido, yendo a {servicio.getDestino()}"
             producer.send('picked_up', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
@@ -185,8 +197,15 @@ def receiveServices(id):
                     if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
                         llegada = True
                     time.sleep(1)
-            estado = f"Servicio completado. Esperando asignación"
-            producer.send('arrived', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
+                else:
+                    estado = "Taxi detenido. Servicio cancelado"
+                    producer.send('service_completed', value = f"{servicio.getCliente()} KO".encode('utf-8'))
+                    print(f"Taxi {id} detenido mientras llevaba al cliente {servicio.getCliente()} a su destino {servicio.getDestino()}")
+                    #pasamos a la siguiente iteración del bucle for
+                    break
+            if operativo:
+                estado = f"Servicio completado. Esperando asignación"
+                producer.send('arrived', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
 #Creamos la función que nos va controlar si se cierra la conexión del Digital Engine
 def stopTaxi():
@@ -225,6 +244,10 @@ def main():
     #Creamos el hilo que nos sirve para identificar que paramos el servicio
     stop_thread = threading.Thread(target=stopTaxi)
     stop_thread.start()
+
+    #creamos el hilo que recibirá los comandos de la central
+    command_thread = threading.Thread(target=process_commands)
+    command_thread.start()
 
     map_thread.join()
     alert_thread.join()
