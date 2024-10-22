@@ -87,6 +87,7 @@ def autheticate_taxi():
     
 
                 #Añadimos el taxi a la lista de taxis
+                
                 TAXIS.append(taxi)
                 #Respondemos con un OK
                 client.send("OK".encode('utf-8'))
@@ -113,7 +114,7 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES)
-        os.system('cls')
+        #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -252,37 +253,44 @@ def readTaxiMovements():
 def receiveCommand():
     
     #creamos consumer dekafka
-    consumer = KafkaConsumer('taxi_commands', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    consumer = KafkaConsumer('taxi_commands','taxi_commands2', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
 
     #creamos producer de Kafka
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
 
     for message in consumer:
         command = message.value.decode('utf-8').split()
+        topic = message.topic
         taxi_id = command[0]
         action = command[1]
 
         print(f"Taxi {taxi_id} ha recibido la orden {action}")
 
-        if action == "KO":
+        if topic == "taxi_commands":
+            if action == "KO":
+                for taxi in TAXIS:
+                    if taxi.getId() == int(taxi_id):
+                        taxi.setEstado(False)
+                        taxi.setCliente(None)
+                        taxi.setOcupado(False)
+                        producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
+                        break
+            else:
+                for taxi in TAXIS:
+                    if taxi.getId() == int(taxi_id):
+                        taxi.setEstado(True)
+                        producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
+                        break
+        elif topic == "taxi_commands2":
             for taxi in TAXIS:
                 if taxi.getId() == int(taxi_id):
-                    taxi.setEstado(False)
-                    taxi.setCliente(None)
-                    taxi.setOcupado(False)
-                    producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
-                    break
-        elif action == "OK":
-            for taxi in TAXIS:
-                if taxi.getId() == int(taxi_id):
-                    taxi.setEstado(True)
-                    producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
-                    break
-        else:
-            for taxi in TAXIS:
-                if taxi.getId() == int(taxi_id):
-                    producer.send('taxi_orders', value = f"{taxi_id} {action}".encode('utf-8'))
-                    break     
+                    inicioX = taxi.getCasilla().getX()
+                    inicioY = taxi.getCasilla().getY()
+                    taxi.setPosDestino(Casilla(int(inicioX), int(inicioY)))
+                    print(f"holaaa {action}")
+                    producer.send('taxi_orders', value = f"{taxi_id} {action} {inicioX} {inicioY}".encode('utf-8'))
+                    break    
+
 
 def handleCommands(ip,port):
         
@@ -306,24 +314,11 @@ def handleCommands(ip,port):
             elif command == "2":
                 producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
             elif command == "3":
-                print("Taxis disponibles:")
-                for taxi in TAXIS:
-                    print(taxi.getId())
-                    if int(taxi.getId()) == int(taxi_id):
-                        print("siuu")
-                        inicialX = taxi.getCasilla().getX()
-                        inicialY = taxi.getCasilla().getY()
-                        break
                 destino = input("Ingrese el destino x,y: ")
-                producer.send('taxi_commands', value = f"{taxi_id} {destino} {inicialX} {inicialY}".encode('utf-8'))
+                producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
             elif command == "4":
-                for taxi in TAXIS:
-                    if taxi.getId() == int(taxi_id):
-                        inicialX = taxi.getCasilla().getX()
-                        inicialY = taxi.getCasilla().getY()
-                        break
                 destino = "1,1"
-                producer.send('taxi_commands', value = f"{taxi_id} {destino} {inicialX} {inicialY}".encode('utf-8'))
+                producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
             else:
                 print("Comando no válido")
                 continue
@@ -340,7 +335,7 @@ def leerTeclado():
     global stop_threads
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     while not stop_threads:
-        if keyboard.is_pressed('t'):
+        if keyboard.is_pressed('Ctrl + C'):
             stop_threads = True
             #Aquí deberiamos comunicar a los taxis y a los clientes que el sistema se ha parado
     
@@ -388,6 +383,9 @@ def main():
 
     receiveCommand_thread = threading.Thread(target=receiveCommand)
     receiveCommand_thread.start()
+
+    handleCommands2_thread = threading.Thread(target=handleCommands2)
+    handleCommands2_thread.start()
     
     auth_thread.join()
     map_thread.join()
@@ -397,6 +395,7 @@ def main():
     taxiMovement_thread.join()
     teclado_thread.join()
     receiveCommand_thread.join()
+    handleCommands2_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":

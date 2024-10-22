@@ -117,7 +117,7 @@ def handleAlerts(client_socket, producer, id):
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
     server_socket = socket.socket()
-    server_socket.bind(('localhost', 5000))
+    server_socket.bind(('localhost', 4999 + id))
     server_socket.listen(5)
 
     #Creamos el productor de Kafka para mandar las alertas
@@ -130,12 +130,14 @@ def sendAlerts(id):
         client_handler.start()
 
 def irA(destino,inicial):
+    print(f"Taxi {sys.argv[5]} yendo a {destino.getX()},{destino.getY()}")
     # Implement the logic to move the taxi to the destination
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
     #inicializamos pos a la posición del taxi
-    
-    pos = Casilla(int(inicial.split(",")[0]), int(inicial.split(",")[1]))
+    pos = inicial
     while pos.getX() != destino.getX() or pos.getY() != destino.getY():
         pos = moverTaxi(pos, destino)
+        producer.send('taxiMovements', value=f"{sys.argv[5]} {pos.getX()} {pos.getY()}".encode('utf-8'))
         time.sleep(1)
     estado = "Esperando asignación"
 
@@ -147,18 +149,21 @@ def process_commands():
     # Recibir los mensajes
     for message in consumer:
         data = message.value.decode('utf-8').split()
+        print(data)
+        print(f"Recibido mensaje de la central: {data[1]}")
         if data[0] == str(sys.argv[5]):
             print(f"Recibido mensaje de la central: {data[1]}")
-            with lock_operativo:  # Acceso protegido con Lock
-                if data[1] == "KO":
-                    operativo = False
-                elif data[1] == "OK":
-                    operativo = True
-                #recibimos en data[1] el destino al que tenemos que ir
-                else:
-                    #creamos una casilla con las coordenadas del destino
-                    destino = Casilla(int(data[1].split(",")[0]), int(data[1].split(",")[1]))
-                    irA(destino, data[2])
+            if data[1] == "KO":
+                operativo = False
+            elif data[1] == "OK":
+                operativo = True
+            #recibimos en data[1] el destino al que tenemos que ir
+            else:
+                print(f"Taxi {sys.argv[5]} recibido mensaje de la central: {data[1]}")
+                #creamos una casilla con las coordenadas del destino
+                destino = Casilla(int(data[1].split(",")[0]), int(data[1].split(",")[1]))
+                posicion = Casilla(int(data[2]),int(data[3]))
+                irA(destino, posicion)
 
 def receiveServices(id):
     #Creamos el consumer de Kafka
