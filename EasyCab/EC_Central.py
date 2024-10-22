@@ -343,8 +343,6 @@ def leerTeclado():
         if keyboard.is_pressed('t'):
             stop_threads = True
             #Aquí deberiamos comunicar a los taxis y a los clientes que el sistema se ha parado
-            producer.send('system_stop', value = "STOP".encode('utf-8'))
-            time.sleep(5)
     
 
 def main():

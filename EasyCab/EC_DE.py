@@ -81,6 +81,9 @@ def receiveMap():
 def handleAlerts(client_socket, producer, id):
     global operativo
     global estado
+
+    client_socket.settimeout(1.0)
+
     while not stop_threads:
         data = client_socket.recv(1024).decode('utf-8')
         #Si recibimos el mensaje con solo una palabra, es de conexion
@@ -109,7 +112,7 @@ def handleAlerts(client_socket, producer, id):
             elif est == "STOP":
                 #Borramos ese sensor del diccionario
                 sensores.pop(sensor)
-        time.sleep(0.5)
+        time.sleep(1)
 
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
@@ -122,7 +125,7 @@ def sendAlerts(id):
 
     while not stop_threads:
         client, addr = server_socket.accept()
-
+        
         client_handler = threading.Thread(target=handleAlerts, args=(client, producer, id))
         client_handler.start()
 
@@ -225,6 +228,7 @@ def stopTaxi():
     global stop_threads
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
     while not stop_threads:
+        time.sleep(0.1)
         if keyboard.is_pressed('Ctrl + C'):
             stop_threads = True
             #Comunicamos a la central y al customer que paramos el taxi
@@ -263,7 +267,7 @@ def main():
     command_thread.start()
 
     map_thread.join()
-    alert_thread.join()
+    #alert_thread.join()
     stop_thread.join()
 
 
