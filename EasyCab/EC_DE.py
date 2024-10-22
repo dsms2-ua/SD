@@ -130,15 +130,20 @@ def sendAlerts(id):
         client_handler.start()
 
 def irA(destino,inicial):
-    print(f"Taxi {sys.argv[5]} yendo a {destino.getX()},{destino.getY()}")
+    global operativo
     # Implement the logic to move the taxi to the destination
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
     #inicializamos pos a la posición del taxi
     pos = inicial
+    estado = f"Yendo a {destino.getX()},{destino.getY()}"
     while pos.getX() != destino.getX() or pos.getY() != destino.getY():
-        pos = moverTaxi(pos, destino)
-        producer.send('taxiMovements', value=f"{sys.argv[5]} {pos.getX()} {pos.getY()}".encode('utf-8'))
-        time.sleep(1)
+        if operativo:
+            pos = moverTaxi(pos, destino)
+            producer.send('taxiMovements', value=f"{sys.argv[5]} {pos.getX()} {pos.getY()}".encode('utf-8'))
+            time.sleep(1)
+        else: 
+            estado = "Taxi detenido"    
+            break
     estado = "Esperando asignación"
 
 
@@ -149,17 +154,13 @@ def process_commands():
     # Recibir los mensajes
     for message in consumer:
         data = message.value.decode('utf-8').split()
-        print(data)
-        print(f"Recibido mensaje de la central: {data[1]}")
         if data[0] == str(sys.argv[5]):
-            print(f"Recibido mensaje de la central: {data[1]}")
             if data[1] == "KO":
                 operativo = False
             elif data[1] == "OK":
                 operativo = True
             #recibimos en data[1] el destino al que tenemos que ir
             else:
-                print(f"Taxi {sys.argv[5]} recibido mensaje de la central: {data[1]}")
                 #creamos una casilla con las coordenadas del destino
                 destino = Casilla(int(data[1].split(",")[0]), int(data[1].split(",")[1]))
                 posicion = Casilla(int(data[2]),int(data[3]))
@@ -193,7 +194,6 @@ def receiveServices(id):
             recogido = False
             while not recogido:
                 if operativo:
-                    print("aqui andamos")
                     Pos = moverTaxi(Pos, posCliente)
                     producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
                     if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
@@ -202,7 +202,6 @@ def receiveServices(id):
                 else:
                     estado = "Taxi detenido. Servicio cancelado"
                     producer.send('service_completed', value = f"{servicio.getCliente()} KO".encode('utf-8'))
-                    print(f"Taxi {id} detenido mientras iba a recoger al cliente {servicio.getCliente()}")
                     #pasamos a la siguiente iteración del bucle for
                     break
             if not operativo:
@@ -221,7 +220,6 @@ def receiveServices(id):
                 else:
                     estado = "Taxi detenido. Servicio cancelado"
                     producer.send('service_completed', value = f"{servicio.getCliente()} KO".encode('utf-8'))
-                    print(f"Taxi {id} detenido mientras llevaba al cliente {servicio.getCliente()} a su destino {servicio.getDestino()}")
                     #pasamos a la siguiente iteración del bucle for
                     break
             if operativo:
