@@ -383,9 +383,6 @@ def main():
 
     receiveCommand_thread = threading.Thread(target=receiveCommand)
     receiveCommand_thread.start()
-
-    handleCommands2_thread = threading.Thread(target=handleCommands2)
-    handleCommands2_thread.start()
     
     auth_thread.join()
     map_thread.join()
@@ -395,7 +392,6 @@ def main():
     taxiMovement_thread.join()
     teclado_thread.join()
     receiveCommand_thread.join()
-    handleCommands2_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":
