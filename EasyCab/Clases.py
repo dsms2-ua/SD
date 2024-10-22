@@ -467,7 +467,7 @@ def generarTabla(TAXIS, CLIENTES):
             
         #Aquí ajustamos el formato
         
-        strTabla += "      " + str(cliente.getPosicion())
+        strTabla += "       " + str(cliente.getPosicion())
         
         if cliente.getPosicion().getX() < 10 and cliente.getPosicion().getY() < 10:
             strTabla += "  "
