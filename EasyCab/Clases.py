@@ -387,12 +387,12 @@ class Servicio:
     
 
 def generarTabla(TAXIS, CLIENTES):
-    strTabla =  "_______________________________________________________\n"
-    strTabla += "|                    ***EASYCAB***                    |\n"
-    strTabla += "|-----------------------------------------------------|\n"
-    strTabla += "|                       TAXIS                         |\n"
-    strTabla += "|-----------------------------------------------------|\n"
-    strTabla += "|      ID     |        Destino      |      Estado     |\n"
+    strTabla =  "___________________________________________________________________________\n"
+    strTabla += "|                             ***EASYCAB***                               |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|                                 TAXIS                                   |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |      Posición     |\n"
     
     for taxi in TAXIS:
         #Si el esado del taxi es KO, todo el texto está en color rojo
@@ -432,13 +432,16 @@ def generarTabla(TAXIS, CLIENTES):
         else:
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
+            
+        #Por último, imprimimos la posición
+        strTabla += "      " + str(taxi.getCasilla()) + "      |"
 
         strTabla += "\n"
     
-    strTabla += "|-----------------------------------------------------|\n"
-    strTabla += "|                     CLIENTES                        |\n"
-    strTabla += "|-----------------------------------------------------|\n"
-    strTabla += "|      ID     |        Destino      |      Estado     |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|                                CLIENTES                                 |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |      Posición     |\n"
     for cliente in CLIENTES:
         strTabla += "|      " + cliente.getId() + "      |" + "           "
 
@@ -461,10 +464,21 @@ def generarTabla(TAXIS, CLIENTES):
             strTabla += "    OK.Taxi " + str(id) + "    |"
         else:
             strTabla += "   OK. Sin Taxi  |"
+            
+        #Aquí ajustamos el formato
+        
+        strTabla += "      " + str(cliente.getPosicion())
+        
+        if cliente.getPosicion().getX() < 10 and cliente.getPosicion().getY() < 10:
+            strTabla += "  "
+        elif cliente.getPosicion().getX() < 10 or cliente.getPosicion().getY() < 10:
+            strTabla += " "
+              
+        strTabla += "      |"
         
         strTabla += "\n"
     
-    strTabla += "|_____________________________________________________|\n"
+    strTabla += "|_________________________________________________________________________|\n"
 
     return strTabla
 
