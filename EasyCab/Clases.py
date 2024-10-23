@@ -230,6 +230,7 @@ class Taxi:
         self.destino = None #Localización a la que quiere ir el cliente
         self.posDestino = None
         self.recogido = False #Indica si hemos recogido al cliente o no
+        self.timeout = 0
 
     def setCasilla(self, casilla):
         self.casilla = casilla

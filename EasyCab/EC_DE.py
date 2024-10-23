@@ -24,6 +24,23 @@ lock_operativo = threading.Lock()  # Creamos el Lock
 
 init(autoreset=True)
 
+def sendHeartbeat():
+    while not stop_threads:
+        if len(sensores) == 0:
+            operativo = False
+        else:
+            for sensor in sensores:
+                if not sensores[sensor]:
+                    operativo = False
+                    break
+        if operativo:
+            estadoTaxi = "OK"
+        else:
+            estadoTaxi = "KO"
+        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
+        producer.send('taxiUpdate', value=f"{sys.argv[5]} {estadoTaxi}".encode('utf-8'))
+        time.sleep(1)
+
 def authenticateTaxi():
     #Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
@@ -78,6 +95,8 @@ def receiveMap():
         cadena = f"\n{Back.WHITE}{Fore.BLACK}{estado}{Style.RESET_ALL}"
         print(mapa.cadenaMapaTaxi(str(sys.argv[5])) + cadena)
 
+
+
 def handleAlerts(client_socket, producer, id):
     global operativo
     global estado
@@ -100,13 +119,10 @@ def handleAlerts(client_socket, producer, id):
             est = data.split()[1]        
             if est == "KO":
                 sensores[sensor] = False
-                #Mandamos una alerta a la central para indicar que el taxi tiene que pararse
-                producer.send('taxiUpdate', value = f"{id} KO".encode('utf-8'))
                 if operativo:
                     operativo = False
             elif est == "OK":
                 sensores[sensor] = True
-                producer.send('taxiUpdate', value = f"{id} OK".encode('utf-8'))
                 if not operativo:
                     operativo = True                   
             elif est == "STOP":
@@ -236,7 +252,7 @@ def stopTaxi():
             stop_threads = True
             #Comunicamos a la central y al customer que paramos el taxi
             producer.send('taxiStop', value = f"{sys.argv[5]} STOP".encode('utf-8'))
-        
+
 
 def main():
     #Comprobamos que los argumetos sean correctos

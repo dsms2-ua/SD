@@ -206,13 +206,13 @@ def readTaxiUpdate():
             id, estado = message.value.decode('utf-8').split() 
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
+                    taxi.setTimeout(0)
                     if estado == "KO" and taxi.getEstado() == True:
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
                         #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
 
                     elif estado == "OK" and taxi.getEstado() == False:
                         taxi.setEstado(True)
-
                     break
 
 def readTaxiMovements():
@@ -330,7 +330,6 @@ def open_command_terminal():
     else:
         subprocess.Popen(["gnome-terminal", "--", "python3", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands("{sys.argv[2]}","{sys.argv[3]}")'])
 
-
 def leerTeclado():
     global stop_threads
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -338,7 +337,23 @@ def leerTeclado():
         if keyboard.is_pressed('Ctrl + C'):
             stop_threads = True
             #Aquí deberiamos comunicar a los taxis y a los clientes que el sistema se ha parado
-    
+
+def listen_for_heartbeat():
+    while not stop_threads:
+
+        for taxi in TAXIS:
+            if taxi.getTimeout() <=
+
+def check_for_disconnected_taxis():
+    while True:
+        current_time = time.time()
+        for taxi_id, last_heartbeat in list(heartbeat_intervals.items()):
+            if current_time - last_heartbeat > 10:
+                print(f"Taxi {taxi_id} parece estar desconectado.")
+                # Aquí puedes tomar las medidas necesarias (ej: marcar el taxi como KO)
+                # Eliminar del diccionario
+                del heartbeat_intervals[taxi_id]
+        time.sleep(2)
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -384,6 +399,13 @@ def main():
     receiveCommand_thread = threading.Thread(target=receiveCommand)
     receiveCommand_thread.start()
     
+    heartbeat_thread = threading.Thread(target=listen_for_heartbeat)
+    heartbeat_thread.start()
+    
+    # Hilo para revisar taxis desconectados
+    disconnected_thread = threading.Thread(target=check_for_disconnected_taxis)
+    disconnected_thread.start()
+
     auth_thread.join()
     map_thread.join()
     clients_thread.join()
