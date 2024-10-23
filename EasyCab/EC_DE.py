@@ -107,7 +107,7 @@ def handleAlerts(client_socket, producer, id):
         data = client_socket.recv(1024).decode('utf-8')
         #Si recibimos el mensaje con solo una palabra, es de conexion
         if len(data.split()) == 1:
-            sensor = sensores[len(sensores) - 1] + 1
+            sensor = len(sensores) + 1
             est = data.split()[0]
             sensores[sensor] = est
             
@@ -133,7 +133,7 @@ def handleAlerts(client_socket, producer, id):
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
     server_socket = socket.socket()
-    server_socket.bind(('localhost', 4999 + id))
+    server_socket.bind(('localhost', 4999 + id)) #Para que empiece en 5000
     server_socket.listen(5)
 
     #Creamos el productor de Kafka para mandar las alertas
