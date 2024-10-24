@@ -13,6 +13,7 @@ from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
 stop_threads = False
+centralTimeout = 0
 
 taxi_updates = ""
 
@@ -93,6 +94,13 @@ def services(id):
                 if completed:
                     completed = False  # Reset completed for the next request
                     break
+
+#En esta función le sumamos 1 a centralTimeout cada segundo                
+def centralState():
+    global centralTimeout
+    while not stop_threads:
+        centralTimeout += 1
+        time.sleep(1)
                         
 
 def main():

@@ -349,6 +349,12 @@ def taxiDisconection():
                 TAXIS_DISPONIBLES.append(taxi.getId())
                 TAXIS.remove(taxi)
         time.sleep(1)
+        
+def sendOk():
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    while not stop_threads:
+        producer.send('centralOk', value = f"OK".encode('utf-8'))
+        time.sleep(1)
 
 
 def main():

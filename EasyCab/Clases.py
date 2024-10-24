@@ -534,3 +534,15 @@ def moverTaxi(actual, objetivo):
         nuevoY = actualY
 
     return Casilla(nuevoX, nuevoY)
+
+def imprimirErrorCentral():
+    #Imprimimos un mensaje en grande donde informamos del error de la central
+    print("##########################################################")
+    print("##                                                      ##")
+    print("##                                                      ##")
+    print("##                                                      ##")
+    print("##           Error al conectar con la central           ##")
+    print("##                                                      ##")
+    print("##                                                      ##")
+    print("##                                                      ##")
+    print("##########################################################")
