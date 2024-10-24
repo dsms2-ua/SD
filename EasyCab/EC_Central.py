@@ -338,22 +338,16 @@ def leerTeclado():
             stop_threads = True
             #Aquí deberiamos comunicar a los taxis y a los clientes que el sistema se ha parado
 
-def listen_for_heartbeat():
+def taxiDisconection():
     while not stop_threads:
-
         for taxi in TAXIS:
-            if taxi.getTimeout() <=
+            if taxi.getTimeout() < 10:
+                taxi.setTimeout(taxi.getTimeout() + 1)
+            else:
+                TAXIS_DISPONIBLES.append(taxi.getId())
+                TAXIS.remove(taxi)
+        time.sleep(1)
 
-def check_for_disconnected_taxis():
-    while True:
-        current_time = time.time()
-        for taxi_id, last_heartbeat in list(heartbeat_intervals.items()):
-            if current_time - last_heartbeat > 10:
-                print(f"Taxi {taxi_id} parece estar desconectado.")
-                # Aquí puedes tomar las medidas necesarias (ej: marcar el taxi como KO)
-                # Eliminar del diccionario
-                del heartbeat_intervals[taxi_id]
-        time.sleep(2)
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -399,12 +393,9 @@ def main():
     receiveCommand_thread = threading.Thread(target=receiveCommand)
     receiveCommand_thread.start()
     
-    heartbeat_thread = threading.Thread(target=listen_for_heartbeat)
-    heartbeat_thread.start()
+    taxi_disconection_thread = threading.Thread(target=taxiDisconection)
+    taxi_disconection_thread.start()
     
-    # Hilo para revisar taxis desconectados
-    disconnected_thread = threading.Thread(target=check_for_disconnected_taxis)
-    disconnected_thread.start()
 
     auth_thread.join()
     map_thread.join()
@@ -414,6 +405,7 @@ def main():
     taxiMovement_thread.join()
     teclado_thread.join()
     receiveCommand_thread.join()
+    taxi_disconection_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":

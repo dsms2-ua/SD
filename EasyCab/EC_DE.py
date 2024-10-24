@@ -285,9 +285,15 @@ def main():
     command_thread = threading.Thread(target=process_commands)
     command_thread.start()
 
+    heartbeat_thread = threading.Thread(target=sendHeartbeat)
+    heartbeat_thread.start()
+
     map_thread.join()
     #alert_thread.join()
     stop_thread.join()
+    services_thread.join()
+    command_thread.join()
+    heartbeat_thread.join()
 
 
 # Ejecución principal
