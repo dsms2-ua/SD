@@ -39,7 +39,6 @@ def sendHeartbeat():
                     break
         if aux:
             operativo = True
-        if operativo:
             estadoTaxi = "OK"
         else:
             estadoTaxi = "KO"
