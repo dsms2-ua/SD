@@ -287,7 +287,9 @@ def receiveCommand():
                     inicioX = taxi.getCasilla().getX()
                     inicioY = taxi.getCasilla().getY()
                     taxi.setPosDestino(Casilla(int(inicioX), int(inicioY)))
-                    print(f"holaaa {action}")
+                    taxi.setCliente(None)
+                    taxi.setOcupado(False)
+                    producer.send('service_completed', value = f"{taxi.getCliente()} KO".encode('utf-8'))
                     producer.send('taxi_orders', value = f"{taxi_id} {action} {inicioX} {inicioY}".encode('utf-8'))
                     break    
 
