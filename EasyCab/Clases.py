@@ -232,6 +232,9 @@ class Taxi:
         self.recogido = False #Indica si hemos recogido al cliente o no
         self.timeout = 0
 
+    def setTimeout(self, timeout):
+        self.timeout = timeout
+
     def setCasilla(self, casilla):
         self.casilla = casilla
 
@@ -295,6 +298,9 @@ class Taxi:
     
     def getRecogido(self):
         return self.recogido
+    
+    def getTimeout(self):
+        return self.timeout
     
     
 class Cliente():

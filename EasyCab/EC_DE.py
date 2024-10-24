@@ -26,13 +26,18 @@ init(autoreset=True)
 
 def sendHeartbeat():
     while not stop_threads:
+        aux = False
         if len(sensores) == 0:
             operativo = False
         else:
             for sensor in sensores:
+                aux = True
                 if not sensores[sensor]:
+                    aux = False
                     operativo = False
                     break
+        if aux:
+            operativo = True
         if operativo:
             estadoTaxi = "OK"
         else:

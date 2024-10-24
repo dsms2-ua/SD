@@ -48,12 +48,12 @@ def stopSensor(socket_server):
 def main():
     #Comprobamos los argumentos
     if len(sys.argv) != 3:
-        print("Error: Usage python EC_S.py EC_DE_IP EC_DE_Port")
+        print("Error: Usage python EC_S.py EC_DE_IP EC_DE_ID")
         sys.exit(1)
 
     # Recoger los argumentos
     ip_ec_de = sys.argv[1]
-    puerto_ec_de = int(sys.argv[2])
+    puerto_ec_de = int(sys.argv[2] + 4999)
 
     #Creamos el socket de conexión y conectamos con el taxi
     server_socket = socket.socket()
