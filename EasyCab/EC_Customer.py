@@ -18,16 +18,25 @@ centralTimeout = 0
 taxi_updates = ""
 
 def receiveMap():
-    global taxi_updates
+    global taxi_updates, centralTimeout
+
      #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
-    #Recibimos el mapa
-    for message in consumer:
-        mapa = pickle.loads(message.value)
-        os.system('cls')
-        cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
-        print(cadena)
+    while not stop_threads:
+        message = consumer.poll(timeout_ms=1000)
+        if message:
+            centralTimeout = 0
+            for tp, messages in message.items():
+                for message in messages:
+                    mapa = pickle.loads(message.value)
+                    os.system('cls')
+                    cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
+                    print(cadena)
+        else:
+            if centralTimeout > 10:
+                os.system('cls')
+                imprimirErrorCentral()
 
 def receiveTaxiUpdates():
     global taxi_updates
@@ -130,11 +139,15 @@ def main():
 
     taxi_thread = threading.Thread(target=receiveTaxiUpdates)
     taxi_thread.start()
+    
+    centralState_thread = threading.Thread(target=centralState)
+    centralState_thread.start()
 
     map_thread.join()
     service_thread.join()
     services_thread.join()
     taxi_thread.join()
+    centralState_thread.join()
 
 if __name__ == "__main__":
     main()

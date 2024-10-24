@@ -19,6 +19,7 @@ operativo = True
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
+centralTimeout = 0
 lock_operativo = threading.Lock()  # Creamos el Lock
 
 
@@ -81,26 +82,33 @@ def sensoresStates():
             
     
 def receiveMap():
-    global estado
+    global estado, centralTimeout
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
-    #Recibimos el mapa
-    for message in consumer:
-        mapa = pickle.loads(message.value)
-        os.system('cls')
-        #Vamos a imprimir el estado de todos los sensores también
-        print("Sensores         |         Estado")
-        for sensor in sensores:
-            print(f"   {sensor}             |           ", end="")
-            if sensores[sensor] == False:
-                print(f"{Fore.RED}KO{Style.RESET_ALL}")
-            else:
-                print(f"{Fore.GREEN}OK{Style.RESET_ALL}")
-        cadena = f"\n{Back.WHITE}{Fore.BLACK}{estado}{Style.RESET_ALL}"
-        print(mapa.cadenaMapaTaxi(str(sys.argv[5])) + cadena)
-
-
+    while not stop_threads:
+        message = consumer.poll(timeout_ms=1000)
+        if message:
+            centralTimeout = 0
+            for tp, messages in message.items():
+                for message in messages:
+                    mapa = pickle.loads(message.value)
+                    os.system('cls')
+                     #Vamos a imprimir el estado de todos los sensores también
+                    print("Sensores         |         Estado")
+                    for sensor in sensores:
+                        print(f"   {sensor}             |           ", end="")
+                        if sensores[sensor] == False:
+                            print(f"{Fore.RED}KO{Style.RESET_ALL}")
+                        else:
+                            print(f"{Fore.GREEN}OK{Style.RESET_ALL}")
+                    cadena = f"\n{Back.WHITE}{Fore.BLACK}{estado}{Style.RESET_ALL}"
+                    print(mapa.cadenaMapaTaxi(str(sys.argv[5])) + cadena)
+                    
+        else:
+            if centralTimeout > 10:
+                os.system('cls')
+                imprimirErrorCentral()
 
 def handleAlerts(client_socket, producer, id):
     global operativo
@@ -258,6 +266,12 @@ def stopTaxi():
             stop_threads = True
             #Comunicamos a la central y al customer que paramos el taxi
             producer.send('taxiStop', value = f"{sys.argv[5]} STOP".encode('utf-8'))
+            
+def centralState():
+    global centralTimeout
+    while not stop_threads:
+        time.sleep(1)
+        centralTimeout += 1
 
 
 def main():
@@ -293,6 +307,9 @@ def main():
 
     heartbeat_thread = threading.Thread(target=sendHeartbeat)
     heartbeat_thread.start()
+    
+    centralState_thread = threading.Thread(target=centralState)
+    centralState_thread.start()
 
     map_thread.join()
     #alert_thread.join()
@@ -300,6 +317,7 @@ def main():
     services_thread.join()
     command_thread.join()
     heartbeat_thread.join()
+    centralState_thread.join()
 
 
 # Ejecución principal

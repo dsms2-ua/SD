@@ -444,8 +444,14 @@ def generarTabla(TAXIS, CLIENTES):
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
             
-        #Por último, imprimimos la posición
-        strTabla += "      " + str(taxi.getCasilla()) + "      |"
+        strTabla += "       " + str(taxi.getCasilla())
+        
+        if taxi.getCasilla().getX() < 10 and taxi.getCasilla().getY() < 10:
+            strTabla += "  "
+        elif taxi.getCasilla().getX() < 10 or taxi.getCasilla().getY() < 10:
+            strTabla += " "
+              
+        strTabla += "    |"
 
         strTabla += "\n"
     
@@ -485,7 +491,7 @@ def generarTabla(TAXIS, CLIENTES):
         elif cliente.getPosicion().getX() < 10 or cliente.getPosicion().getY() < 10:
             strTabla += " "
               
-        strTabla += "      |"
+        strTabla += "    |"
         
         strTabla += "\n"
     
