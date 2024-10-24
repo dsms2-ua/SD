@@ -272,6 +272,7 @@ def receiveCommand():
                         taxi.setEstado(False)
                         taxi.setCliente(None)
                         taxi.setOcupado(False)
+                        taxi.setRecogido(False)
                         producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
                         break
             else:
