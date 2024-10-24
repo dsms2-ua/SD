@@ -25,7 +25,7 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        #os.system('cls')
+        os.system('cls')
         cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
         print(cadena)
 

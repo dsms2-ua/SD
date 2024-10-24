@@ -114,7 +114,7 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES)
-        #os.system('cls')
+        os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -196,7 +196,6 @@ def serviceRequest():
         if not asignado:
             producer.send('service_completed', value=f"{servicio.getCliente()} KO".encode('utf-8'))
 
-            
 def readTaxiUpdate():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -286,13 +285,15 @@ def receiveCommand():
                 if taxi.getId() == int(taxi_id):
                     inicioX = taxi.getCasilla().getX()
                     inicioY = taxi.getCasilla().getY()
-                    taxi.setPosDestino(Casilla(int(inicioX), int(inicioY)))
-                    taxi.setCliente(None)
-                    taxi.setOcupado(False)
+                    taxi.setPosDestino(Casilla(int(action.split(',')[0]), int(action.split(',')[1])))
                     producer.send('service_completed', value = f"{taxi.getCliente()} KO".encode('utf-8'))
+                    taxi.setRecogido(False)
+                    taxi.setCliente(None)
+                    taxi.setOcupado(True)
+                    dest = f"{action.split(',')[0]},{action.split(',')[1]}"
+                    taxi.setDestino(dest)
                     producer.send('taxi_orders', value = f"{taxi_id} {action} {inicioX} {inicioY}".encode('utf-8'))
                     break    
-
 
 def handleCommands(ip,port):
         

@@ -49,10 +49,12 @@ class Mapa:
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
                             elif not taxi.getOcupado():
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            elif taxi.getOcupado() and not taxi.getRecogido():
+                            elif taxi.getOcupado() and not taxi.getRecogido() and taxi.getCliente() is not None:
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             elif taxi.getOcupado() and taxi.getRecogido():
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                            else:
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             break  
                              
                 if not isPos and not isTaxi and taxi.getOcupado():
@@ -172,10 +174,12 @@ class Mapa:
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             elif not taxi.getEstado():
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
-                            elif taxi.getOcupado() and not taxi.getRecogido():
+                            elif taxi.getOcupado() and not taxi.getRecogido() and taxi.getCliente() is not None:
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            elif taxi.getOcupado() and taxi.getRecogido():
+                            elif taxi.getOcupado() and taxi.getRecogido() and taxi.getCliente() is not None:
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
+                            else:
+                                mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             break  
 
                 # Comprobamos si hay un cliente, siempre que no haya un taxi
@@ -421,7 +425,7 @@ def generarTabla(TAXIS, CLIENTES):
         elif not taxi.getRecogido():
             if not taxi.getEstado():
                 strTabla += Fore.RED + taxi.getCliente() + Style.RESET_ALL
-            else: 
+            elif taxi.getCliente() is not None: 
                 strTabla += taxi.getCliente()
         else:
             if not taxi.getEstado():
@@ -432,7 +436,7 @@ def generarTabla(TAXIS, CLIENTES):
 
         #Ahora imprimimos el estado
         if taxi.getEstado():
-            if taxi.getOcupado():
+            if taxi.getOcupado() and taxi.getCliente() is not None:
                 strTabla += "   OK.Servicio " + taxi.getCliente() + " |"
             else:
                 strTabla += "    OK.Parado" + "    |"
