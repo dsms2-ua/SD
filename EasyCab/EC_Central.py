@@ -37,9 +37,10 @@ def leerLocalizaciones(localizaciones):
             localizaciones[id] = Casilla(x, y)
 
 def leerTaxis(taxis):
-    with open("taxis.txt", "r") as file:
-        for linea in file:
-            id = int(linea.strip())
+    with open("EC_Taxis.json", "r") as file:
+        data = json.load(file)
+        for item in data['Taxis']:
+            id = item['Id']
             taxis.append(id)
 
 #Creamos la función que gestiona la autenticación por sockets
