@@ -88,7 +88,7 @@ def receiveMap():
     #Recibimos el mapa
     for message in consumer:
         mapa = pickle.loads(message.value)
-        #os.system('cls')
+        os.system('cls')
         #Vamos a imprimir el estado de todos los sensores también
         print("Sensores         |         Estado")
         for sensor in sensores:
@@ -164,8 +164,9 @@ def irA(destino,inicial):
             time.sleep(1)
         else: 
             estado = "Taxi detenido"    
-            break
+            break    
     estado = "Esperando asignación"
+
 
 
 def process_commands():
