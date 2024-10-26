@@ -15,6 +15,7 @@ from Clases import *
 
 stop_threads = False
 
+centralStop = False
 operativo = True
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
@@ -26,6 +27,8 @@ lock_operativo = threading.Lock()  # Creamos el Lock
 init(autoreset=True)
 
 def sendHeartbeat():
+    global operativo
+    global centralStop
     while not stop_threads:
         aux = False
         if len(sensores) == 0:
@@ -37,7 +40,7 @@ def sendHeartbeat():
                     aux = False
                     operativo = False
                     break
-        if aux:
+        if aux and not centralStop:
             operativo = True
             estadoTaxi = "OK"
         else:
@@ -177,7 +180,7 @@ def irA(destino,inicial):
 
 
 def process_commands():
-    global operativo
+    global operativo, centralStop
     # Configurar el consumidor de Kafka
     consumer = KafkaConsumer('taxi_orders', bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
     # Recibir los mensajes
@@ -185,8 +188,10 @@ def process_commands():
         data = message.value.decode('utf-8').split()
         if data[0] == str(sys.argv[5]):
             if data[1] == "KO":
+                centralStop = True
                 operativo = False
             elif data[1] == "OK":
+                centralStop = False
                 operativo = True
             #recibimos en data[1] el destino al que tenemos que ir
             else:

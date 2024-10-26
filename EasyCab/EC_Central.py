@@ -41,7 +41,7 @@ def leerTaxis(taxis):
         data = json.load(file)
         for item in data['Taxis']:
             id = item['Id']
-            taxis.append(id)
+            taxis.append(int(id))
 
 #Creamos la función que gestiona la autenticación por sockets
 def autheticate_taxi():
@@ -85,8 +85,6 @@ def autheticate_taxi():
                             taxi.setCasilla(Casilla(nueva_x, nueva_y))
                             ocupada = True
                             break
-    
-
                 #Añadimos el taxi a la lista de taxis
                 
                 TAXIS.append(taxi)
@@ -358,7 +356,6 @@ def sendOk():
     while not stop_threads:
         producer.send('centralOk', value = f"OK".encode('utf-8'))
         time.sleep(1)
-
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
