@@ -25,17 +25,20 @@ def sendOk(socket_server):
 
     # Envía OK/KO cada segundo
     while not stop_threads:
-        status = "OK" if OK else "KO"
-        message = create_message(f"{id}#{status}")
-        socket_server.send(message)
-        
-        # Verifica ACK/NACK
-        ack_response = socket_server.recv(1024)
-        if ack_response == NACK:
-            print("Error: Mensaje no fue recibido correctamente")
-        
-        time.sleep(1)
-
+        try:
+            status = "OK" if OK else "KO"
+            message = create_message(f"{id}#{status}")
+            socket_server.send(message)
+            
+            # Verifica ACK/NACK
+            ack_response = socket_server.recv(1024)
+            if ack_response == NACK:
+                print("Error: Mensaje no fue recibido correctamente")
+            
+            time.sleep(1)
+        except Exception as e:
+            print(f"IMPOSIBLE CONECTARSE CON EL TAXI {id}")
+            break
 """
 def sendOk(socket_server):
     global OK
