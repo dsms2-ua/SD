@@ -18,6 +18,7 @@ sensorOut = False
 centralStop = False
 operativo = True
 operativo2 = True
+x=0, y=0
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
@@ -306,6 +307,8 @@ def receiveServices(id):
             while not recogido:
                 if operativo and operativo2:
                     Pos = moverTaxi(Pos, posCliente)
+                    x = Pos.getX()
+                    y = Pos.getY()
                     producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
                     if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
                         recogido = True

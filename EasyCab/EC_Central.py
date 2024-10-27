@@ -270,6 +270,7 @@ def receiveCommand():
                         taxi.setCliente(None)
                         taxi.setOcupado(False)
                         taxi.setRecogido(False)
+                        taxi.setDestino(None)
                         producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
                         break
             else:
@@ -355,12 +356,17 @@ def sendOk():
         producer.send('centralOk', value = f"OK".encode('utf-8'))
         time.sleep(1)
 
+
+        
+
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
     
+
+
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
     leerTaxis(TAXIS_DISPONIBLES)

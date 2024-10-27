@@ -12,6 +12,8 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
+x = 0
+y = 0
 stop_threads = False
 centralTimeout = 0
 taxi_updates = ""
