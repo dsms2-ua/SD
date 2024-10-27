@@ -12,7 +12,6 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
-stop_threads = False
 centralTimeout = 0
 taxi_updates = ""
 
@@ -22,7 +21,7 @@ def receiveMap():
      #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
-    while not stop_threads:
+    while True:
         message = consumer.poll(timeout_ms=1000)
         if message:
             centralTimeout = 0
@@ -85,7 +84,7 @@ def services(id):
     completed = False #Nos marca si el servicio ha sido completado
     #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
     fileName = f"Requests/EC_Requests{id}.json"
-    with open("EC_Requests.json", "r") as file:
+    with open(fileName, "r") as file:
         data = json.load(file)
         for request in data['Requests']:
             request_id = request['Id']
@@ -109,7 +108,7 @@ def services(id):
 #En esta función le sumamos 1 a centralTimeout cada segundo                
 def centralState():
     global centralTimeout
-    while not stop_threads:
+    while True:
         centralTimeout += 1
         time.sleep(1)
                         

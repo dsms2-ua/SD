@@ -11,7 +11,6 @@ import pickle
 import os
 import json
 import subprocess
-import keyboard
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
@@ -23,8 +22,6 @@ TAXIS_DISPONIBLES = []
 TAXIS = []
 #Lista de clientes
 CLIENTES = []
-
-stop_threads = False
 
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
@@ -50,7 +47,7 @@ def autheticate_taxi():
     server_socket.bind(('0.0.0.0', int(sys.argv[1])))
     server_socket.listen(5)
 
-    while not stop_threads:
+    while True:
         # Permitimos la conexión y recibimos los datos
         client, addr = server_socket.accept()
 
@@ -112,7 +109,7 @@ def sendMap():
     #Añadimos el mapa
 
     mapa = Mapa(LOCALIZACIONES, TAXIS, CLIENTES)
-    while not stop_threads:
+    while True:
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
@@ -198,8 +195,8 @@ def readTaxiUpdate():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Recibir los clientes
-    while not stop_threads:
-        for message in consumer:
+    while True:
+        for message in consumer:           
             id, estado = message.value.decode('utf-8').split() 
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
@@ -304,7 +301,7 @@ def handleCommands(ip,port):
 
         producer = KafkaProducer(bootstrap_servers=f'{ip}:{port}')
         
-        while not stop_threads:
+        while True:
             print("Órdenes disponibles:")
             print("1. Parar")
             print("2. Reanudar")
@@ -335,16 +332,8 @@ def open_command_terminal():
     else:
         subprocess.Popen(["gnome-terminal", "--", "python3", "-c", f'import sys; sys.path.append(r"{path}"); from EC_Central import handleCommands; handleCommands("{sys.argv[2]}","{sys.argv[3]}")'])
 
-def leerTeclado():
-    global stop_threads
-    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-    while not stop_threads:
-        if keyboard.is_pressed('Ctrl + C'):
-            stop_threads = True
-            #Aquí deberiamos comunicar a los taxis y a los clientes que el sistema se ha parado
-
 def taxiDisconection():
-    while not stop_threads:
+    while True:
         for taxi in TAXIS:
             if taxi.getTimeout() < 10:
                 taxi.setTimeout(taxi.getTimeout() + 1)
@@ -392,9 +381,6 @@ def main():
     #Iniciar la terminal que lee los comandos
     open_command_terminal()
     
-    teclado_thread = threading.Thread(target=leerTeclado)
-    teclado_thread.daemon = True
-    teclado_thread.start()
 
     receiveCommand_thread = threading.Thread(target=receiveCommand)
     receiveCommand_thread.start()
@@ -409,7 +395,6 @@ def main():
     services_thread.join()
     taxiUpdate_thread.join()
     taxiMovement_thread.join()
-    teclado_thread.join()
     receiveCommand_thread.join()
     taxi_disconection_thread.join()
 
