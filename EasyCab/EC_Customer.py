@@ -12,8 +12,6 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
-x = 0
-y = 0
 stop_threads = False
 centralTimeout = 0
 taxi_updates = ""
@@ -64,7 +62,7 @@ def receiveTaxiUpdates():
 def receiveService(id):
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('service_assigned_client', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
-
+    global taxi_updates
     #Recibimos el servicio
     for message in consumer:
         print(message.value.decode('utf-8'))
@@ -73,10 +71,10 @@ def receiveService(id):
         if data[0] == id:
             if len(data) > 2:
                 #El servicio se ha asignado correctamente
-                print(f"El servicio ha sido asignado correctamente y el taxi {data[3]} se dirige a tu posición.")
+                taxi_updates = f"El servicio ha sido asignado correctamente y el taxi {data[3]} se dirige a tu posición."
             else:
                 #El servicio no se ha podido asignar
-                print("No se ha podido asignar el servicio. Inténtalo más tarde.")
+                taxi_updates = "No se ha podido asignar el servicio. Inténtalo más tarde." 
 
 
 def services(id):

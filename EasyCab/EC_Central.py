@@ -100,8 +100,6 @@ def autheticate_taxi():
             client.send("ERROR".encode('utf-8'))
             client.close()
 
-
-
 #Función para enviar el mapa y para mostrar la tabla
 def sendMap():
     #Creamos el productor de Kafka

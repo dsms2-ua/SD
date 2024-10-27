@@ -18,7 +18,6 @@ sensorOut = False
 centralStop = False
 operativo = True
 operativo2 = True
-x=0, y=0
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
