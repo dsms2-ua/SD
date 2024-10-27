@@ -108,7 +108,7 @@ def receiveMap():
                     print(mapa.cadenaMapaTaxi(str(sys.argv[5])) + cadena)
                     
         else:
-            if centralTimeout > 10:
+            if centralTimeout > 5:
                 os.system('cls')
                 imprimirErrorCentral()
 

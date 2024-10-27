@@ -102,6 +102,7 @@ def autheticate_taxi():
             client.close()
 
 
+
 #Función para enviar el mapa y para mostrar la tabla
 def sendMap():
     #Creamos el productor de Kafka
@@ -112,7 +113,7 @@ def sendMap():
     while not stop_threads:
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
-        str = generarTabla(TAXIS, CLIENTES)
+        str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
         os.system('cls')
         print(str)
         print(mapa.cadenaMapa())

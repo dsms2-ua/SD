@@ -14,7 +14,6 @@ from Clases import *
 
 stop_threads = False
 centralTimeout = 0
-
 taxi_updates = ""
 
 def receiveMap():
@@ -34,7 +33,7 @@ def receiveMap():
                     cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
                     print(cadena)
         else:
-            if centralTimeout > 10:
+            if centralTimeout > 5:
                 os.system('cls')
                 imprimirErrorCentral()
 

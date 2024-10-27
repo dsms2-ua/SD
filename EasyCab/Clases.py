@@ -397,7 +397,7 @@ class Servicio:
         self.posCliente = posCliente
     
 
-def generarTabla(TAXIS, CLIENTES):
+def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
     strTabla =  "___________________________________________________________________________\n"
     strTabla += "|                             ***EASYCAB***                               |\n"
     strTabla += "|-------------------------------------------------------------------------|\n"
@@ -443,13 +443,21 @@ def generarTabla(TAXIS, CLIENTES):
         else:
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
-            
-        strTabla += "       " + str(taxi.getCasilla())
+        #Ahora imprimimos la posición
+        pos = taxi.getCasilla()
+        aux = False
+        for loc in LOCALIZACIONES:
+            if LOCALIZACIONES[loc] == pos:
+                aux = True
+                strTabla += "         " + loc + "     "
+                break  
+        if not aux:
+            strTabla += "       " + str(taxi.getCasilla())
         
-        if taxi.getCasilla().getX() < 10 and taxi.getCasilla().getY() < 10:
-            strTabla += "  "
-        elif taxi.getCasilla().getX() < 10 or taxi.getCasilla().getY() < 10:
-            strTabla += " "
+            if taxi.getCasilla().getX() < 10 and taxi.getCasilla().getY() < 10:
+                strTabla += "  "
+            elif taxi.getCasilla().getX() < 10 or taxi.getCasilla().getY() < 10:
+                strTabla += " "
               
         strTabla += "    |"
 
@@ -484,12 +492,23 @@ def generarTabla(TAXIS, CLIENTES):
             
         #Aquí ajustamos el formato
         
-        strTabla += "       " + str(cliente.getPosicion())
+        #Primero imprimimos la posición
+
+        pos = cliente.getPosicion()
+        aux = False
+        for loc in LOCALIZACIONES:
+            if LOCALIZACIONES[loc] == pos:
+                aux = True
+                strTabla += "         " + loc + "     "
+                break
         
-        if cliente.getPosicion().getX() < 10 and cliente.getPosicion().getY() < 10:
-            strTabla += "  "
-        elif cliente.getPosicion().getX() < 10 or cliente.getPosicion().getY() < 10:
-            strTabla += " "
+        if not aux:
+            strTabla += "       " + str(cliente.getPosicion())
+            
+            if cliente.getPosicion().getX() < 10 and cliente.getPosicion().getY() < 10:
+                strTabla += "  "
+            elif cliente.getPosicion().getX() < 10 or cliente.getPosicion().getY() < 10:
+                strTabla += " "
               
         strTabla += "    |"
         
