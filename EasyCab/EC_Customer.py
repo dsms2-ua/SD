@@ -78,6 +78,7 @@ def receiveService(id):
 
 
 def services(id):
+    global taxi_updates
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     consumer = KafkaConsumer('service_completed', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
@@ -88,6 +89,7 @@ def services(id):
         data = json.load(file)
         for request in data['Requests']:
             request_id = request['Id']
+            taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Solicitud de servicio a destino {request_id}{Style.RESET_ALL}"
             producer.send('service_requests', value=f"{id} {request_id}".encode('utf-8'))
 
             while not completed:

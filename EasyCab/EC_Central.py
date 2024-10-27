@@ -208,6 +208,9 @@ def readTaxiUpdate():
                     taxi.setTimeout(0)
                     if estado == "KO" and taxi.getEstado() == True:
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
+                        taxi.setOcupado(False)
+                        taxi.setRecogido(False)
+                        taxi.setCliente(None)
                         #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
 
                     elif estado == "OK" and taxi.getEstado() == False:

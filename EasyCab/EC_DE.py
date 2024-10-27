@@ -14,7 +14,7 @@ import os
 from Clases import *
 
 stop_threads = False
-
+sensorOut = False
 centralStop = False
 operativo = True
 estado="Esperando asignación"
@@ -27,6 +27,7 @@ lock_operativo = threading.Lock()  # Creamos el Lock
 init(autoreset=True)
 
 def sendHeartbeat():
+    global estado
     global operativo
     global centralStop
     while not stop_threads:
@@ -36,13 +37,14 @@ def sendHeartbeat():
         else:
             for sensor in sensores:
                 aux = True
-                if not sensores[sensor]:
+                if sensores[sensor] == "KO" or sensores[sensor] == "Desconectado":
                     aux = False
                     operativo = False
                     break
         if aux and not centralStop:
             operativo = True
             estadoTaxi = "OK"
+            estado = "Esperando asignación"
         else:
             estadoTaxi = "KO"
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
@@ -78,7 +80,7 @@ def sensoresStates():
     global operativo
     while not stop_threads:
         for sensor in sensores:
-            if operativo and not sensores[sensor]:
+            if operativo and sensores[sensor] == "KO":
                 operativo = False
                 estado = "Taxi parado por sensores"
             
@@ -100,8 +102,10 @@ def receiveMap():
                     print("Sensores         |         Estado")
                     for sensor in sensores:
                         print(f"   {sensor}             |           ", end="")
-                        if sensores[sensor] == False:
+                        if sensores[sensor] == "KO":
                             print(f"{Fore.RED}KO{Style.RESET_ALL}")
+                        elif sensores[sensor] == "Desconectado":
+                            print(f"{Fore.RED}Desconectado{Style.RESET_ALL}")
                         else:
                             print(f"{Fore.GREEN}OK{Style.RESET_ALL}")
                     cadena = f"\n{Back.WHITE}{Fore.BLACK}{estado}{Style.RESET_ALL}"
@@ -119,30 +123,48 @@ def handleAlerts(client_socket, producer, id):
     client_socket.settimeout(1.0)
 
     while not stop_threads:
-        data = client_socket.recv(1024).decode('utf-8')
-        #Si recibimos el mensaje con solo una palabra, es de conexion
-        if len(data.split()) == 1:
-            sensor = len(sensores) + 1
-            est = data.split()[0]
-            sensores[sensor] = est
+        try:
+            data = client_socket.recv(1024).decode('utf-8')
+            #Si recibimos el mensaje con solo una palabra, es de conexion
+            if len(data.split()) == 1:
+                aux = False
+                for sensor in sensores:
+                    if sensores[sensor] == "Desconectado":
+                        aux = True
+                        sensores[sensor] = "OK"
+                if not aux:
+                    sensor = len(sensores) + 1
+                    est = data.split()[0]
+                    sensores[sensor] = "OK"
+                
+                client_socket.send(f"{sensor}".encode('utf-8'))
+            #Si recibimos el mensaje con dos palabras, es de estado  
+            if len(data.split()) == 2:
+                sensor = int(data.split()[0])
+                est = data.split()[1]        
+                if est == "KO":
+                    sensores[sensor] = "KO"
+                    if operativo:
+                        operativo = False
+                elif est == "OK":
+                    sensores[sensor] = "OK"
+                    if not operativo:
+                        operativo = True                   
+                elif est == "STOP":
+                    #Borramos ese sensor del diccionario
+                    sensores.pop(sensor)
             
-            client_socket.send(f"{sensor}".encode('utf-8'))
-        
-        #Si recibimos el mensaje con dos palabras, es de estado  
-        if len(data.split()) == 2:
-            sensor = int(data.split()[0])
-            est = data.split()[1]        
-            if est == "KO":
-                sensores[sensor] = False
-                if operativo:
-                    operativo = False
-            elif est == "OK":
-                sensores[sensor] = True
-                if not operativo:
-                    operativo = True                   
-            elif est == "STOP":
-                #Borramos ese sensor del diccionario
-                sensores.pop(sensor)
+        except socket.timeout:
+            #Si se produce un timeout
+            operativo = False
+            estado = "Parado por sensores"
+            sensores[sensor] = "Desconectado"
+            break  # Salir del bucle si se detecta una desconexión
+        except Exception as e:
+            operativo = False
+            estado = "Parado por sensores"
+            sensores[sensor] = "Desconectado"
+            break
         time.sleep(1)
 
 def sendAlerts(id):
