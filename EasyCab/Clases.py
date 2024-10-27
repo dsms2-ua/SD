@@ -51,7 +51,7 @@ class Mapa:
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             elif taxi.getOcupado() and not taxi.getRecogido() and taxi.getCliente() is not None:
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
-                            elif taxi.getOcupado() and taxi.getRecogido():
+                            elif taxi.getOcupado() and taxi.getRecogido() and taxi.getCliente() is not None:
                                 mapa_str += Back.GREEN + " " + Fore.BLACK + str(taxi.getId()) + taxi.getCliente() + Style.RESET_ALL
                             else:
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL

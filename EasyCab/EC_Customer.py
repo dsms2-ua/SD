@@ -104,6 +104,7 @@ def services(id):
                 if completed:
                     completed = False  # Reset completed for the next request
                     break
+    taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Todos los servicios han sido completados{Style.RESET_ALL}"
 
 #En esta función le sumamos 1 a centralTimeout cada segundo                
 def centralState():

@@ -90,7 +90,6 @@ def autheticate_taxi():
                 TAXIS.append(taxi)
                 #Respondemos con un OK
                 client.send("OK".encode('utf-8'))
-                print(f"Taxi {id} autenticado correctamente")
                 #Cerramos la conexión
                 client.close()
             else:
@@ -128,7 +127,6 @@ def readClients():
     #Recibir los clientes
     for message in consumer:
         id = message.value.decode('utf-8')
-        print(f"Cliente {id} conectado")
         client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
 
         CLIENTES.append(client)
@@ -157,7 +155,6 @@ def serviceRequest():
                     if loc == destino:
                         servicio.setPosDestino(LOCALIZACIONES[loc])
 
-        print(f"Cliente {servicio.getCliente()} solicita un taxi")        
         #Buscamos un taxi libre
         asignado = False
         intentos = 0
@@ -180,7 +177,6 @@ def serviceRequest():
                         if loc == servicio.getDestino():
                             taxi.setPosDestino(LOCALIZACIONES[loc])
 
-                    print(f"Taxi {taxi.getId()} asignado al cliente {servicio.getCliente()}")
                     producer.send('service_assigned_client', value=f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
 
                     # Mandamos el objeto servicio
@@ -190,7 +186,6 @@ def serviceRequest():
             if not asignado:
                 intentos += 1
                 if intentos < max_intentos:
-                    print(f"Intento {intentos} fallido. Reintentando en 3 segundos...")
                     time.sleep(3)
 
         if not asignado:
@@ -266,7 +261,6 @@ def receiveCommand():
         taxi_id = command[0]
         action = command[1]
 
-        print(f"Taxi {taxi_id} ha recibido la orden {action}")
 
         if topic == "taxi_commands":
             if action == "KO":
