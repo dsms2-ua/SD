@@ -45,59 +45,64 @@ def leerTaxis(taxis):
 
 #Creamos la función que gestiona la autenticación por sockets
 def autheticate_taxi():
-    #Creamos el socket del servidor con la direccion por parametros
+    # Creamos el socket del servidor con la dirección pasada por parámetro
     server_socket = socket.socket()
     server_socket.bind(('0.0.0.0', int(sys.argv[1])))
     server_socket.listen(5)
 
     while not stop_threads:
-        #Permitimos la conexión y recibimos los datos
+        # Permitimos la conexión y recibimos los datos
         client, addr = server_socket.accept()
 
-        data = client.recv(1024).decode('utf-8')
-        if not data:
+        # Recibimos el mensaje en formato bytes
+        message = client.recv(1024)
+        
+        # Verificamos el mensaje
+        data = verify_message(message)
+        if data is None:
+            # Enviar un NACK si el mensaje es incorrecto
+            client.send(NACK)
             client.close()
-        #Ahora comprobamos que en la lista de taxis se encuentra el taxi que se ha conectado
+            continue
+
         try:
-            id = int(data)
-            if id in TAXIS_DISPONIBLES:
-                #Creamos el objeto taxi
-                taxi = Taxi(id)
+            # Procesamos el ID del taxi
+            taxi_id = int(data)
+            if taxi_id in TAXIS_DISPONIBLES:
+                # Creamos el objeto taxi y lo ubicamos en una posición no ocupada
+                taxi = Taxi(taxi_id)
                 taxi.setCasilla(Casilla(1, 1))
-                #Borramos el taxi de la lista de taxis disponibles
-                TAXIS_DISPONIBLES.remove(id)
+                TAXIS_DISPONIBLES.remove(taxi_id)
+                
+                # Ubicar el taxi en una posición disponible
                 ocupada = True
                 while ocupada:
                     ocupada = False
                     for t in TAXIS:
                         if t.getCasilla() == taxi.getCasilla():
-                            # Intentar mover en la dirección X primero
                             nueva_x = taxi.getCasilla().getX() + 1
                             nueva_y = taxi.getCasilla().getY()
-                            
-                            # Si la nueva posición en X está ocupada, intentar mover en la dirección Y
                             while any(t.getCasilla() == Casilla(nueva_x, nueva_y) for t in TAXIS):
                                 nueva_x += 1
                                 if nueva_x == 20:
                                     nueva_x = 1
                                     nueva_y += 1
-                            
                             taxi.setCasilla(Casilla(nueva_x, nueva_y))
                             ocupada = True
                             break
-                #Añadimos el taxi a la lista de taxis
                 
+                # Añadimos el taxi a la lista de taxis y respondemos con "OK"
                 TAXIS.append(taxi)
-                #Respondemos con un OK
-                client.send("OK".encode('utf-8'))
-                #Cerramos la conexión
-                client.close()
+                response = create_message("OK")
+                client.send(response)
             else:
-                #Mandamos un mensaje al taxi de error
-                client.send("ERROR".encode('utf-8'))
-                client.close()
+                # Mandamos un mensaje al taxi de error
+                response = create_message("ERROR")
+                client.send(response)
         except ValueError:
-            client.send("ERROR".encode('utf-8'))
+            response = create_message("ERROR")
+            client.send(response)
+        finally:
             client.close()
 
 #Función para enviar el mapa y para mostrar la tabla

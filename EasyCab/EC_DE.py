@@ -53,21 +53,25 @@ def sendHeartbeat():
         time.sleep(1)
 
 def authenticateTaxi():
-    #Recogemos los datos de los argumentos
+    # Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
     central_port = int(sys.argv[2])
 
-    #Nos conectamos a la central por sockets
+    # Nos conectamos a la central por sockets
     client_socket = socket.socket()
     client_socket.connect((central_ip, central_port))
 
-    #Enviamos el id del taxi para comprobar
+    # Enviamos el ID del taxi en el formato adecuado
     taxi_id = int(sys.argv[5])
-    client_socket.send(f"{taxi_id}".encode('utf-8'))
+    message = create_message(str(taxi_id))
+    client_socket.send(message)
 
-    #Recibimos la respuesta de la central
-    respuesta = client_socket.recv(1024).decode('utf-8')
-    if respuesta == "OK":
+    # Recibimos la respuesta de la central
+    response = client_socket.recv(1024)
+    data = verify_message(response)
+
+    # Validamos la respuesta recibida
+    if data == "OK":
         print("Taxi autenticado correctamente")
         client_socket.close()
         return True
