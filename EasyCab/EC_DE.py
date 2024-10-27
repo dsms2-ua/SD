@@ -257,8 +257,6 @@ def irA(destino,inicial):
     estado = "Esperando asignación"
     operativo2 = True
 
-
-
 def process_commands():
     global operativo, operativo2, centralStop
     # Configurar el consumidor de Kafka
@@ -271,8 +269,14 @@ def process_commands():
                 centralStop = True
                 operativo = False
             elif data[1] == "OK":
-                centralStop = False
-                operativo = True
+                aux = False
+                for sensor in sensores:
+                    if sensores[sensor] == "KO" or sensores[sensor] == "Desconectado":
+                        aux = True
+                        break
+                if not aux:
+                    centralStop = False
+                    operativo = True
             #recibimos en data[1] el destino al que tenemos que ir
             else:
                 #creamos una casilla con las coordenadas del destino
