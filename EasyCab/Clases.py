@@ -575,3 +575,37 @@ def imprimirErrorCentral():
     print("##                                                      ##")
     print("##                                                      ##")
     print("##########################################################")
+
+# Constantes para el protocolo
+STX = b'\x02'
+ETX = b'\x03'
+ACK = b'\x06'
+NACK = b'\x15'
+
+
+# Función para calcular el LRC de un mensaje
+def calculate_lrc(data: bytes) -> bytes:
+    lrc = 0
+    for byte in data:
+        lrc ^= byte
+    return bytes([lrc])
+
+# Empaqueta el mensaje en el formato <STX><DATA><ETX><LRC>
+def create_message(data: str) -> bytes:
+    data_bytes = data.encode('utf-8')
+    lrc = calculate_lrc(data_bytes)
+    return STX + data_bytes + ETX + lrc
+
+# Verifica el mensaje recibido usando <LRC> y retorna el contenido si es válido
+def verify_message(message: bytes) -> str:
+    if message[0] != STX[0] or message[-2] != ETX[0]:
+        return None  # Mensaje mal empaquetado
+
+    data = message[1:-2]
+    lrc_received = message[-1]
+    lrc_calculated = calculate_lrc(data)[0]
+
+    if lrc_received == lrc_calculated:
+        return data.decode('utf-8')
+    else:
+        return None  # LRC incorrecto

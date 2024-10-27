@@ -97,7 +97,7 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
-                    os.system('cls')
+                    #os.system('cls')
                      #Vamos a imprimir el estado de todos los sensores también
                     print("Sensores         |         Estado")
                     for sensor in sensores:
@@ -116,6 +116,58 @@ def receiveMap():
                 os.system('cls')
                 imprimirErrorCentral()
 
+def handleAlerts(client_socket, producer, id):
+    global operativo, estado
+
+    client_socket.settimeout(1.0)
+
+    while not stop_threads:
+        try:
+            data = client_socket.recv(1024)
+            decoded_data = verify_message(data)
+            if decoded_data:
+                fields = decoded_data.split("#")
+                
+                # Mensaje de conexión inicial (un campo, ej.: SENSOR)
+                if len(fields) == 1:
+                    aux = False
+                    for sensor in sensores:
+                        if sensores[sensor] == "Desconectado":
+                            sensores[sensor] = "OK"
+                            aux = True
+                            client_socket.send(create_message(f"{sensor}"))
+                            break
+                    if not aux:
+                        sensor_id = len(sensores) + 1
+                        sensores[sensor_id] = "OK"
+                        client_socket.send(create_message(f"{sensor_id}"))
+    
+                # Mensaje de estado (dos campos, ej.: id#status)
+                elif len(fields) == 2:
+                    sensor_id = int(fields[0])
+                    est = fields[1]
+                    if est == "KO":
+                        sensores[sensor_id] = "KO"
+                        operativo = False
+                        estado = "Parado por sensores"
+                    elif est == "OK":
+                        sensores[sensor_id] = "OK"
+                        operativo = True
+                    elif est == "STOP":
+                        sensores.pop(sensor_id)
+                    client_socket.send(ACK if decoded_data else NACK)           
+        except socket.timeout:
+            sensores[sensor_id] = "Desconectado"
+            operativo = False
+            estado = "Parado por sensores"
+            break
+        except Exception as e:
+            sensores[sensor_id] = "Desconectado"
+            operativo = False
+            estado = "Parado por sensores"
+            break
+        time.sleep(1)
+"""
 def handleAlerts(client_socket, producer, id):
     global operativo
     global estado
@@ -166,7 +218,7 @@ def handleAlerts(client_socket, producer, id):
             sensores[sensor] = "Desconectado"
             break
         time.sleep(1)
-
+"""
 def sendAlerts(id):
     #Creamos el socket de conexión con los sensores
     server_socket = socket.socket()

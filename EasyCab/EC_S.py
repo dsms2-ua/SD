@@ -3,12 +3,40 @@ import time
 import threading
 import sys
 import keyboard
+from Clases import *
 
 stop_threads = False
 
 OK = True
 id = 0
 
+def sendOk(socket_server):
+    global OK, id
+    socket_server.send(create_message("SENSOR"))  # Identificación inicial
+    response = socket_server.recv(1024)
+
+    # Recibe ID del servidor
+    decoded_response = verify_message(response)
+    if decoded_response:
+        id = decoded_response
+    else:
+        print("Error: No se pudo asignar el ID")
+        return
+
+    # Envía OK/KO cada segundo
+    while not stop_threads:
+        status = "OK" if OK else "KO"
+        message = create_message(f"{id}#{status}")
+        socket_server.send(message)
+        
+        # Verifica ACK/NACK
+        ack_response = socket_server.recv(1024)
+        if ack_response == NACK:
+            print("Error: Mensaje no fue recibido correctamente")
+        
+        time.sleep(1)
+
+"""
 def sendOk(socket_server):
     global OK
     global id
@@ -23,6 +51,7 @@ def sendOk(socket_server):
         else:
             socket_server.send(f"{id} KO".encode('utf-8'))
         time.sleep(1)
+"""
 
 def sendAlert():
     global OK
