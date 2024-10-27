@@ -19,4 +19,3 @@ for /L %%t in (1,1,%numTaxis%) do (
 )
 
 echo Sensores iniciados.
-pause
