@@ -12,6 +12,7 @@ import json
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
 
+finished = False
 centralTimeout = 0
 taxi_updates = ""
 
@@ -29,6 +30,7 @@ def receiveMap():
                 for message in messages:
                     mapa = pickle.loads(message.value)
                     os.system('cls')
+                    print(f"Cliente {sys.argv[3]}")
                     cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
                     print(cadena)
         else:
@@ -77,7 +79,7 @@ def receiveService(id):
 
 
 def services(id):
-    global taxi_updates
+    global taxi_updates, finished
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     consumer = KafkaConsumer('service_completed', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
@@ -104,6 +106,7 @@ def services(id):
                     completed = False  # Reset completed for the next request
                     break
     taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Todos los servicios han sido completados{Style.RESET_ALL}"
+    finished = True
 
 #En esta función le sumamos 1 a centralTimeout cada segundo                
 def centralState():
@@ -111,6 +114,11 @@ def centralState():
     while True:
         centralTimeout += 1
         time.sleep(1)
+        
+def sendState(id):
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+    while not finished:
+        producer.send('customerOK', value=f"{id} OK".encode("utf-8"))
                         
 
 def main():
@@ -143,12 +151,16 @@ def main():
     
     centralState_thread = threading.Thread(target=centralState)
     centralState_thread.start()
+    
+    sendOK_thread = threading.Thread(target=sendState, args=id,)
+    sendOK_thread.start()
 
     map_thread.join()
     service_thread.join()
     services_thread.join()
     taxi_thread.join()
     centralState_thread.join()
+    sendOK_thread.join()
 
 if __name__ == "__main__":
     main()

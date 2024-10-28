@@ -341,6 +341,24 @@ def taxiDisconection():
                 TAXIS_DISPONIBLES.append(taxi.getId())
                 TAXIS.remove(taxi)
         time.sleep(1)
+        
+def customerDisconnection():
+    while True:
+        for cliente in CLIENTES:
+            if cliente.getTimeout() < 5:
+                cliente.setTimeout(cliente.getTimeout() + 1)
+            else:
+                CLIENTES.remove(cliente)
+        time.sleep(1)
+        
+def customerState():
+    consumer = KafkaConsumer('customerOK', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    while True:
+        for message in consumer:
+            id, st = message.value.decode('utf-8').split()
+            for cliente in CLIENTES:
+                if cliente.getId() == id:
+                    cliente.setTimeout(0)
 
 def main():
     # Comprobar que se han pasado los argumentos correctos
@@ -348,7 +366,6 @@ def main():
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
     
-
 
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
@@ -388,6 +405,12 @@ def main():
     taxi_disconection_thread = threading.Thread(target=taxiDisconection)
     taxi_disconection_thread.start()
     
+    customerDisconnection_thread = threading.Thread(target=customerDisconnection)
+    customerDisconnection_thread.start()
+    
+    customerState_thread = threading.Thread(target=customerState)
+    customerState_thread.start()
+    
 
     auth_thread.join()
     map_thread.join()
@@ -397,6 +420,8 @@ def main():
     taxiMovement_thread.join()
     receiveCommand_thread.join()
     taxi_disconection_thread.join()
+    customerDisconnection_thread.join()
+    customerState_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":

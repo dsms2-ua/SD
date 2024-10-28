@@ -312,12 +312,16 @@ class Cliente():
         self.id = id
         self.posicion = generarAleatoria(locs, taxis, clientes)
         self.destino = None
+        self.timeout = 0
 
     def setDestino(self, destino):
         self.destino = destino
 
     def setPosicion(self, posicion):
         self.posicion = posicion
+    
+    def setTimeout(self, timeout):
+        self.timeout = timeout
     
     def getId(self):
         return self.id
@@ -327,6 +331,9 @@ class Cliente():
     
     def getDestino(self):
         return self.destino
+    
+    def getTimeout(self):
+        return self.timeout
         
 
 def generarAleatoria(locs, taxis, clientes):
