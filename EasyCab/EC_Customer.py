@@ -85,7 +85,11 @@ def services(id):
 
     completed = False #Nos marca si el servicio ha sido completado
     #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
-    fileName = f"Requests/EC_Requests{id}.json"
+
+    #Converitmos de id a numero: a -> 1
+    id = ord(id) - 96
+
+    fileName = f"Requests/EC_Requests_{id}.json"
     with open(fileName, "r") as file:
         data = json.load(file)
         for request in data['Requests']:
