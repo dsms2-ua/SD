@@ -87,7 +87,7 @@ def services(id):
     #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
 
     #Converitmos de id a numero: a -> 1
-    id = ord(id) - 96
+    number = ord(id) - 96
 
     fileName = f"Requests/EC_Requests_{id}.json"
     with open(fileName, "r") as file:
