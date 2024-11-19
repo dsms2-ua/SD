@@ -92,10 +92,21 @@ def autheticate_taxi():
                 TAXIS.append(taxi)
                 response = create_message("OK")
                 client.send(response)
+            #comprobamos si el taxi ya está autenticado pero esta en no visible
             else:
+                aux = False
+                for t in TAXIS:
+                    if t.getId() == taxi_id and t.getVisible() == False:
+                        t.setVisible(True)
+                        response = create_message("OK")
+                        client.send(response)
+                        aux = True
+                        break
+
                 # Mandamos un mensaje al taxi de error
-                response = create_message("ERROR")
-                client.send(response)
+                if not aux:
+                    response = create_message("ERROR")
+                    client.send(response)
         except ValueError:
             response = create_message("ERROR")
             client.send(response)
@@ -118,8 +129,7 @@ def sendMap():
         print(mapa.cadenaMapa())
 
         #Aquí esperamos un segundo y lo volvemos a mandar
-        time.sleep(1)
-
+        time.sleep(0.5)
 
 def readClients():
     #Crear un consumidor de Kafka
@@ -130,7 +140,6 @@ def readClients():
         client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
 
         CLIENTES.append(client)
-
 
 def serviceRequest():
     #Crear un consumidor de Kafka
@@ -261,7 +270,6 @@ def receiveCommand():
         taxi_id = command[0]
         action = command[1]
 
-
         if topic == "taxi_commands":
             if action == "KO":
                 for taxi in TAXIS:
@@ -335,11 +343,16 @@ def open_command_terminal():
 def taxiDisconection():
     while True:
         for taxi in TAXIS:
-            if taxi.getTimeout() < 10:
+            if taxi.getTimeout() < 5:
                 taxi.setTimeout(taxi.getTimeout() + 1)
             else:
-                TAXIS_DISPONIBLES.append(taxi.getId())
-                TAXIS.remove(taxi)
+                taxi.setEstado(False)
+                taxi.setOcupado(False)
+                taxi.setRecogido(False)
+                taxi.setCliente(None)
+                taxi.setDestino(None)
+                taxi.setPosDestino(None)
+                taxi.setVisible(False)
         time.sleep(1)
         
 def customerDisconnection():

@@ -42,7 +42,7 @@ class Mapa:
 
                 if not isPos:
                     for taxi in self.taxis:
-                        if taxi.getX() == j and taxi.getY() == i and str(taxi.getId()) == idTaxi:
+                        if taxi.getX() == j and taxi.getY() == i and str(taxi.getId()) == idTaxi and taxi.getVisible():
                             isTaxi = True
                             # Cambiamos el color del fondo según el estado del taxi
                             if not taxi.getEstado():
@@ -105,7 +105,7 @@ class Mapa:
                 if not isPos:
                     for taxi in self.taxis:
                         if(taxi.getCliente() is not None):
-                            if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer:
+                            if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer and taxi.getVisible():
                                 isTaxi = True
                                 # Cambiamos el color del fondo según el estado del taxi
                                 if not taxi.getEstado():
@@ -166,7 +166,7 @@ class Mapa:
                 if not isPos:
                     # Comprobamos si hay un taxi
                     for taxi in self.taxis:
-                        if taxi.getX() == j and taxi.getY() == i:
+                        if taxi.getX() == j and taxi.getY() == i and taxi.getVisible():
                             isTaxi = True
                             if not taxi.getEstado():
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
@@ -235,7 +235,11 @@ class Taxi:
         self.posDestino = None
         self.recogido = False #Indica si hemos recogido al cliente o no
         self.timeout = 0
+        self.visible = True;
 
+    def setVisible(self, visible):
+        self.visible = visible
+    
     def setTimeout(self, timeout):
         self.timeout = timeout
 
@@ -266,6 +270,8 @@ class Taxi:
     def setRecogido(self, recogido):
         self.recogido = recogido
 
+    def getVisible(self):
+        return self.visible
 
     def getId(self):
         return self.id
@@ -447,9 +453,11 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
                 strTabla += "   OK.Servicio " + taxi.getCliente() + " |"
             else:
                 strTabla += "    OK.Parado" + "    |"
-        else:
+        elif taxi.getVisible():
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
+        else:
+            strTabla += Fore.RED + "KO. Desconectado" + Style.RESET_ALL + " |"
         #Ahora imprimimos la posición
         pos = taxi.getCasilla()
         aux = False
