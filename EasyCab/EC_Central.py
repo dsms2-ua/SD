@@ -71,23 +71,6 @@ def autheticate_taxi():
                 taxi.setCasilla(Casilla(1, 1))
                 TAXIS_DISPONIBLES.remove(taxi_id)
                 
-                # Ubicar el taxi en una posición disponible
-                ocupada = True
-                while ocupada:
-                    ocupada = False
-                    for t in TAXIS:
-                        if t.getCasilla() == taxi.getCasilla():
-                            nueva_x = taxi.getCasilla().getX() + 1
-                            nueva_y = taxi.getCasilla().getY()
-                            while any(t.getCasilla() == Casilla(nueva_x, nueva_y) for t in TAXIS):
-                                nueva_x += 1
-                                if nueva_x == 20:
-                                    nueva_x = 1
-                                    nueva_y += 1
-                            taxi.setCasilla(Casilla(nueva_x, nueva_y))
-                            ocupada = True
-                            break
-                
                 # Añadimos el taxi a la lista de taxis y respondemos con "OK"
                 TAXIS.append(taxi)
                 response = create_message("OK")
@@ -124,7 +107,7 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
-        os.system('cls')
+        #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -205,22 +188,54 @@ def readTaxiUpdate():
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Recibir los clientes
     while True:
-        for message in consumer:           
-            id, estado = message.value.decode('utf-8').split() 
+        for message in consumer: 
+            id, estado, posX, posY = message.value.decode('utf-8').split() 
+            estado = True if estado == "True" else False
+            print(f"Taxi {id} actualizado a la posición {posX},{posY} y estado: {estado}" )
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
                     taxi.setTimeout(0)
-                    if estado == "KO" and taxi.getEstado() == True:
+                    if not estado and taxi.getEstado() == True:
+                        print(f"Taxi {id} desconectado")
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
                         taxi.setOcupado(False)
                         taxi.setRecogido(False)
                         taxi.setCliente(None)
                         #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
-
-                    elif estado == "OK" and taxi.getEstado() == False:
+                    elif estado and taxi.getEstado() == False:
                         taxi.setEstado(True)
+                        print("llegamos")
+                        taxi.setCasilla(Casilla(int(posX), int(posY)))
+                    elif estado and taxi.getEstado() == True and taxi.getCliente() == None:
+                        taxi.setCasilla(Casilla(int(posX), int(posY)))
+                    elif estado and taxi.getEstado() == True and taxi.getCliente() != None: 
+                        taxi.setCasilla(Casilla(int(posX), int(posY)))
+                        print("llegamos2")
+                        if taxi.getRecogido():
+                            #Tenemos que actualizar la posición del cliente
+                            for cliente in CLIENTES:
+                                if cliente.getId() == taxi.getCliente():
+                                    cliente.setPosicion(taxi.getCasilla())
+                                    break
+                        if taxi.getPosCliente() == taxi.getCasilla():
+                            taxi.setRecogido(True)
+                        
+                        if taxi.getPosDestino() == taxi.getCasilla():
+                            #El cliente ya ha llegado y tenemos que actualizar todos los datos
+                            for cliente in CLIENTES:
+                                if cliente.getId() == taxi.getCliente():
+                                    cliente.setDestino(None)
+                                    break
+                            #Tengo que notificar al cliente que ha llegado a la posición y puedo procesar la siguiente petición
+                            producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+                            producer.send('service_completed', value = f"{taxi.getCliente()} OK".encode('utf-8'))
+                            taxi.setOcupado(False)
+                            taxi.setRecogido(False)
+                            taxi.setCliente(None)
+                            taxi.setDestino(None)
+                            taxi.setPosDestino(None)
                     break
-
+"""
 def readTaxiMovements():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('taxiMovements', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -255,7 +270,7 @@ def readTaxiMovements():
                     taxi.setRecogido(False)
                     taxi.setCliente(None)
                 break
-
+"""
 def receiveCommand():
     
     #creamos consumer dekafka
@@ -373,16 +388,71 @@ def customerState():
                 if cliente.getId() == id:
                     cliente.setTimeout(0)
 
+def reconexion():
+    start_time = time.time()
+    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    while time.time() - start_time < 3:
+        message = consumer.poll(timeout_ms=500)  
+        if message:
+            for tp, messages in message.items():
+                for msg in messages:
+                    if time.time() - start_time >= 3:
+                        break  # Sale del bucle for interno si se excede el tiempo
+                    id, estado, posX, posY = msg.value.decode('utf-8').split()
+                    estado = True if estado == "True" else False
+                    id = int(id)
+                    taxi = Taxi(id)
+                    taxi.setEstado(estado)
+                    taxi.setCasilla(Casilla(int(posX), int(posY)))
+                    taxi.setVisible(True)
+                    if id in TAXIS_DISPONIBLES:
+                        TAXIS.append(taxi)
+                        TAXIS_DISPONIBLES.remove(id)
+                        print(f"Taxi {id} reconectado")
+        if time.time() - start_time >= 3:
+            break  # Sale del bucle while si se excede el tiempo
+"""
+def reconexion():
+    start_time = time.time()
+    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    while time.time() - start_time < 3:
+        message = consumer.poll(timeout_ms=1000)  # Polling con tiempo de espera de 1 segundo
+        if message:
+            for tp, messages in message.items():
+                for msg in messages:
+                    if time.time() - start_time >= 3:
+                        break  # Sale del bucle for interno si se excede el tiempo
+                    id, estado, posX, posY = msg.value.decode('utf-8').split()
+                    taxi = Taxi(id)
+                    taxi.setEstado(estado)
+                    taxi.setCasilla(Casilla(int(posX), int(posY)))
+                    TAXIS.append(taxi)
+                    if id in TAXIS_DISPONIBLES:
+                        TAXIS_DISPONIBLES.remove(id)
+        else:
+            print("Esperando mensajes...")
+
+        if time.time() - start_time >= 3:
+            break  # Sale del bucle while si se excede el tiempo
+"""
+            
+        
+
+
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
         print("Usage: python EC_Central.py Port Bootstrap_IP Bootstrap_Port")
         sys.exit(1)
     
-
+    
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
     leerTaxis(TAXIS_DISPONIBLES)
+
+    reconexion()
 
     # Iniciar el servidor de autenticación en un hilo
     auth_thread = threading.Thread(target=autheticate_taxi)
@@ -405,8 +475,8 @@ def main():
     taxiUpdate_thread.start()
 
     #Leer los movimientos de los taxis
-    taxiMovement_thread = threading.Thread(target=readTaxiMovements)
-    taxiMovement_thread.start()
+    #taxiMovement_thread = threading.Thread(target=readTaxiMovements)
+    #taxiMovement_thread.start()
     
     #Iniciar la terminal que lee los comandos
     open_command_terminal()
@@ -430,7 +500,7 @@ def main():
     clients_thread.join()
     services_thread.join()
     taxiUpdate_thread.join()
-    taxiMovement_thread.join()
+    #taxiMovement_thread.join()
     receiveCommand_thread.join()
     taxi_disconection_thread.join()
     customerDisconnection_thread.join()

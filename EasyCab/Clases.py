@@ -56,13 +56,15 @@ class Mapa:
                             else:
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + " " + Style.RESET_ALL
                             break  
-                             
-                if not isPos and not isTaxi and taxi.getOcupado():
+                          
+                if not isPos and not isTaxi:
                     for cliente in self.clientes:
-                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and str(cliente.getId()) == taxi.getCliente():
-                            mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
-                            isCliente = True
-                            break
+                        for taxi in self.taxis:
+                            if str(taxi.getId())==idTaxi and taxi.getCliente() is not None:
+                                if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and cliente.getId() == taxi.getCliente():
+                                    mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
+                                    isCliente = True
+                                    break
                 
                 # Si no hay ningún elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
@@ -235,7 +237,7 @@ class Taxi:
         self.posDestino = None
         self.recogido = False #Indica si hemos recogido al cliente o no
         self.timeout = 0
-        self.visible = True;
+        self.visible = True
 
     def setVisible(self, visible):
         self.visible = visible

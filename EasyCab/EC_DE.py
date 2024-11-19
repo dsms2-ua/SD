@@ -21,17 +21,17 @@ sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
 centralTimeout = 0
 lock_operativo = threading.Lock()  # Creamos el Lock
+posicion = Casilla(1,1)
 
 
 init(autoreset=True)
 
 def sendHeartbeat():
-    global estado
-    global operativo
-    global centralStop
+    global estado,operativo,centralStop,posicion,sensores
     while True:
         aux = False
         if len(sensores) == 0:
+            print("No hay sensores conectados")
             operativo = False
         else:
             for sensor in sensores:
@@ -43,11 +43,14 @@ def sendHeartbeat():
         if aux and not centralStop:
             operativo = True
             estadoTaxi = "OK"
-            estado = "Esperando asignación"
+            #estado = "Esperando asignación"
         else:
-            estadoTaxi = "KO"
+            operativo = False
+        
+        print(f"Taxi {sys.argv[5]} {operativo}")
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
-        producer.send('taxiUpdate', value=f"{sys.argv[5]} {estadoTaxi}".encode('utf-8'))
+        print(f"Taxi {sys.argv[5]} {operativo}")
+        producer.send('taxiUpdate', value=f"{sys.argv[5]} {operativo} {posicion.getX()} {posicion.getY()}".encode('utf-8'))
         time.sleep(1)
 
 def authenticateTaxi():
@@ -79,7 +82,7 @@ def authenticateTaxi():
         return False
     
 def sensoresStates():
-    global sensores
+    global sensores,estado
     global operativo
     while True:
         for sensor in sensores:
@@ -100,7 +103,7 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
-                    os.system('cls')
+                    #os.system('cls')
                      #Vamos a imprimir el estado de todos los sensores también
                     print("Sensores         |         Estado")
                     for sensor in sensores:
@@ -186,17 +189,14 @@ def sendAlerts(id):
         client_handler = threading.Thread(target=handleAlerts, args=(client, producer, id))
         client_handler.start()
 
-def irA(destino,inicial):
-    global operativo, operativo2, estado
+def irA(destino):
+    global operativo, operativo2, estado, posicion
     # Implement the logic to move the taxi to the destination
-    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
     #inicializamos pos a la posición del taxi
-    pos = inicial
     estado = f"Yendo a {destino.getX()},{destino.getY()}"
-    while pos.getX() != destino.getX() or pos.getY() != destino.getY():
+    while posicion.getX() != destino.getX() or posicion.getY() != destino.getY():
         if operativo:
-            pos = moverTaxi(pos, destino)
-            producer.send('taxiMovements', value=f"{sys.argv[5]} {pos.getX()} {pos.getY()}".encode('utf-8'))
+            posicion = moverTaxi(posicion, destino)
             time.sleep(1)
         else: 
             estado = "Taxi detenido"    
@@ -229,14 +229,13 @@ def process_commands():
                 #creamos una casilla con las coordenadas del destino
                 operativo2 = False
                 destino = Casilla(int(data[1].split(",")[0]), int(data[1].split(",")[1]))
-                posicion = Casilla(int(data[2]),int(data[3]))
-                irA(destino, posicion)
+                irA(destino)
 
 def receiveServices(id):
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
-    global estado, operativo
+    global estado, operativo,posicion
     #Creamos el producer de Kafka para mandar los movimientos
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -260,9 +259,7 @@ def receiveServices(id):
             while not recogido:
                 if operativo and operativo2:
                     Pos = moverTaxi(Pos, posCliente)
-                    x = Pos.getX()
-                    y = Pos.getY()
-                    producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
+                    posicion = Pos
                     if Pos.getX() == posCliente.getX() and Pos.getY() == posCliente.getY():
                         recogido = True
                     time.sleep(1)
@@ -274,13 +271,12 @@ def receiveServices(id):
             if not operativo or not operativo2:
                 continue
             estado = f"Cliente {servicio.getCliente()} recogido, yendo a {servicio.getDestino()}"
-            producer.send('picked_up', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
 
             llegada = False
             while not llegada:
                 if operativo and operativo2:
                     Pos = moverTaxi(Pos, destino)
-                    producer.send('taxiMovements', value=f"{id} {Pos.getX()} {Pos.getY()}".encode('utf-8'))
+                    posicion = Pos
                     if Pos.getX() == destino.getX() and Pos.getY() == destino.getY():
                         llegada = True
                     time.sleep(1)
@@ -291,7 +287,6 @@ def receiveServices(id):
                     break
             if operativo and operativo2:
                 estado = f"Servicio completado. Esperando asignación"
-                producer.send('arrived', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
             
 def centralState():
     global centralTimeout

@@ -34,8 +34,17 @@ def sendOk(socket_server):
             
             time.sleep(1)
         except Exception as e:
-            print(f"IMPOSIBLE CONECTARSE CON EL TAXI {id}")
-            break
+            print(f"IMPOSIBLE CONECTARSE CON EL TAXI {id}, intentando reconexión...")
+            # Intenta reconectarse cada 5 segundos hasta que lo logre
+            while True:
+                try:
+                    time.sleep(5)
+                    socket_server = socket.socket()
+                    socket_server.connect((sys.argv[1], int(sys.argv[2])))
+                    print("Reconexión exitosa.")
+                    break  # Sale del bucle de reconexión al lograr conectarse
+                except Exception as recon_error:
+                    print("Error en la reconexión, intentando de nuevo...")
 
 def sendAlert():
     global OK
