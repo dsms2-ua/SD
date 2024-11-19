@@ -107,7 +107,7 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
-        #os.system('cls')
+        os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -191,12 +191,10 @@ def readTaxiUpdate():
         for message in consumer: 
             id, estado, posX, posY = message.value.decode('utf-8').split() 
             estado = True if estado == "True" else False
-            print(f"Taxi {id} actualizado a la posición {posX},{posY} y estado: {estado}" )
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
                     taxi.setTimeout(0)
                     if not estado and taxi.getEstado() == True:
-                        print(f"Taxi {id} desconectado")
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
                         taxi.setOcupado(False)
                         taxi.setRecogido(False)
@@ -204,13 +202,11 @@ def readTaxiUpdate():
                         #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
                     elif estado and taxi.getEstado() == False:
                         taxi.setEstado(True)
-                        print("llegamos")
                         taxi.setCasilla(Casilla(int(posX), int(posY)))
                     elif estado and taxi.getEstado() == True and taxi.getCliente() == None:
                         taxi.setCasilla(Casilla(int(posX), int(posY)))
                     elif estado and taxi.getEstado() == True and taxi.getCliente() != None: 
                         taxi.setCasilla(Casilla(int(posX), int(posY)))
-                        print("llegamos2")
                         if taxi.getRecogido():
                             #Tenemos que actualizar la posición del cliente
                             for cliente in CLIENTES:
