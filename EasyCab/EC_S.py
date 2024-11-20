@@ -42,6 +42,7 @@ def sendOk(socket_server):
                     socket_server = socket.socket()
                     socket_server.connect((sys.argv[1], int(sys.argv[2])))
                     print("Reconexión exitosa.")
+                    input("Presiona cualquier tecla para parar el taxi: ")
                     break  # Sale del bucle de reconexión al lograr conectarse
                 except Exception as recon_error:
                     print("Error en la reconexión, intentando de nuevo...")

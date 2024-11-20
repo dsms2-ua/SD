@@ -433,10 +433,17 @@ def reconexion():
         if time.time() - start_time >= 3:
             break  # Sale del bucle while si se excede el tiempo
 """
-            
+def weatherState():
+    consumer = KafkaConsumer('weatherUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    for message in consumer:
+        weatherState = message.value.decode('utf-8')
+        if weatherState == "KO":
+            for taxi in TAXIS:
+                producer.send('taxi_commands2', value = f"{taxi.getId()} 1,1".encode('utf-8'))
+
         
-
-
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
@@ -490,6 +497,9 @@ def main():
     customerState_thread = threading.Thread(target=customerState)
     customerState_thread.start()
     
+    weather_thread = threading.Thread(target=weatherState)
+    weather_thread.start()
+    
 
     auth_thread.join()
     map_thread.join()
@@ -501,6 +511,7 @@ def main():
     taxi_disconection_thread.join()
     customerDisconnection_thread.join()
     customerState_thread.join()
+    weather_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":

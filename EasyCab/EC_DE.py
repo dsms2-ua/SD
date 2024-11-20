@@ -11,6 +11,7 @@ import pickle
 import socket
 import os
 from Clases import *
+from EC_CTC import get_temperature
 
 sensorOut = False
 centralStop = False
@@ -22,6 +23,7 @@ centralOperativa = True
 centralTimeout = 0
 lock_operativo = threading.Lock()  # Creamos el Lock
 posicion = Casilla(1,1)
+city=""
 
 
 init(autoreset=True)

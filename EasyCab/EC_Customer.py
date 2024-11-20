@@ -111,6 +111,9 @@ def services(id):
                     break
     taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Todos los servicios han sido completados{Style.RESET_ALL}"
     finished = True
+    time.sleep(5)
+    #paramos todos lo hilos y cerramos la terminal
+    os._exit(0)
 
 #En esta función le sumamos 1 a centralTimeout cada segundo                
 def centralState():
