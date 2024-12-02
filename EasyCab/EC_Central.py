@@ -13,6 +13,7 @@ import json
 import subprocess
 from kafka import KafkaProducer, KafkaConsumer
 from Clases import *
+import requests
 
 #Aquí guardo las localizaciones leídas por fichero: {ID:CASILLA}
 LOCALIZACIONES = {}
@@ -436,14 +437,10 @@ def reconexion():
             break  # Sale del bucle while si se excede el tiempo
 """
 def weatherState():
-    consumer = KafkaConsumer('weatherUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-
-    for message in consumer:
-        weatherState = message.value.decode('utf-8')
-        if weatherState == "KO":
-            for taxi in TAXIS:
-                producer.send('taxi_commands2', value = f"{taxi.getId()} 1,1".encode('utf-8'))
+    #Hacemos una request a la API expuesta desde EC_CTC
+    while True:
+        temperatura = int(requests.get("http://localhost:5000/city"))
+        time.sleep(10)
 
         
 def main():

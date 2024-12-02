@@ -1,5 +1,5 @@
 import sys
-
+import requests
 if sys.version_info >= (3, 12, 0):
     import six
     sys.modules['kafka.vendor.six.moves'] = six.moves
@@ -9,7 +9,7 @@ import time
 from kafka import KafkaProducer, KafkaConsumer
 import pickle
 import socket
-import os
+import os, hashlib
 from Clases import *
 from EC_CTC import get_temperature
 
@@ -27,6 +27,48 @@ city=""
 
 
 init(autoreset=True)
+
+#Falta encriptar todas las comunicaciones con Registry
+def register(id):
+    #Pedimos al usuario que introduzca los datos
+    password = input("Introduce tu contraseña: ")
+    password2 = input("Repite tu contraseña: ")
+    
+    #Comprobamos que las contraseñas sean iguales
+    while password != password2:
+        print("Las contraseñas no coinciden")
+        password = input("Introduce tu contraseña: ")
+        password2 = input("Repite tu contraseña: ")
+        
+    #Le hacemos un HASH a la contraseña con md5
+    hashed = hashlib.md5(password.encode()).hexdigest()
+        
+    data = {
+        "id": id,
+        "password": hashed
+    }
+    #Hacemos la petición POST a la API
+    response = requests.post('http://localhost:5001/registry', json=data)
+    
+    if response.status_code == 200:
+        print("Taxi registrado correctamente")
+    else:
+        print("Error en el registro del taxi")
+
+def showMenu(id):
+    print("Bienvenido al sistema de EasyCab")
+    print("1. Registrarse")
+    print("2. Acceder")
+    print("3. Salir")
+    
+    opcion = input("Introduce la opción deseada: ")
+    if opcion == "1":
+        register(id)     
+    elif opcion == "2":
+        #Aquí pedimos una contraseña, hacemos el hash y comprobamos si es correcta
+        pass
+    elif opcion == "3":
+        return "Salir"
 
 def sendHeartbeat():
     global estado,operativo,centralStop,posicion,sensores
@@ -307,6 +349,10 @@ def main():
     if not authenticateTaxi():
         return
     ID = int(sys.argv[5])
+    
+    #Primero mostramos el menú con la opción de registrarnos o de directamente acceder
+    showMenu()
+    
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)

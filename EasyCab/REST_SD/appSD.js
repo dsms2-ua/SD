@@ -1,18 +1,21 @@
 const express = require("express");
-const appSD = express();
+const bodyParser = require("body-parser");
+const sqlite3 = require("sqlite3");
 
+const appSD = express();
 // Se define el puerto
 const port=3000;
 
-const mysql = require ("mysql");
-const bodyParser = require("body-parser");
-// Configuración de la conexión a la base de datos MySQL
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user:'root',
-    password: 'password',
-    database:'SD_MYSQL'
+const db = new sqlite3.Database('database.db', (error) => {
+    if (error) {
+        console.error("Error al conectar a la base de datos SQLite: ", error.message);
+    } else {
+        console.log("Conexión a la base de datos SQLite correcta");
+    }
 });
+
+//Para poder procesar los parámetros dentro de body como json
+appSD.use(bodyParser.json());
 
 appSD.get("/",(req, res) => {
     res.json({message:'Página de inicio de aplicación de ejemplo de SD'})
@@ -23,57 +26,112 @@ appSD.listen(port, () => {
     console.log(`Ejecutando la aplicación API REST de SD en el puerto ${port}`);
 });
 
-// Comprobar conexión a la base de datos
-connection.connect(error=> {
-    if (error) throw error;
-    console.log('Conexión a la base de datos SD_MYSQL correcta');
-});
-
 // Listado de todos los usuarios
 appSD.get("/usuarios",(request, response) => {
     console.log('Listado de todos los usuarios');
     const sql = 'SELECT * FROM Usuarios';
-    connection.query(sql,(error,resultado)=>{
-        if (error) throw error;
-        if (resultado.length > 0){
-        response.json(resultado);
-        } else {
-        response.send('No hay resultados');
+    db.all(sql, [], (err,resultado)=> {
+        if (err) {
+            res.status(500).send("Error obteniendo usuarios");
+            console.error(err.message);
+        } else{
+            res.json(resultado)
         }
     });
 });
 
-// Obtener datos de un usuario
-appSD.get("/usuarios/:id",(request, response) => {
-    console.log('Obtener datos de un usuario');
-    const {id} = request.params;
-    const sql = `SELECT * FROM Usuarios WHERE idUsuario = ${id}`;
-    connection.query(sql,(error,resultado)=>{
-        if (error) throw error;
-        if (resultado.length > 0){
-        response.json(resultado);
+// Listar todos los taxis
+appSD.get("/taxis", (req, res) => {
+    console.log('Listar todos los taxis');
+    const sql = "SELECT * FROM Taxis";
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(500).send("Error al obtener los taxis");
+            console.error(err.message);
         } else {
-        response.send('No hay resultados');
+            res.json(rows);
         }
-    })
+    });
 });
 
-//Para poder procesar los parámetros dentro de body como json
-appSD.use(bodyParser.json());
+// Obtener un usuario por ID
+appSD.get("/usuarios/:id", (req, res) => {
+    const sql = "SELECT * FROM Usuarios WHERE idUsuario = ?";
+    const params = [req.params.id];
+    db.get(sql, params, (err, row) => {
+        if (err) {
+            res.status(500).send("Error al obtener el usuario");
+            console.error(err.message);
+        } else {
+            res.json(row || "No se encontró el usuario");
+        }
+    });
+});
 
-// Añadir un nuevo usuario
-appSD.post("/usuarios",(request, response) => {
-    console.log('Añadir nuevo usuario');
-    const sql = 'INSERT INTO Usuarios SET ?';
-    const usuarioObj = {
-    nombre: request.body.nombre,
-    ciudad: request.body.ciudad,
-    correo: request.body.correo
-    }
-    connection.query(sql,usuarioObj,error => {
-        if (error) throw error;
-        response.send('Usuario creado');
-        });
+//Obtener un taxi por ID
+appSD.get("/taxis/:id", (req, res) => {
+    console.log('Obtener taxi por ID');
+    const sql = "SELECT * FROM Taxis WHERE idTaxi = ?";
+    const params = [req.params.id];
+    db.get(sql, params, (err, row) => {
+        if (err) {
+            res.status(500).send("Error al obtener el taxi");
+            console.error(err.message);
+        } else {
+            res.json(row || "No se encontró el taxi");
+        }
+    });
+});
+
+// Agregar un nuevo usuario
+appSD.post("/usuarios", (req, res) => {
+    const { nombre, ciudad, correo } = req.body;
+    const sql = "INSERT INTO Usuarios (nombre, ciudad, correo) VALUES (?, ?, ?)";
+    const params = [nombre, ciudad, correo];
+    db.run(sql, params, function (err) {
+        if (err) {
+            res.status(500).send("Error al crear el usuario");
+            console.error(err.message);
+        } else {
+            res.send(`Usuario creado con ID: ${this.lastID}`);
+        }
+    });
+});
+
+//Agregar un nuevo taxi
+appSD.post("/taxis", (req, res) => {
+    console.log('Crear taxi');
+    const { id, password } = req.body;
+    const sql = "INSERT INTO Taxis (idTaxi, password) VALUES (?, ?)";
+    const params = [id, password];
+    db.run(sql, params, function (err) {
+        if (err) {
+            res.status(500).send("Error al crear el taxi");
+            console.error(err.message);
+        }
+        else {
+            res.send(`Taxi creado con ID: ${this.lastID}`);
+            console.log(`Taxi creado con ID: ${this.lastID}`);
+        }
+    });
+});
+
+// Actualizar un usuario
+appSD.put("/usuarios/:id", (req, res) => {
+    const { nombre, ciudad, correo } = req.body;
+    const sql = `
+        UPDATE Usuarios 
+        SET nombre = ?, ciudad = ?, correo = ? 
+        WHERE idUsuario = ?`;
+    const params = [nombre, ciudad, correo, req.params.id];
+    db.run(sql, params, function (err) {
+        if (err) {
+            res.status(500).send("Error al actualizar el usuario");
+            console.error(err.message);
+        } else {
+            res.send("Usuario actualizado correctamente");
+        }
+    });
 });
 
 // Modificar un usuario
@@ -88,6 +146,19 @@ appSD.put("/usuarios/:id",(request, response) => {
         });
 });
 
+// Modificar un taxi
+// TODO: Añadir los campos que faltan
+appSD.put("/taxis/:id",(request, response) => {
+    console.log('Modificar taxi');
+    const {id} = request.params;
+    const {clave,token,correo} = request.body;
+    const sql = `UPDATE Taxis SET clave='${nombre}', token='${token}', correo='${correo}' WHERE idUsuario=${id}`;
+    connection.query(sql,error => {
+        if (error) throw error;
+        response.send('Taxi modificado');
+        });
+});
+
 // Borrar un usuario
 appSD.delete("/usuarios/:id",(request, response) => {
     console.log('Borrar usuario');
@@ -97,6 +168,24 @@ appSD.delete("/usuarios/:id",(request, response) => {
         if (error) throw error;
         response.send('Usuario borrado');
         });
+});
+
+// Borrar un taxi
+appSD.delete("/taxis/:id",(req, res) => {
+    console.log('Borrar taxi');
+    const { id } = req.body;
+    const sql = "DELETE FROM TAXIS WHERE idTaxi = ?";
+    const params = [id];
+    db.run(sql, params, function (err) {
+        if (err) {
+            res.status(500).send("Error al eliminar el taxi");
+            console.error(err.message);
+        }
+        else {
+            res.send(`Taxi eliminado con ID: ${this.lastID}`);
+            console.log(`Taxi eliminado con ID: ${this.lastID}`);
+        }
+    });
 });
 
 // Leer fichero JSON
