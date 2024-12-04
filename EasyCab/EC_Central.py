@@ -96,8 +96,13 @@ def autheticate_taxi():
             client.send(response)
         finally:
             client.close()
+            
+def escribirMapa(mapa):
+    with open("mapa.txt", "w") as file:
+        file.write(mapa)
 
 #Función para enviar el mapa y para mostrar la tabla
+#Para la segunda entrega, escribimos el mapa en un archivo para exponerlo en la API
 def sendMap():
     #Creamos el productor de Kafka
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -108,6 +113,11 @@ def sendMap():
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
         str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
+        
+        #Escribimos el mapa en el fichero
+        mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + "\n" + mapa.cadenaMapaArchivo()
+        escribirMapa(mapaArchivo)
+        
         os.system('cls')
         print(str)
         print(mapa.cadenaMapa())

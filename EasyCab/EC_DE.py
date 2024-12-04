@@ -48,12 +48,20 @@ def register(id):
         "password": hashed
     }
     #Hacemos la petición POST a la API
-    response = requests.post('http://localhost:5001/registry', json=data)
+    response = requests.post('http://localhost:5000/registry', json=data)
     
     if response.status_code == 200:
         print("Taxi registrado correctamente")
     else:
         print("Error en el registro del taxi")
+        
+def login(id):
+    #Pedimos una contraseña al usuario y hacemos el hash
+    #Recuperamos la contraseña de la base de datos y si los hashes coinciden, logueamos al usuario
+    password = input("Introduce tu contraseña: ")
+    hashed = hashlib.md5(password.encode()).hexdigest()
+    
+    #Hacemos la petición GET a la API
 
 def showMenu(id):
     print("Bienvenido al sistema de EasyCab")
@@ -63,10 +71,9 @@ def showMenu(id):
     
     opcion = input("Introduce la opción deseada: ")
     if opcion == "1":
-        register(id)     
+        register(id)   
     elif opcion == "2":
-        #Aquí pedimos una contraseña, hacemos el hash y comprobamos si es correcta
-        pass
+        login(id)
     elif opcion == "3":
         return "Salir"
 
@@ -351,8 +358,7 @@ def main():
     ID = int(sys.argv[5])
     
     #Primero mostramos el menú con la opción de registrarnos o de directamente acceder
-    showMenu()
-    
+    showMenu(ID)
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)

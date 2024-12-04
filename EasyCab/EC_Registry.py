@@ -38,7 +38,7 @@ def login():
         return jsonify({"message": "El taxi no está registrado."})
     
 def exposeAPI():
-    app.run(port=5001, debug=True)
+    app.run(port=5000, debug=True)
     
 def main():
     exposeAPI()

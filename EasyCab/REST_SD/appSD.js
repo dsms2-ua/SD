@@ -188,6 +188,21 @@ appSD.delete("/taxis/:id",(req, res) => {
     });
 });
 
+// Recuperar contraseña usuario HASH
+appSD.get("/password/:id",(req, res) => {
+    console.log('Recuperar contraseña usuario');
+    const sql = `SELECT password FROM Taxis WHERE idTaxi= ?`;
+    const params = [req.params.id];
+    db.get(sql, params, (err, row) => {
+        if (err) {
+            res.status(500).send("Error al obtener la contraseña");
+            console.error(err.message);
+        } else {
+            res.json(row || "No se encontró la contraseña");
+        }
+    });
+});
+
 // Leer fichero JSON
 appSD.get("/usuarios_json",(request, response) => {
     console.log('Leer datos de fichero en formato JSON');
