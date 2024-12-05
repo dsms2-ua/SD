@@ -24,6 +24,9 @@ TAXIS = []
 #Lista de clientes
 CLIENTES = []
 
+#claves AES de los taxis
+taxi_keys = {}
+
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
     with open("EC_locations.json", "r") as file:
@@ -74,16 +77,18 @@ def autheticate_taxi():
                 
                 # Añadimos el taxi a la lista de taxis y respondemos con "OK"
                 TAXIS.append(taxi)
-                response = create_message("OK")
-                client.send(response)
+                key = generate_aes_key()
+                taxi_keys[taxi_id] = key
+                client.send(key)
             #comprobamos si el taxi ya está autenticado pero esta en no visible
             else:
                 aux = False
                 for t in TAXIS:
                     if t.getId() == taxi_id and t.getVisible() == False:
                         t.setVisible(True)
-                        response = create_message("OK")
-                        client.send(response)
+                        key = generate_aes_key()
+                        taxi_keys[taxi_id] = key
+                        client.send(key)
                         aux = True
                         break
 
@@ -182,8 +187,10 @@ def serviceRequest():
 
                     producer.send('service_assigned_client', value=f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
 
+                    encrypted_service = encrypt(pickle.dumps(servicio), taxi_keys[taxi.getId()])
+                    mensaje = f"{taxi.getId()} {encrypted_service}"
                     # Mandamos el objeto servicio
-                    producer.send('service_assigned_taxi', pickle.dumps(servicio))
+                    producer.send('service_assigned_taxi', value=mensaje.encode('utf-8'))
                     break
 
             if not asignado:
@@ -200,7 +207,8 @@ def readTaxiUpdate():
     #Recibir los clientes
     while True:
         for message in consumer: 
-            id, estado, posX, posY = message.value.decode('utf-8').split() 
+            id,mensaje = extract_taxi_id_and_message(message.value.decode('utf-8'))
+            estado, posX, posY = decrypt(mensaje, taxi_keys[id]).split()
             estado = True if estado == "True" else False
             for taxi in TAXIS:
                 if taxi.getId() == int(id):

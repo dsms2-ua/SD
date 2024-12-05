@@ -1,5 +1,10 @@
 from colorama import init, Fore, Back, Style
 import random
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
+import os
+import base64
 
 class Mapa:
     def __init__(self,posiciones,taxis,clientes):
@@ -818,3 +823,55 @@ def verify_message(message: bytes) -> str:
         return data.decode('utf-8')
     else:
         return None  # LRC incorrecto
+    
+"""Metodos AES"""
+# Función para generar una clave AES de 256 bits
+def generate_aes_key():
+    return os.urandom(32)
+
+# Función para cifrar un mensaje con AES
+def encrypt(message: str, key: bytes) -> str:
+    # Generamos un IV aleatorio de 16 bytes
+    iv = os.urandom(16)
+    
+    # Creamos el cifrador AES en modo CBC
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    
+    # Aseguramos que el mensaje tenga un tamaño múltiplo de 16 (bloque AES)
+    padder = padding.PKCS7(128).padder()  # PKCS7 padding para AES
+    padded_message = padder.update(message.encode()) + padder.finalize()
+    
+    # Ciframos el mensaje
+    encrypted_message = encryptor.update(padded_message) + encryptor.finalize()
+    
+    # Devuelve el IV y el mensaje cifrado juntos, codificados en base64
+    return base64.b64encode(iv + encrypted_message).decode('utf-8')
+                            
+# Función para descifrar un mensaje con AES
+def decrypt(encrypted_message: str, key: bytes) -> str:
+    # Decodificamos el mensaje cifrado de base64
+    encrypted_data = base64.b64decode(encrypted_message)
+    
+    # El IV está al principio del mensaje cifrado, y el mensaje cifrado sigue después
+    iv = encrypted_data[:16]
+    encrypted_message = encrypted_data[16:]
+    
+    # Creamos el descifrador AES en modo CBC
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+    
+    # Desciframos el mensaje
+    decrypted_message = decryptor.update(encrypted_message) + decryptor.finalize()
+    
+    # Deshacemos el padding
+    unpadder = padding.PKCS7(128).unpadder()
+    original_message = unpadder.update(decrypted_message) + unpadder.finalize()
+    
+    return original_message.decode('utf-8')
+
+def extract_taxi_id_and_message(received_message):
+    parts = received_message.split(' ', 1)
+    taxi_id = int(parts[0])  # El taxi_id es la primera parte
+    encrypted_message = bytes.fromhex(parts[1])  # Convertimos de hexadecimal a bytes
+    return taxi_id, encrypted_message

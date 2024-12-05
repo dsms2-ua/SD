@@ -24,6 +24,7 @@ centralTimeout = 0
 lock_operativo = threading.Lock()  # Creamos el Lock
 posicion = Casilla(1,1)
 city=""
+AES_KEY = ""
 
 
 init(autoreset=True)
@@ -101,7 +102,10 @@ def sendHeartbeat():
         print(f"Taxi {sys.argv[5]} {operativo}")
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
         print(f"Taxi {sys.argv[5]} {operativo}")
-        producer.send('taxiUpdate', value=f"{sys.argv[5]} {operativo} {posicion.getX()} {posicion.getY()}".encode('utf-8'))
+        mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
+        coded_message = encrypt(mensaje, AES_KEY)
+        mensaje = f"{sys.argv[5]} {coded_message}"
+        producer.send('taxiUpdate', value=mensaje.encode('utf-8'))
         time.sleep(1)
 
 def authenticateTaxi():
@@ -123,14 +127,15 @@ def authenticateTaxi():
     data = verify_message(response)
 
     # Validamos la respuesta recibida
-    if data == "OK":
-        print("Taxi autenticado correctamente")
-        client_socket.close()
-        return True
-    else:
+    if data == "KO":
         print("Error en la autenticación del taxi")
         client_socket.close()
         return False
+    else:
+        AES_KEY = response
+        print("Taxi autenticado correctamente")
+        client_socket.close()
+        return True
     
 def sensoresStates():
     global sensores,estado
@@ -293,10 +298,10 @@ def receiveServices(id):
     #Recibimos los servicios
     for message in consumer:
         #Sólo podemos procesar los mensajes dirigidos a nosotros
-        servicio = pickle.loads(message.value)
 
-        if int(servicio.getTaxi()) == id:            
-
+        id_recibida, mensaje = extract_taxi_id_and_message(message.value.decode('utf-8'))
+        if int(id_recibida) == id:            
+            servicio = pickle.loads(decrypt(mensaje, AES_KEY))
             #creamos producer de Kafka para notificar al cliente de la asignacion con el topic taxi_assigned
             producer.send('taxi_assigned', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
             
