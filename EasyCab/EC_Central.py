@@ -123,7 +123,7 @@ def sendMap():
         mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + "\n" + mapa.cadenaMapaArchivo()
         escribirMapa(mapaArchivo)
         
-        #os.system('cls')
+        os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -249,8 +249,6 @@ def readTaxiUpdate():
                                 if cliente.getId() == taxi.getCliente():
                                     cliente.setPosicion(taxi.getCasilla())
                                     break
-                    else:
-                        taxi.setCasilla(Casilla(int(posX), int(posY)))
                         if taxi.getPosCliente() == taxi.getCasilla():
                             taxi.setRecogido(True)
                         

@@ -104,7 +104,7 @@ def sendHeartbeat():
         coded_message = encrypt(mensaje, AES_KEY, True)
         print(f"{sys.argv[5]} {coded_message}")
         producer.send('taxiUpdate', value=f"{sys.argv[5]} {coded_message}".encode('utf-8'))
-        time.sleep(1)
+        time.sleep(0.5)
 
 def authenticateTaxi():
     global AES_KEY
