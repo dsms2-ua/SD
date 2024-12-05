@@ -24,8 +24,9 @@ centralTimeout = 0
 lock_operativo = threading.Lock()  # Creamos el Lock
 posicion = Casilla(1,1)
 city=""
-AES_KEY = ""
 
+#AES key in bytes
+AES_KEY = b''
 
 init(autoreset=True)
 
@@ -79,7 +80,7 @@ def showMenu(id):
         return False
 
 def sendHeartbeat():
-    global estado,operativo,centralStop,posicion,sensores
+    global estado,operativo,centralStop,posicion,sensores,AES_KEY
     while True:
         aux = False
         if len(sensores) == 0:
@@ -95,20 +96,18 @@ def sendHeartbeat():
         if aux and not centralStop:
             operativo = True
             estadoTaxi = "OK"
-            #estado = "Esperando asignación"
         else:
             operativo = False
         
-        print(f"Taxi {sys.argv[5]} {operativo}")
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
-        print(f"Taxi {sys.argv[5]} {operativo}")
         mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
-        coded_message = encrypt(mensaje, AES_KEY)
-        mensaje = f"{sys.argv[5]} {coded_message}"
-        producer.send('taxiUpdate', value=mensaje.encode('utf-8'))
+        coded_message = encrypt(mensaje, AES_KEY, True)
+        print(f"{sys.argv[5]} {coded_message}")
+        producer.send('taxiUpdate', value=f"{sys.argv[5]} {coded_message}".encode('utf-8'))
         time.sleep(1)
 
 def authenticateTaxi():
+    global AES_KEY
     # Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
     central_port = int(sys.argv[2])
@@ -123,7 +122,7 @@ def authenticateTaxi():
     client_socket.send(message)
 
     # Recibimos la respuesta de la central
-    response = client_socket.recv(1024)
+    response = client_socket.recv(32)
     data = verify_message(response)
 
     # Validamos la respuesta recibida
@@ -159,7 +158,7 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
-                    os.system('cls')
+                    #os.system('cls')
                      #Vamos a imprimir el estado de todos los sensores también
                     print("Sensores         |         Estado")
                     for sensor in sensores:
@@ -299,9 +298,11 @@ def receiveServices(id):
     for message in consumer:
         #Sólo podemos procesar los mensajes dirigidos a nosotros
 
-        id_recibida, mensaje = extract_taxi_id_and_message(message.value.decode('utf-8'))
-        if int(id_recibida) == id:            
-            servicio = pickle.loads(decrypt(mensaje, AES_KEY))
+        id_recibida, mensaje = message.value.decode('utf-8').split()
+        print(f"ID recibida: {id_recibida}")
+        if int(id_recibida) == id:  
+            print("Mensaje recibido")          
+            servicio = decrypt(mensaje, AES_KEY,False)
             #creamos producer de Kafka para notificar al cliente de la asignacion con el topic taxi_assigned
             producer.send('taxi_assigned', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
             
@@ -363,7 +364,7 @@ def main():
     ID = int(sys.argv[5])
     
     #Primero mostramos el menú con la opción de registrarnos o de directamente acceder
-    showMenu(ID)
+    #showMenu(ID)
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)

@@ -123,7 +123,7 @@ def sendMap():
         mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + "\n" + mapa.cadenaMapaArchivo()
         escribirMapa(mapaArchivo)
         
-        os.system('cls')
+        #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -187,9 +187,10 @@ def serviceRequest():
 
                     producer.send('service_assigned_client', value=f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
 
-                    encrypted_service = encrypt(pickle.dumps(servicio), taxi_keys[taxi.getId()])
+                    encrypted_service = encrypt(pickle.dumps(servicio), taxi_keys[taxi.getId()],False)
                     mensaje = f"{taxi.getId()} {encrypted_service}"
                     # Mandamos el objeto servicio
+                    print(mensaje)
                     producer.send('service_assigned_taxi', value=mensaje.encode('utf-8'))
                     break
 
@@ -200,15 +201,31 @@ def serviceRequest():
 
         if not asignado:
             producer.send('service_completed', value=f"{servicio.getCliente()} KO".encode('utf-8'))
-
+"""
 def readTaxiUpdate():
-    #Crear un consumidor de Kafka
-    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-    #Recibir los clientes
-    while True:
+    try:
+        consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+        for message in consumer:
+            print(f"Mensaje recibido: {message.value.decode('utf-8')}")
+            id, mensaje = message.value.decode('utf-8').split()
+            print(f"Taxi {id}")
+            print(f"Mensaje: {mensaje}")
+    except Exception as e:
+        print(f"Error al conectar con Kafka: {e}")
+
+"""     
+def readTaxiUpdate():
+    
+    try:
+        #Crear un consumidor de Kafka
+        consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+        #Recibir los taxis
+        
         for message in consumer: 
-            id,mensaje = extract_taxi_id_and_message(message.value.decode('utf-8'))
-            estado, posX, posY = decrypt(mensaje, taxi_keys[id]).split()
+            id,mensaje = message.value.decode('utf-8').split()
+            mensaje_desencriptado = decrypt(mensaje, taxi_keys[int(id)],True)
+            print(f"Taxi {id} {mensaje_desencriptado}")
+            estado, posX, posY = mensaje_desencriptado.split()
             estado = True if estado == "True" else False
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
@@ -252,6 +269,9 @@ def readTaxiUpdate():
                             taxi.setDestino(None)
                             taxi.setPosDestino(None)
                     break
+    except Exception as e:
+        print(f"Error al conectar con Kafka: {e}")
+
 """
 def readTaxiMovements():
     #Crear un consumidor de Kafka

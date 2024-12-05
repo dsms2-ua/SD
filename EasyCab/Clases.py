@@ -1,3 +1,4 @@
+import pickle
 from colorama import init, Fore, Back, Style
 import random
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -830,17 +831,18 @@ def generate_aes_key():
     return os.urandom(32)
 
 # Función para cifrar un mensaje con AES
-def encrypt(message: str, key: bytes) -> str:
+def encrypt(message: str, key: bytes,isString: bool) -> str:
     # Generamos un IV aleatorio de 16 bytes
     iv = os.urandom(16)
     
     # Creamos el cifrador AES en modo CBC
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     encryptor = cipher.encryptor()
-    
+    if isString:
+        message = message.encode()
     # Aseguramos que el mensaje tenga un tamaño múltiplo de 16 (bloque AES)
     padder = padding.PKCS7(128).padder()  # PKCS7 padding para AES
-    padded_message = padder.update(message.encode()) + padder.finalize()
+    padded_message = padder.update(message) + padder.finalize()
     
     # Ciframos el mensaje
     encrypted_message = encryptor.update(padded_message) + encryptor.finalize()
@@ -849,7 +851,7 @@ def encrypt(message: str, key: bytes) -> str:
     return base64.b64encode(iv + encrypted_message).decode('utf-8')
                             
 # Función para descifrar un mensaje con AES
-def decrypt(encrypted_message: str, key: bytes) -> str:
+def decrypt(encrypted_message: str, key: bytes, isString: bool) -> str:
     # Decodificamos el mensaje cifrado de base64
     encrypted_data = base64.b64decode(encrypted_message)
     
@@ -867,8 +869,9 @@ def decrypt(encrypted_message: str, key: bytes) -> str:
     # Deshacemos el padding
     unpadder = padding.PKCS7(128).unpadder()
     original_message = unpadder.update(decrypted_message) + unpadder.finalize()
-    
-    return original_message.decode('utf-8')
+    if isString:
+        return original_message.decode('utf-8')
+    return pickle.loads(original_message)
 
 def extract_taxi_id_and_message(received_message):
     parts = received_message.split(' ', 1)
