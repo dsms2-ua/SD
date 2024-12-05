@@ -208,15 +208,18 @@ class Mapa:
         mapa_str = ""
 
         # Índices de las columnas en la parte superior
-        mapa_str += "   "  # Espacio para el índice de las filas
-        for col in range(1, self.ancho + 1):
+        mapa_str += "___"  # Espacio para el índice de las filas
+        for col in range(1, self.ancho + 1):    
             mapa_str += f"{col:2}  "  # Coloca el índice de columna (numeros) en la parte superior
         mapa_str += "\n"
         #mapa_str += "\n" + "   " + "---" * self.ancho + "\n"  # Separador horizontal debajo del índice de columnas
 
         for i in range(1, self.alto + 1):
             # Índice de fila en el lado izquierdo
-            mapa_str += f"{i:2}|"  # Índice de fila con separador vertical
+            if i < 10:
+                mapa_str += f"0{i}|"
+            else:
+                mapa_str += f"{i:2}|"  # Índice de fila con separador vertical
 
             for j in range(1, self.ancho + 1):
                 isPos = False

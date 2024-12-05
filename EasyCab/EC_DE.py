@@ -75,7 +75,7 @@ def showMenu(id):
     elif opcion == "2":
         login(id)
     elif opcion == "3":
-        return "Salir"
+        return False
 
 def sendHeartbeat():
     global estado,operativo,centralStop,posicion,sensores
