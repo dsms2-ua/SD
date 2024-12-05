@@ -14,7 +14,7 @@ class Mapa:
 
     from colorama import Fore, Back, Style
 
-    # Método para generar el mapa del taxista
+    # Metodo para generar el mapa del taxista
     def cadenaMapaTaxi(self,idTaxi):
         mapa_str = ""
         print("ID TAXI: ",idTaxi)
@@ -33,7 +33,7 @@ class Mapa:
                 isTaxi = False
                 isCliente = False
 
-                # Comprobamos si hay una posición
+                # Comprobamos si hay una posicion
                 for pos in self.posiciones:
                     if self.posiciones[pos].getX() == j and self.posiciones[pos].getY() == i:
                         mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
@@ -44,7 +44,7 @@ class Mapa:
                     for taxi in self.taxis:
                         if taxi.getX() == j and taxi.getY() == i and str(taxi.getId()) == idTaxi and taxi.getVisible():
                             isTaxi = True
-                            # Cambiamos el color del fondo según el estado del taxi
+                            # Cambiamos el color del fondo segun el estado del taxi
                             if not taxi.getEstado():
                                 mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
                             elif not taxi.getOcupado():
@@ -66,7 +66,7 @@ class Mapa:
                                     isCliente = True
                                     break
                 
-                # Si no hay ningún elemento, añadimos un espacio con fondo blanco
+                # Si no hay ningun elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
                     mapa_str += Back.WHITE + " . " + Style.RESET_ALL
 
@@ -78,7 +78,7 @@ class Mapa:
 
         return mapa_str
 
-    # Método para generar el mapa del cliente, en el que solo aparece su taxi asignado y las posiciones
+    # Metodo para generar el mapa del cliente, en el que solo aparece su taxi asignado y las posiciones
     def cadenaMapaCustomer(self,idCustomer):
         mapa_str = ""
 
@@ -97,7 +97,7 @@ class Mapa:
                 isTaxi = False
                 isCliente = False
 
-                # Comprobamos si hay una posición
+                # Comprobamos si hay una posicion
                 for pos in self.posiciones:
                     if self.posiciones[pos].getX() == j and self.posiciones[pos].getY() == i:
                         mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
@@ -109,7 +109,7 @@ class Mapa:
                         if(taxi.getCliente() is not None):
                             if taxi.getX() == j and taxi.getY() == i and taxi.getCliente() == idCustomer and taxi.getVisible():
                                 isTaxi = True
-                                # Cambiamos el color del fondo según el estado del taxi
+                                # Cambiamos el color del fondo segun el estado del taxi
                                 if not taxi.getEstado():
                                     mapa_str += Back.RED + " " + Fore.BLACK + str(taxi.getId()) + "!" + Style.RESET_ALL
                                 elif not taxi.getOcupado():
@@ -127,7 +127,7 @@ class Mapa:
                             isCliente = True
                             break
                 
-                # Si no hay ningún elemento, añadimos un espacio con fondo blanco
+                # Si no hay ningun elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
                     mapa_str += Back.WHITE + " . " + Style.RESET_ALL
 
@@ -146,7 +146,7 @@ class Mapa:
         # Índices de las columnas en la parte superior
         mapa_str += "   "  # Espacio para el índice de las filas
         for col in range(1, self.ancho + 1):
-            mapa_str += f"{Back.LIGHTBLACK_EX}{col:2} {Style.RESET_ALL} "  # Coloca el índice de columna (números) en la parte superior
+            mapa_str += f"{Back.LIGHTBLACK_EX}{col:2} {Style.RESET_ALL} "  # Coloca el índice de columna (numeros) en la parte superior
         mapa_str += "\n"
         #mapa_str += "\n" + "   " + "---" * self.ancho + "\n"  # Separador horizontal debajo del índice de columnas
 
@@ -159,7 +159,7 @@ class Mapa:
                 isTaxi = False
                 isCliente = False
 
-                # Comprobamos si hay una posición
+                # Comprobamos si hay una posicion
                 for pos in self.posiciones:
                     if self.posiciones[pos].getX() == j and self.posiciones[pos].getY() == i:
                         mapa_str += Back.BLUE + " " + Fore.BLACK + pos + " " + Style.RESET_ALL
@@ -192,9 +192,76 @@ class Mapa:
                             isCliente = True
                             break
 
-                # Si no hay ningún elemento, añadimos un espacio con fondo blanco
+                # Si no hay ningun elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
                     mapa_str += Back.WHITE + " . " + Style.RESET_ALL
+
+                # Añadir separador vertical entre las celdas
+                mapa_str += "|"
+
+            # Salto de línea al final de cada fila con separador horizontal
+            mapa_str += "\n"
+
+        return mapa_str
+    
+    def cadenaMapaArchivo(self):
+        mapa_str = ""
+
+        # Índices de las columnas en la parte superior
+        mapa_str += "___"  # Espacio para el índice de las filas
+        for col in range(1, self.ancho + 1):    
+            mapa_str += f"{col:2}  "  # Coloca el índice de columna (numeros) en la parte superior
+        mapa_str += "\n"
+        #mapa_str += "\n" + "   " + "---" * self.ancho + "\n"  # Separador horizontal debajo del índice de columnas
+
+        for i in range(1, self.alto + 1):
+            # Índice de fila en el lado izquierdo
+            if i < 10:
+                mapa_str += f"0{i}|"
+            else:
+                mapa_str += f"{i:2}|"  # Índice de fila con separador vertical
+
+            for j in range(1, self.ancho + 1):
+                isPos = False
+                isTaxi = False
+                isCliente = False
+
+                # Comprobamos si hay una posicion
+                for pos in self.posiciones:
+                    if self.posiciones[pos].getX() == j and self.posiciones[pos].getY() == i:
+                        mapa_str += " " + pos + " "
+                        isPos = True
+                        break
+                if not isPos:
+                    # Comprobamos si hay un taxi
+                    for taxi in self.taxis:
+                        if taxi.getX() == j and taxi.getY() == i and taxi.getVisible():
+                            isTaxi = True
+                            if not taxi.getEstado():
+                                mapa_str += " " + str(taxi.getId()) + "!"
+                            elif not taxi.getOcupado():
+                                mapa_str += " " + str(taxi.getId()) + " "
+                            elif not taxi.getEstado():
+                                mapa_str += " " + str(taxi.getId()) + "!"
+                            elif taxi.getOcupado() and not taxi.getRecogido() and taxi.getCliente() is not None:
+                                mapa_str += " " + str(taxi.getId()) + " "
+                            elif taxi.getOcupado() and taxi.getRecogido() and taxi.getCliente() is not None:
+                                mapa_str += " " + str(taxi.getId()) + taxi.getCliente()
+                            else:
+                                mapa_str += " " + str(taxi.getId()) + " "
+                            break  
+
+                # Comprobamos si hay un cliente, siempre que no haya un taxi
+                if not isTaxi and not isPos:
+                    for cliente in self.clientes:
+                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
+                            mapa_str += " " + cliente.getId() + " "
+                            isCliente = True
+                            break
+
+                # Si no hay ningun elemento, añadimos un espacio con fondo blanco
+                if not isPos and not isTaxi and not isCliente:
+                    mapa_str += " . "
 
                 # Añadir separador vertical entre las celdas
                 mapa_str += "|"
@@ -228,12 +295,12 @@ class Taxi:
     def __init__(self, id):
         self.id = id
         self.casilla = Casilla()
-        self.estado = True #True si está operativo, False si no
-        self.ocupado = False #True si está ocupado, False si no
+        self.estado = True #True si esta operativo, False si no
+        self.ocupado = False #True si esta ocupado, False si no
         self.cliente = None #ID del cliente que vamos a dar servicio
         self.origen = None 
-        self.posCliente = None #Posición del cliente que debemos recoger
-        self.destino = None #Localización a la que quiere ir el cliente
+        self.posCliente = None #Posicion del cliente que debemos recoger
+        self.destino = None #Localizacion a la que quiere ir el cliente
         self.posDestino = None
         self.recogido = False #Indica si hemos recogido al cliente o no
         self.timeout = 0
@@ -418,10 +485,10 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
     strTabla += "|-------------------------------------------------------------------------|\n"
     strTabla += "|                                 TAXIS                                   |\n"
     strTabla += "|-------------------------------------------------------------------------|\n"
-    strTabla += "|      ID     |        Destino      |      Estado     |      Posición     |\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |      Posicion     |\n"
     
     for taxi in TAXIS:
-        #Si el esado del taxi es KO, todo el texto está en color rojo
+        #Si el esado del taxi es KO, todo el texto esta en color rojo
         #Primero imprimimos el ID
         strTabla +=  "|      "
         if not taxi.getEstado():
@@ -457,10 +524,10 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
                 strTabla += "    OK.Parado" + "    |"
         elif taxi.getVisible():
             #Esto lo imprimimos en rojo
-            strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
+            strTabla += Fore.RED + "    KO. Parado" + "   |"
         else:
-            strTabla += Fore.RED + "KO. Desconectado" + Style.RESET_ALL + " |"
-        #Ahora imprimimos la posición
+            strTabla += Fore.RED + "KO. Desconectado" + " |"
+        #Ahora imprimimos la posicion
         pos = taxi.getCasilla()
         aux = False
         for loc in LOCALIZACIONES:
@@ -483,7 +550,132 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
     strTabla += "|-------------------------------------------------------------------------|\n"
     strTabla += "|                                CLIENTES                                 |\n"
     strTabla += "|-------------------------------------------------------------------------|\n"
-    strTabla += "|      ID     |        Destino      |      Estado     |      Posición     |\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |      Posicion     |\n"
+    for cliente in CLIENTES:
+        strTabla += "|      " + cliente.getId() + "      |" + "           "
+
+        if cliente.getDestino() is None:
+            strTabla += "-"
+        else:
+            strTabla += cliente.getDestino() 
+        strTabla += "         |"
+
+        #Buscamos si el cliente tiene un taxi asignado
+        asignado = False
+        id = None
+        for taxi in TAXIS:
+            if taxi.getCliente() == cliente.getId():
+                id = taxi.getId()
+                asignado = True
+                break
+        
+        if cliente.getTimeout() > 10:
+            strTabla += Fore. RED + "    Sin conexión  |" + Style.RESET_ALL
+        elif asignado:
+            strTabla += "    OK.Taxi " + str(id) + "    |"
+        else:
+            strTabla += "   OK. Sin Taxi  |"
+            
+        #Aquí ajustamos el formato
+        
+        #Primero imprimimos la posicion
+
+        pos = cliente.getPosicion()
+        aux = False
+        for loc in LOCALIZACIONES:
+            if LOCALIZACIONES[loc] == pos:
+                aux = True
+                strTabla += "         " + loc + "     "
+                break
+        
+        if not aux:
+            strTabla += "       " + str(cliente.getPosicion())
+            
+            if cliente.getPosicion().getX() < 10 and cliente.getPosicion().getY() < 10:
+                strTabla += "  "
+            elif cliente.getPosicion().getX() < 10 or cliente.getPosicion().getY() < 10:
+                strTabla += " "
+              
+        strTabla += "    |"
+        
+        strTabla += "\n"
+    
+    strTabla += "|_________________________________________________________________________|\n"
+
+    return strTabla
+
+def generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES):
+    strTabla =  "___________________________________________________________________________\n"
+    strTabla += "|                             ***EASYCAB***                               |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|                                 TAXIS                                   |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |      Posicion     |\n"
+    
+    for taxi in TAXIS:
+        #Si el esado del taxi es KO, todo el texto esta en color rojo
+        #Primero imprimimos el ID
+        strTabla +=  "|      "
+        if not taxi.getEstado():
+            strTabla += str(taxi.getId())
+        else:
+            strTabla += str(taxi.getId())
+        strTabla += "      "
+
+        #Ahora imprimimos el destino
+        strTabla += "|           "
+        if not taxi.getOcupado():
+            if not taxi.getEstado():
+                strTabla += "-"
+            else:
+                strTabla += "-"
+        elif not taxi.getRecogido():
+            if not taxi.getEstado() and taxi.getCliente() is not None:
+                strTabla += taxi.getCliente()
+            elif taxi.getCliente() is not None: 
+                strTabla += taxi.getCliente()
+        else:
+            if not taxi.getEstado():
+                strTabla += taxi.getDestino()
+            else:
+                strTabla += taxi.getDestino()
+        strTabla += "         |"
+
+        #Ahora imprimimos el estado
+        if taxi.getEstado():
+            if taxi.getOcupado() and taxi.getCliente() is not None:
+                strTabla += "   OK.Servicio " + taxi.getCliente() + " |"
+            else:
+                strTabla += "    OK.Parado" + "    |"
+        elif taxi.getVisible():
+            #Esto lo imprimimos en rojo
+            strTabla += Fore.RED + "    KO. Parado" + "   |"
+        else:
+            strTabla += Fore.RED + "KO. Desconectado" + " |"
+        #Ahora imprimimos la posicion
+        pos = taxi.getCasilla()
+        aux = False
+        for loc in LOCALIZACIONES:
+            if LOCALIZACIONES[loc] == pos:
+                aux = True
+                strTabla += "         " + loc + "     "
+                break  
+        if not aux:
+            strTabla += "       " + str(taxi.getCasilla())
+        
+            if taxi.getCasilla().getX() < 10 and taxi.getCasilla().getY() < 10:
+                strTabla += "  "
+            elif taxi.getCasilla().getX() < 10 or taxi.getCasilla().getY() < 10:
+                strTabla += " "
+              
+        strTabla += "    |"
+
+        strTabla += "\n"
+    
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|                                CLIENTES                                 |\n"
+    strTabla += "|-------------------------------------------------------------------------|\n"
+    strTabla += "|      ID     |        Destino      |      Estado     |      Posicion     |\n"
     for cliente in CLIENTES:
         strTabla += "|      " + cliente.getId() + "      |" + "           "
 
@@ -509,7 +701,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
             
         #Aquí ajustamos el formato
         
-        #Primero imprimimos la posición
+        #Primero imprimimos la posicion
 
         pos = cliente.getPosicion()
         aux = False
@@ -536,7 +728,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
     return strTabla
 
 def distanciaMasCorta(actual, objetivo):
-    #Tenemos en cuenta que el mapa es esférico
+    #Tenemos en cuenta que el mapa es esferico
     tam = 20
     dist = (objetivo - actual) % tam
 
@@ -551,11 +743,11 @@ def moverTaxi(actual, objetivo):
     objetivoX = objetivo.getX()
     objetivoY = objetivo.getY()
 
-    #Calculamos la distancia más corta en los dos ejes
+    #Calculamos la distancia mas corta en los dos ejes
     distX = distanciaMasCorta(actualX, objetivoX)
     distY = distanciaMasCorta(actualY, objetivoY)
 
-    #Determinamos la dirección del movimiento en X
+    #Determinamos la direccion del movimiento en X
     if distX > 0:
         nuevoX = actualX + 1
         if nuevoX > 20:
@@ -600,7 +792,7 @@ ACK = b'\x06'
 NACK = b'\x15'
 
 
-# Función para calcular el LRC de un mensaje
+# Funcion para calcular el LRC de un mensaje
 def calculate_lrc(data: bytes) -> bytes:
     lrc = 0
     for byte in data:
@@ -613,7 +805,7 @@ def create_message(data: str) -> bytes:
     lrc = calculate_lrc(data_bytes)
     return STX + data_bytes + ETX + lrc
 
-# Verifica el mensaje recibido usando <LRC> y retorna el contenido si es válido
+# Verifica el mensaje recibido usando <LRC> y retorna el contenido si es valido
 def verify_message(message: bytes) -> str:
     if message[0] != STX[0] or message[-2] != ETX[0]:
         return None  # Mensaje mal empaquetado
