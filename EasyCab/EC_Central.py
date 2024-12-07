@@ -24,6 +24,10 @@ TAXIS = []
 #Lista de clientes
 CLIENTES = []
 
+estadoTrafico = "OK"
+temperatura = 0
+city = ""
+
 #claves AES de los taxis
 taxi_keys = {}
 
@@ -106,6 +110,10 @@ def escribirMapa(mapa):
     with open("mapa.txt", "w") as file:
         file.write(mapa)
 
+def escribirTemperatura():
+    cadena = "|      Estado del CTC => Ciudad: " + city + ", Temperatura: " + str(temperatura) + ", Estado: " + estadoTrafico + "         |\n"
+    return cadena
+
 #Función para enviar el mapa y para mostrar la tabla
 #Para la segunda entrega, escribimos el mapa en un archivo para exponerlo en la API
 def sendMap():
@@ -120,7 +128,8 @@ def sendMap():
         str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
         
         #Escribimos el mapa en el fichero
-        mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + "\n" + mapa.cadenaMapaArchivo()
+        mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + escribirTemperatura() + "\n"
+        mapaArchivo += mapa.cadenaMapaArchivo() + "\n"
         escribirMapa(mapaArchivo)
         
         os.system('cls')
@@ -473,9 +482,19 @@ def reconexion():
             break  # Sale del bucle while si se excede el tiempo
 """
 def weatherState():
+    global estadoTrafico, temperatura, city
+    url = "https://localhost:3000/city"
     #Hacemos una request a la API expuesta desde EC_CTC
     while True:
-        temperatura = int(requests.get("http://localhost:5000/city"))
+        response = requests.get(url, verify='certificados/certCTC.pem')
+        
+        if response.status_code == 200:
+            data = response.json()
+            city = data.get('city')
+            temperatura = data.get('temperature')
+            status = data.get('status')
+
+            estadoTrafico = status
         time.sleep(10)
 
         
@@ -495,6 +514,9 @@ def main():
     # Iniciar el servidor de autenticación en un hilo
     auth_thread = threading.Thread(target=autheticate_taxi)
     auth_thread.start()
+
+    weather_thread = threading.Thread(target=weatherState)
+    weather_thread.start()
 
     # Enviar el mapa
     map_thread = threading.Thread(target=sendMap)
@@ -531,10 +553,6 @@ def main():
     
     customerState_thread = threading.Thread(target=customerState)
     customerState_thread.start()
-    
-    weather_thread = threading.Thread(target=weatherState)
-    weather_thread.start()
-    
 
     auth_thread.join()
     map_thread.join()
