@@ -1,3 +1,4 @@
+import secrets
 import sys
 
 if sys.version_info >= (3, 12, 0):
@@ -30,6 +31,7 @@ city = ""
 
 #claves AES de los taxis
 taxi_keys = {}
+taxi_tokens = {}
 
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
@@ -68,6 +70,7 @@ def authenticate_taxi():
         
         #Gesionamos el login
         try:
+            #id = consstream.recv(1024).decode('utf-8')
             id = repr(consstream.recv(1024))
             #Hacemos una petición GET a la API para ver si el texi está registrado o no
             response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certCTC.pem')
@@ -88,8 +91,15 @@ def authenticate_taxi():
                 
                 if password == response.text.encode('utf-8'):
                     #Como la contraseñas coinciden, generamos el token y la clave AES
+                    token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
+                    aes_key = os.urandom(32)  # Genera una clave AES de 256 bits
+
+                    # Guardar el token y la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
+                    taxi_keys[id] = aes_key
+                    taxi_tokens[id] = token
                     
-                    consstream.send(b'OK')
+                    # Enviar el token y la clave AES al cliente
+                    consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")}'.encode('utf-8'))
                 else:
                     consstream.send(b'KO')
                     consstream.close()
@@ -98,7 +108,7 @@ def authenticate_taxi():
             consstream.shutdown(socket.SHUT_RDWR)
             consstream.close()
             client.close()
-
+        """
         # Recibimos el mensaje en formato bytes
         message = consstream.recv(1024)
         
@@ -144,7 +154,7 @@ def authenticate_taxi():
             client.send(response)
         finally:
             client.close()
-            
+            """
 def escribirMapa(mapa):
     with open("mapa.txt", "w") as file:
         file.write(mapa)

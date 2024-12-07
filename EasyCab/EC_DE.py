@@ -25,7 +25,7 @@ centralTimeout = 0
 lock_operativo = threading.Lock()  # Creamos el Lock
 posicion = Casilla(1,1)
 city=""
-
+token=""
 #AES key in bytes
 AES_KEY = b''
 
@@ -34,7 +34,7 @@ init(autoreset=True)
 #Creamos el servidor seguro de sockets, le enviamos el ID
 #Si estamos registrados, nos pedirá la contraseña y si es correcta, accedemos
 def authenticateTaxi():
-    global AES_KEY
+    global AES_KEY,token
     # Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
     central_port = int(sys.argv[2])
@@ -65,9 +65,15 @@ def authenticateTaxi():
                 print("Contraseña incorrecta")
                 return False
             else:
-                AES_KEY = response
-                print("Taxi autenticado correctamente")
-                return True
+                try:
+                    tokenAes = response.decode()
+                    token, aes = tokenAes.split()
+                    AES_KEY = base64.b64decode(aes)
+                    return True
+                except ValueError:
+                    print("Error al procesar los datos")
+                    return False
+
 
 #Falta encriptar todas las comunicaciones con Registry
 def register(id):
@@ -365,12 +371,13 @@ def main():
         return -1
 
     #Autenticamos con sockets la existencia del taxi
-    if not authenticateTaxi():
+    """if not authenticateTaxi():
         return
+    """
     ID = int(sys.argv[5])
     
     #Primero mostramos el menú con la opción de registrarnos o de directamente acceder
-    #showMenu(ID)
+    showMenu(ID)
     
     #Creamos el hilo que lleva al consumidor Kafka del mapa
     map_thread = threading.Thread(target=receiveMap)
