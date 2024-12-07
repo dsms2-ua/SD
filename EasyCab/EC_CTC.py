@@ -1,72 +1,74 @@
 import json
-import time
+from flask import Flask, jsonify
 import requests
-import sys
+import logging
 import threading
 
-from flask import Flask, jsonify
-
-city="Madrid"
-# Leer la ciudad desde el archivo JSON
 app = Flask(__name__)
+city = "Madrid"  # Ciudad inicial
+
+# Configurar Flask para que no emita logs en la consola
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 def get_temperature():
     global city
-    
-    #La API de OpenWeather está en un archivo
-    with open('APIOpenWeather.json', 'r') as file:
-        API_KEY = json.load(file)['apiKey']
-    
+
+    # Leer la API desde el archivo
+    try:
+        with open('APIOpenWeather.json', 'r') as file:
+            API_KEY = json.load(file)['apiKey']
+    except FileNotFoundError:
+        print("Error: Archivo APIOpenWeather.json no encontrado.")
+        return None
+
     API_BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
-    
+
     params = {
         'q': city,
         'appid': API_KEY,
         'units': 'metric',  # Para recibir temperatura en °C
     }
-    
+
     try:
         response = requests.get(API_BASE_URL, params=params)
-        response.raise_for_status()  # Lanza excepción para códigos de error HTTP
+        response.raise_for_status()
         weather_data = response.json()
         return weather_data['main']['temp']  # Devuelve solo la temperatura
     except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
+        print(f"Error HTTP: {http_err}")
         if response is not None:
             print("Mensaje del servidor:", response.json().get("message", "Error no especificado."))
     except Exception as err:
-        print(f"Error occurred: {err}")
+        print(f"Error general: {err}")
     return None
 
 @app.route('/city', methods=['GET'])
-def exposeAPI():
+def get_city_temperature():
     temperatura = get_temperature()
-    
-    if temperatura < 0:
-        return "KO"
-    return "OK"
+    if temperatura is None or temperatura < 0:
+        status = 'KO'
+    else:
+        status = 'OK'
+    return jsonify({'city': city, 'temperature': temperatura, 'status': status})
 
-#Pedimos al usuario si quiere cambiar la ciudad
 def update_city():
     global city
     while True:
-        input("Pulsa enter en cualquier momento para cambiar de ciudad:")
-        city = input("Introduce la ciudad a la que te quieres cambiar: ")
-        print(f"Actualizando ciudad a: {city}")
-        
-def exposeAPI():
-    app.run(debug=True, host='0.0.0.0', port=5000)
+        # Solicitar nueva ciudad
+        new_city = input("Introduce la nueva ciudad (o presiona Enter para mantener la actual): ").strip()
+        if new_city:
+            city = new_city  # Actualizar la ciudad
+            print(f"Ciudad actualizada a: {city}")
 
 def main():
-    #Creamos dos hilos, uno para cambiar la ciudad y otro para exponer la API
-    hiloCiudad = threading.Thread(target=update_city)
+    # Hilo para actualizar la ciudad
+    hiloCiudad = threading.Thread(target=update_city, daemon=True)
     hiloCiudad.start()
-    
-    hiloAPI = threading.Thread(target=exposeAPI)
-    hiloAPI.start()
-    
-    hiloCiudad.join()
-    hiloAPI.join()
 
-if __name__ == "__main__":
+    # Ejecutar Flask en el hilo principal
+    context = ('certificados/certCTC.pem', 'certificados/keyCTC.pem')  # Ajusta los certificados si es necesario
+    app.run(port=3000, debug=False, ssl_context=context)
+
+if __name__ == '__main__':
     main()
