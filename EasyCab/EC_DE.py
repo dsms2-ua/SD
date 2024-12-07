@@ -30,82 +30,6 @@ AES_KEY = b''
 
 init(autoreset=True)
 
-#Falta encriptar todas las comunicaciones con Registry
-def register(id):
-    #Pedimos al usuario que introduzca los datos
-    password = input("Introduce tu contraseña: ")
-    password2 = input("Repite tu contraseña: ")
-    
-    #Comprobamos que las contraseñas sean iguales
-    while password != password2:
-        print("Las contraseñas no coinciden")
-        password = input("Introduce tu contraseña: ")
-        password2 = input("Repite tu contraseña: ")
-        
-    #Le hacemos un HASH a la contraseña con md5
-    hashed = hashlib.md5(password.encode()).hexdigest()
-        
-    data = {
-        "id": id,
-        "password": hashed
-    }
-    #Hacemos la petición POST a la API
-    response = requests.post('http://localhost:5000/registry', json=data)
-    
-    if response.status_code == 200:
-        print("Taxi registrado correctamente")
-    else:
-        print("Error en el registro del taxi")
-        
-def login(id):
-    #Pedimos una contraseña al usuario y hacemos el hash
-    #Recuperamos la contraseña de la base de datos y si los hashes coinciden, logueamos al usuario
-    password = input("Introduce tu contraseña: ")
-    hashed = hashlib.md5(password.encode()).hexdigest()
-    
-    #Hacemos la petición GET a la API
-
-def showMenu(id):
-    print("Bienvenido al sistema de EasyCab")
-    print("1. Registrarse")
-    print("2. Acceder")
-    print("3. Salir")
-    
-    opcion = input("Introduce la opción deseada: ")
-    if opcion == "1":
-        register(id)   
-    elif opcion == "2":
-        login(id)
-    elif opcion == "3":
-        return False
-
-def sendHeartbeat():
-    global estado,operativo,centralStop,posicion,sensores,AES_KEY
-    while True:
-        aux = False
-        if len(sensores) == 0:
-            print("No hay sensores conectados")
-            operativo = False
-        else:
-            for sensor in sensores:
-                aux = True
-                if sensores[sensor] == "KO" or sensores[sensor] == "Desconectado":
-                    aux = False
-                    operativo = False
-                    break
-        if aux and not centralStop:
-            operativo = True
-            estadoTaxi = "OK"
-        else:
-            operativo = False
-        
-        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
-        mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
-        coded_message = encrypt(mensaje, AES_KEY, True)
-        print(f"{sys.argv[5]} {coded_message}")
-        producer.send('taxiUpdate', value=f"{sys.argv[5]} {coded_message}".encode('utf-8'))
-        time.sleep(0.5)
-
 def authenticateTaxi():
     global AES_KEY
     # Recogemos los datos de los argumentos
@@ -135,6 +59,77 @@ def authenticateTaxi():
         print("Taxi autenticado correctamente")
         client_socket.close()
         return True
+
+#Falta encriptar todas las comunicaciones con Registry
+def register(id):
+    #Pedimos al usuario que introduzca los datos
+    password = input("Introduce tu contraseña: ")
+    password2 = input("Repite tu contraseña: ")
+    
+    #Comprobamos que las contraseñas sean iguales
+    while password != password2:
+        print("Las contraseñas no coinciden")
+        password = input("Introduce tu contraseña: ")
+        password2 = input("Repite tu contraseña: ")
+        
+    #Le hacemos un HASH a la contraseña con md5
+    hashed = hashlib.md5(password.encode()).hexdigest()
+        
+    data = {
+        "id": id,
+        "password": hashed
+    }
+    #Hacemos la petición POST a la API
+    response = requests.post('http://localhost:5000/registry', json=data)
+    
+    #Si el intento de registro ha sido correcto, vamos directamente al login
+    
+    if response.status_code == 200:
+        print("Taxi registrado correctamente")
+    else:
+        print("Error en el registro del taxi")
+        
+def showMenu(id):
+    #La primera opción nos llevará al registry, la segunda a la central y la tercera cerrará el programa
+    print("Bienvenido al sistema de EasyCab")
+    print("1. Registrarse")
+    print("2. Acceder")
+    print("3. Salir")
+    
+    opcion = input("Introduce la opción deseada: ")
+    if opcion == "1":
+        register(id)   
+    elif opcion == "2":
+        authenticateTaxi()
+    elif opcion == "3":
+        return False
+
+def sendHeartbeat():
+    global estado,operativo,centralStop,posicion,sensores,AES_KEY
+    while True:
+        aux = False
+        if len(sensores) == 0:
+            print("No hay sensores conectados")
+            operativo = False
+        else:
+            for sensor in sensores:
+                aux = True
+                if sensores[sensor] == "KO" or sensores[sensor] == "Desconectado":
+                    aux = False
+                    operativo = False
+                    break
+        if aux and not centralStop:
+            operativo = True
+            estadoTaxi = "OK"
+        else:
+            operativo = False
+        
+        producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
+        mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
+        coded_message = encrypt(mensaje, AES_KEY, True)
+        print(f"{sys.argv[5]} {coded_message}")
+        producer.send('taxiUpdate', value=f"{sys.argv[5]} {coded_message}".encode('utf-8'))
+        time.sleep(0.5)
     
 def sensoresStates():
     global sensores,estado
