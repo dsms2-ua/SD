@@ -8,10 +8,11 @@ import threading
 import time
 from kafka import KafkaProducer, KafkaConsumer
 import pickle
-import socket
+import socket, ssl
 import os, hashlib
 from Clases import *
 from EC_CTC import get_temperature
+import pwinput
 
 sensorOut = False
 centralStop = False
@@ -30,47 +31,55 @@ AES_KEY = b''
 
 init(autoreset=True)
 
+#Creamos el servidor seguro de sockets, le enviamos el ID
+#Si estamos registrados, nos pedirá la contraseña y si es correcta, accedemos
 def authenticateTaxi():
     global AES_KEY
     # Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
     central_port = int(sys.argv[2])
-
-    # Nos conectamos a la central por sockets
-    client_socket = socket.socket()
-    client_socket.connect((central_ip, central_port))
-
-    # Enviamos el ID del taxi en el formato adecuado
     taxi_id = int(sys.argv[5])
-    message = create_message(str(taxi_id))
-    client_socket.send(message)
-
-    # Recibimos la respuesta de la central
-    response = client_socket.recv(32)
-    data = verify_message(response)
-
-    # Validamos la respuesta recibida
-    if data == "KO":
-        print("Error en la autenticación del taxi")
-        client_socket.close()
-        return False
-    else:
-        AES_KEY = response
-        print("Taxi autenticado correctamente")
-        client_socket.close()
-        return True
+    
+    context = ssl._create_unverified_context()
+    
+    with socket.create_connection((central_ip, central_port)) as sock:
+        with context.wrap_socket(sock, server_hostname=central_ip) as ssock:
+            #Enviamos el ID
+            ssock.send(str(taxi_id).encode())
+            #Recibimos la respuesta
+            response = ssock.recv(1024)
+            
+            #Si recibimos KO, es que no estamos registrados
+            if response.decode() == "KO":
+                print("El taxi no está registrado en el sistema")
+                return False
+            else:
+                #Tenemos que introducir la contraseña, hacerle un HASH y enviarla
+                password = pwinput.pwinput(prompt="Introduce tu contraseña: ", mask="*")
+                hashed = hashlib.md5(password.encode()).hexdigest()
+                ssock.send(hashed.encode())
+                
+            #Recibimos si la contraseña es correcta o no
+            response = ssock.recv(1024)
+            if response.decode() == "KO":
+                print("Contraseña incorrecta")
+                return False
+            else:
+                AES_KEY = response
+                print("Taxi autenticado correctamente")
+                return True
 
 #Falta encriptar todas las comunicaciones con Registry
 def register(id):
     #Pedimos al usuario que introduzca los datos
-    password = input("Introduce tu contraseña: ")
-    password2 = input("Repite tu contraseña: ")
+    password = pwinput.pwinput(prompt="Introduce tu contraseña: ", mask="*")
+    password2 = pwinput.pwinput(prompt="Repite tu contraseña: ", mask="*")
     
     #Comprobamos que las contraseñas sean iguales
     while password != password2:
         print("Las contraseñas no coinciden")
-        password = input("Introduce tu contraseña: ")
-        password2 = input("Repite tu contraseña: ")
+        password = pwinput.pwinput("Introduce tu contraseña: ", mask="*")
+        password2 = pwinput.pwinput(prompt="Repite tu contraseña: ", mask="*")
         
     #Le hacemos un HASH a la contraseña con md5
     hashed = hashlib.md5(password.encode()).hexdigest()
@@ -80,12 +89,14 @@ def register(id):
         "password": hashed
     }
     #Hacemos la petición POST a la API
-    response = requests.post('http://localhost:5000/registry', json=data)
+    response = requests.post('http://localhost:3000/registry', json=data)
     
     #Si el intento de registro ha sido correcto, vamos directamente al login
     
     if response.status_code == 200:
         print("Taxi registrado correctamente")
+        #Como el registro ha sido correcto, vamos al login
+        authenticateTaxi()
     else:
         print("Error en el registro del taxi")
         

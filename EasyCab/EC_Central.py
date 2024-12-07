@@ -4,7 +4,7 @@ if sys.version_info >= (3, 12, 0):
     import six
     sys.modules['kafka.vendor.six.moves'] = six.moves
 
-import socket
+import socket, ssl
 import threading
 import time
 import pickle
@@ -49,18 +49,58 @@ def leerTaxis(taxis):
             taxis.append(int(id))
 
 #Creamos la función que gestiona la autenticación por sockets
-def autheticate_taxi():
+#Tenemos que crear un servidor seguro
+def authenticate_taxi():
+    cert = 'certificados/certServ.pem'
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    port = int(sys.argv[1])
+    context.load_cert_chain(cert, cert)
+    
     # Creamos el socket del servidor con la dirección pasada por parámetro
     server_socket = socket.socket()
-    server_socket.bind(('0.0.0.0', int(sys.argv[1])))
+    server_socket.bind(('0.0.0.0', port))
     server_socket.listen(5)
 
     while True:
         # Permitimos la conexión y recibimos los datos
         client, addr = server_socket.accept()
+        consstream = context.wrap_socket(client, server_side=True)
+        
+        #Gesionamos el login
+        try:
+            id = repr(consstream.recv(1024))
+            #Hacemos una petición GET a la API para ver si el texi está registrado o no
+            response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certCTC.pem')
+            
+            if response.status_code == 404:
+                #Si no hemos encontrado el taxi
+                consstream.send(b'KO')
+                consstream.close()
+                continue
+            elif response.status_code == 200:
+                consstream.send(b'OK')
+                
+                #Ahora recibimos la contraseña y comprobamos si coincide con la registrada
+                password = consstream.recv(1024)
+                
+                #Hacemos un GET a la API por la contraseña
+                response = requests.get(f'https://localhost:3000/password/{id}', verify='certificados/certCTC.pem')
+                
+                if password == response.text.encode('utf-8'):
+                    #Como la contraseñas coinciden, generamos el token y la clave AES
+                    
+                    consstream.send(b'OK')
+                else:
+                    consstream.send(b'KO')
+                    consstream.close()
+                    continue    
+        finally:
+            consstream.shutdown(socket.SHUT_RDWR)
+            consstream.close()
+            client.close()
 
         # Recibimos el mensaje en formato bytes
-        message = client.recv(1024)
+        message = consstream.recv(1024)
         
         # Verificamos el mensaje
         data = verify_message(message)
@@ -69,7 +109,6 @@ def autheticate_taxi():
             client.send(NACK)
             client.close()
             continue
-
         try:
             # Procesamos el ID del taxi
             taxi_id = int(data)
@@ -512,7 +551,7 @@ def main():
     reconexion()
 
     # Iniciar el servidor de autenticación en un hilo
-    auth_thread = threading.Thread(target=autheticate_taxi)
+    auth_thread = threading.Thread(target=authenticate_taxi)
     auth_thread.start()
 
     weather_thread = threading.Thread(target=weatherState)

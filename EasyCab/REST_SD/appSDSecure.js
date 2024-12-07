@@ -50,7 +50,7 @@ appSD.get("/taxis", (req, res) => {
 });
 
 //Obtener un taxi por ID
-appSD.get("/taxis/:id", (req, res) => {
+appSD.get("/taxi/:id", (req, res) => {
     console.log('Obtener taxi por ID');
     const sql = "SELECT * FROM Taxis WHERE idTaxi = ?";
     const params = [req.params.id];
@@ -58,7 +58,11 @@ appSD.get("/taxis/:id", (req, res) => {
         if (err) {
             res.status(500).send("Error al obtener el taxi");
             console.error(err.message);
-        } else {
+        }
+        else if (!row) {
+            res.status(404).json({ message: "No se encontró el taxi" });
+        }
+        else {
             res.json(row || "No se encontró el taxi");
         }
     });
@@ -109,7 +113,11 @@ appSD.get("/password/:id",(req, res) => {
         if (err) {
             res.status(500).send("Error al obtener la contraseña");
             console.error(err.message);
-        } else {
+        } 
+        else if (!row) {
+            res.status(404).json({ message: "No se encontró el taxi" });
+        }
+        else {
             res.json(row || "No se encontró la contraseña");
         }
     });

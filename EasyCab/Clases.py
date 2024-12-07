@@ -311,6 +311,7 @@ class Taxi:
         self.recogido = False #Indica si hemos recogido al cliente o no
         self.timeout = 0
         self.visible = True
+        self.token = None
 
     def setVisible(self, visible):
         self.visible = visible
@@ -344,6 +345,9 @@ class Taxi:
 
     def setRecogido(self, recogido):
         self.recogido = recogido
+        
+    def setToken(self, token):
+        self.token = token
 
     def getVisible(self):
         return self.visible
@@ -386,6 +390,9 @@ class Taxi:
     
     def getTimeout(self):
         return self.timeout
+    
+    def getToken(self):
+        return self.token
     
     
 class Cliente():

@@ -26,19 +26,9 @@ def register():
     else:
         return jsonify({"message": "El taxi ya está registrado."})
     
-@app.route('/login', methods=['GET'])
-def login():
-    id = request.args.get('id')
-    
-    #Comprobamos si el usuario ya está en la base de datos
-    #Si lo está, obtenemos su contraseña y la devolvemos
-    if comprobarRegistro(id):
-        return jsonify({"message": "Taxi logueado correctamente."})
-    else:
-        return jsonify({"message": "El taxi no está registrado."})
     
 def exposeAPI():
-    app.run(port=5000, debug=True)
+    app.run(port=3000, debug=True)
     
 def main():
     exposeAPI()
