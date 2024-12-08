@@ -95,7 +95,7 @@ def register(id):
         "password": hashed
     }
     #Hacemos la petición POST a la API
-    response = requests.post('http://localhost:3000/registry', json=data)
+    response = requests.post('https://localhost:3003/registry', json=data, verify='certificados/certRegistry.pem')
     
     #Si el intento de registro ha sido correcto, vamos directamente al login
     
@@ -103,8 +103,10 @@ def register(id):
         print("Taxi registrado correctamente")
         #Como el registro ha sido correcto, vamos al login
         authenticateTaxi()
+        return True
     else:
         print("Error en el registro del taxi")
+        return False
         
 def showMenu(id):
     #La primera opción nos llevará al registry, la segunda a la central y la tercera cerrará el programa
@@ -115,7 +117,7 @@ def showMenu(id):
     
     opcion = input("Introduce la opción deseada: ")
     if opcion == "1":
-        register(id)   
+        valid = register(id)   
     elif opcion == "2":
         authenticateTaxi()
     elif opcion == "3":
@@ -370,43 +372,40 @@ def main():
         print("Error: Usage python EC_DE.py Central_IP Central_Port Bootstrap_IP Bootstrap_Port Taxi_ID")
         return -1
 
-    #Autenticamos con sockets la existencia del taxi
-    """if not authenticateTaxi():
-        return
-    """
     ID = int(sys.argv[5])
     
     #Primero mostramos el menú con la opción de registrarnos o de directamente acceder
-    showMenu(ID)
-    
-    #Creamos el hilo que lleva al consumidor Kafka del mapa
-    map_thread = threading.Thread(target=receiveMap)
-    map_thread.start()
+    if showMenu(ID) == 3:
+        return -1
+    else:
+        #Creamos el hilo que lleva al consumidor Kafka del mapa
+        map_thread = threading.Thread(target=receiveMap)
+        map_thread.start()
 
-    #Creamos el hilo que comunica las alertas al consumidor
-    alert_thread = threading.Thread(target=sendAlerts, args = (ID, ))
-    alert_thread.start()
+        #Creamos el hilo que comunica las alertas al consumidor
+        alert_thread = threading.Thread(target=sendAlerts, args = (ID, ))
+        alert_thread.start()
 
-    #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
-    services_thread = threading.Thread(target=receiveServices, args=(ID, ))
-    services_thread.start()
+        #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
+        services_thread = threading.Thread(target=receiveServices, args=(ID, ))
+        services_thread.start()
 
-    #creamos el hilo que recibirá los comandos de la central
-    command_thread = threading.Thread(target=process_commands)
-    command_thread.start()
+        #creamos el hilo que recibirá los comandos de la central
+        command_thread = threading.Thread(target=process_commands)
+        command_thread.start()
 
-    heartbeat_thread = threading.Thread(target=sendHeartbeat)
-    heartbeat_thread.start()
-    
-    centralState_thread = threading.Thread(target=centralState)
-    centralState_thread.start()
+        heartbeat_thread = threading.Thread(target=sendHeartbeat)
+        heartbeat_thread.start()
+        
+        centralState_thread = threading.Thread(target=centralState)
+        centralState_thread.start()
 
-    map_thread.join()
-    #alert_thread.join()
-    services_thread.join()
-    command_thread.join()
-    heartbeat_thread.join()
-    centralState_thread.join()
+        map_thread.join()
+        #alert_thread.join()
+        services_thread.join()
+        command_thread.join()
+        heartbeat_thread.join()
+        centralState_thread.join()
 
 
 # Ejecución principal

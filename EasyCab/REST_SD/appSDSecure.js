@@ -26,8 +26,8 @@ https
     .createServer(
         // Indicamos el certificado y la clave privada
         {
-            key: fs.readFileSync('certServ.pem'),
-            cert: fs.readFileSync('certServ.pem')
+            key: fs.readFileSync('keyAppSD.pem'),
+            cert: fs.readFileSync('certAppSD.pem')
         },
         appSD
     )

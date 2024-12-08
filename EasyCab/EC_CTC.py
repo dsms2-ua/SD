@@ -68,7 +68,7 @@ def main():
 
     # Ejecutar Flask en el hilo principal
     context = ('certificados/certCTC.pem', 'certificados/keyCTC.pem')  # Ajusta los certificados si es necesario
-    app.run(port=3000, debug=False, ssl_context=context)
+    app.run(port=3002, debug=False)#, ssl_context=context)
 
 if __name__ == '__main__':
     main()

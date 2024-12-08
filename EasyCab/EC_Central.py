@@ -72,8 +72,16 @@ def authenticate_taxi():
         try:
             #id = consstream.recv(1024).decode('utf-8')
             id = repr(consstream.recv(1024))
+            
+            #Recorremos la lista de taxis y comprobamos que no haya iniciado sesión previamente
+            for taxi in TAXIS:
+                if taxi.getId() == int(id):
+                    consstream.send(b'KO')
+                    consstream.close()
+                    continue
+            
             #Hacemos una petición GET a la API para ver si el texi está registrado o no
-            response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certCTC.pem')
+            response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certAppSD.pem')
             
             if response.status_code == 404:
                 #Si no hemos encontrado el taxi
@@ -87,7 +95,7 @@ def authenticate_taxi():
                 password = consstream.recv(1024)
                 
                 #Hacemos un GET a la API por la contraseña
-                response = requests.get(f'https://localhost:3000/password/{id}', verify='certificados/certCTC.pem')
+                response = requests.get(f'https://localhost:3000/password/{id}', verify='certificados/certAppSD.pem')
                 
                 if password == response.text.encode('utf-8'):
                     #Como la contraseñas coinciden, generamos el token y la clave AES
@@ -532,10 +540,10 @@ def reconexion():
 """
 def weatherState():
     global estadoTrafico, temperatura, city
-    url = "https://localhost:3000/city"
+    url = "http://localhost:3002/city"
     #Hacemos una request a la API expuesta desde EC_CTC
     while True:
-        response = requests.get(url, verify='certificados/certCTC.pem')
+        response = requests.get(url)#, verify='certificados/certCTC.pem')
         
         if response.status_code == 200:
             data = response.json()
@@ -582,14 +590,9 @@ def main():
     #Leer las actualizaciones de los taxis
     taxiUpdate_thread = threading.Thread(target=readTaxiUpdate)
     taxiUpdate_thread.start()
-
-    #Leer los movimientos de los taxis
-    #taxiMovement_thread = threading.Thread(target=readTaxiMovements)
-    #taxiMovement_thread.start()
     
     #Iniciar la terminal que lee los comandos
-    open_command_terminal()
-    
+    open_command_terminal() 
 
     receiveCommand_thread = threading.Thread(target=receiveCommand)
     receiveCommand_thread.start()
@@ -608,7 +611,6 @@ def main():
     clients_thread.join()
     services_thread.join()
     taxiUpdate_thread.join()
-    #taxiMovement_thread.join()
     receiveCommand_thread.join()
     taxi_disconection_thread.join()
     customerDisconnection_thread.join()
