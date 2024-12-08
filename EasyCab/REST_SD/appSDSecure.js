@@ -21,13 +21,24 @@ const db = new sqlite3.Database('database.db', (error) => {
     }
 });
 
+// Verificar la carga de los certificados
+let key, cert;
+try {
+    key = fs.readFileSync('keyAppSD.pem');
+    cert = fs.readFileSync('certAppSD.pem');
+    console.log("Certificados cargados correctamente");
+} catch (error) {
+    console.error("Error al cargar los certificados:", error.message);
+    process.exit(1); // Salir si no se pueden cargar los certificados
+}
+
 // Arrancamos el servidor
 https
     .createServer(
         // Indicamos el certificado y la clave privada
         {
-            key: fs.readFileSync('keyAppSD.pem'),
-            cert: fs.readFileSync('certAppSD.pem')
+            key: key,
+            cert: cert
         },
         appSD
     )

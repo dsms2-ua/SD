@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify
-import requests, os
+import requests
 
 app = Flask(__name__)
 
 def comprobarRegistro(id):
     #Comprobamos si el usuario ya está en la base de datos
     print("Comprobando registro...")
-    check = requests.get(f'https://localhost:3000/taxis/{id}', verify='REST_SD/certAppSD.pem')
+    check = requests.get(f'https://localhost:3000/taxis/{id}', verify='certificados/certAppSD.pem')
     
     if check.status_code == 200:
         return True
