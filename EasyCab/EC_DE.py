@@ -282,13 +282,15 @@ def irA(destino):
     operativo2 = True
 
 def process_commands():
-    global operativo, operativo2, centralStop
+    global operativo, operativo2, centralStop, estado, token
     # Configurar el consumidor de Kafka
     consumer = KafkaConsumer('taxi_orders', bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
     # Recibir los mensajes
     for message in consumer:
-        data = message.value.decode('utf-8').split()
-        if data[0] == str(sys.argv[5]):
+        print("Mensaje recibido")
+        data = decrypt(message.value.decode('utf-8'), AES_KEY, True).split()
+        print(data[0] + " " + data[1])
+        if data[0] == token:
             if data[1] == "KO":
                 centralStop = True
                 operativo = False

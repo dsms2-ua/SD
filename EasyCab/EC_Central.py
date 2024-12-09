@@ -350,7 +350,7 @@ def receiveCommand():
         topic = message.topic
         taxi_id = command[0]
         action = command[1]
-
+        mensaje = ""
         if topic == "taxi_commands":
             if action == "KO":
                 for taxi in TAXIS:
@@ -360,19 +360,19 @@ def receiveCommand():
                         taxi.setOcupado(False)
                         taxi.setRecogido(False)
                         taxi.setDestino(None)
-                        producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
+                        mensaje = f"{taxi.getToken()} KO"
+                        #producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
                         break
             else:
                 for taxi in TAXIS:
                     if taxi.getId() == int(taxi_id):
                         taxi.setEstado(True)
-                        producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
+                        mensaje = f"{taxi.getToken()} OK"
+                        #producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
                         break
         elif topic == "taxi_commands2":
             for taxi in TAXIS:
                 if taxi.getId() == int(taxi_id):
-                    inicioX = taxi.getCasilla().getX()
-                    inicioY = taxi.getCasilla().getY()
                     taxi.setPosDestino(Casilla(int(action.split(',')[0]), int(action.split(',')[1])))
                     producer.send('service_completed', value = f"{taxi.getCliente()} KO".encode('utf-8'))
                     taxi.setRecogido(False)
@@ -380,8 +380,11 @@ def receiveCommand():
                     taxi.setOcupado(True)
                     dest = f"{action.split(',')[0]},{action.split(',')[1]}"
                     taxi.setDestino(dest)
-                    producer.send('taxi_orders', value = f"{taxi_id} {action} {inicioX} {inicioY}".encode('utf-8'))
+                    mensaje = f"{taxi.getToken()} {action}"
+                    #producer.send('taxi_orders', value = f"{taxi_id} {action} {inicioX} {inicioY}".encode('utf-8'))
                     break    
+        mensaje = encrypt(mensaje, taxi_keys[int(taxi_id)],True)
+        producer.send('taxi_orders', value = mensaje.encode('utf-8'))
 
 def handleCommands(ip,port):
         
