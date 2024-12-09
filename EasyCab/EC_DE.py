@@ -176,8 +176,8 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
-                    #os.system('cls')
-                     #Vamos a imprimir el estado de todos los sensores también
+                    os.system('cls')
+                    #Vamos a imprimir el estado de todos los sensores también
                     print("Sensores         |         Estado")
                     for sensor in sensores:
                         print(f"   {sensor}             |           ", end="")
