@@ -34,7 +34,7 @@ init(autoreset=True)
 #Creamos el servidor seguro de sockets, le enviamos el ID
 #Si estamos registrados, nos pedirá la contraseña y si es correcta, accedemos
 def authenticateTaxi():
-    global AES_KEY,token
+    global AES_KEY, token, posicion
     # Recogemos los datos de los argumentos
     central_ip = f'{sys.argv[1]}'
     central_port = int(sys.argv[2])
@@ -46,37 +46,41 @@ def authenticateTaxi():
     
     with socket.create_connection((central_ip, central_port)) as sock:
         with context.wrap_socket(sock, server_hostname=central_ip) as ssock:
-            #Enviamos el ID
-            ssock.send(str(taxi_id).encode())
-            #Recibimos la respuesta
-            response = ssock.recv(1024)
-            
-            #Si recibimos KO, es que no estamos registrados
-            if response.decode() == "KO":
-                print("El taxi no está registrado en el sistema")
-                return False
-            else:
-                #Tenemos que introducir la contraseña, hacerle un HASH y enviarla
-                password = pwinput.pwinput(prompt="Introduce tu contraseña: ", mask="*")
-                hashed = hashlib.md5(password.encode()).hexdigest()
-                ssock.send(hashed.encode())
+            try:
+                # Enviamos el ID
+                ssock.send(str(taxi_id).encode())
+                # Recibimos la respuesta
+                response = ssock.recv(1024)
                 
-            #Recibimos si la contraseña es correcta o no
-            response = ssock.recv(1024)
-            if response.decode() == "KO":
-                print("Contraseña incorrecta")
-                return False
-            else:
-                print("Contraseña correcta")
-                print(response.decode())
-                try:
-                    tokenAes = response.decode()
-                    token, aes = tokenAes.split()
-                    AES_KEY = base64.b64decode(aes)
-                    return True
-                except ValueError:
-                    print("Error al procesar los datos")
+                # Si recibimos KO, es que no estamos registrados
+                if response.decode() == "KO":
+                    print("El taxi no está registrado en el sistema")
                     return False
+                else:
+                    # Tenemos que introducir la contraseña, hacerle un HASH y enviarla
+                    password = pwinput.pwinput(prompt="Introduce tu contraseña: ", mask="*")
+                    hashed = hashlib.md5(password.encode()).hexdigest()
+                    ssock.send(hashed.encode())
+                    
+                # Recibimos si la contraseña es correcta o no
+                response = ssock.recv(1024)
+                if response.decode() == "KO":
+                    print("Contraseña incorrecta")
+                    return False
+                else:
+                    print("Contraseña correcta")
+                    print(response.decode())
+                    try:
+                        tokenAesPos = response.decode()
+                        token, aes, pos = tokenAesPos.split()
+                        posicion = Casilla(int(pos.split(",")[0]), int(pos.split(",")[1]))
+                        AES_KEY = base64.b64decode(aes)
+                        return True
+                    except ValueError:
+                        print("Error al procesar los datos")
+                        return False
+            finally:
+                ssock.close()
 
 
 #Falta encriptar todas las comunicaciones con Registry
@@ -128,11 +132,10 @@ def showMenu(id):
         return False
 
 def sendHeartbeat():
-    global estado,operativo,centralStop,posicion,sensores,AES_KEY
+    global estado,operativo,centralStop,posicion,sensores,AES_KEY,token
     while True:
         aux = False
         if len(sensores) == 0:
-            print("No hay sensores conectados")
             operativo = False
         else:
             for sensor in sensores:
@@ -150,7 +153,6 @@ def sendHeartbeat():
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
         mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
         coded_message = encrypt(mensaje, AES_KEY, True)
-        print(f"{sys.argv[5]} {coded_message}")
         producer.send('taxiUpdate', value=f"{sys.argv[5]} {coded_message}".encode('utf-8'))
         time.sleep(0.5)
     
@@ -176,7 +178,7 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
-                    os.system('cls')
+                    #os.system('cls')
                     #Vamos a imprimir el estado de todos los sensores también
                     print("Sensores         |         Estado")
                     for sensor in sensores:
@@ -201,6 +203,7 @@ def handleAlerts(client_socket, producer, id):
     client_socket.settimeout(1.0)
 
     while True:
+        sensor_id = None
         try:
             data = client_socket.recv(1024)
             decoded_data = verify_message(data)
@@ -236,7 +239,8 @@ def handleAlerts(client_socket, producer, id):
                         sensores.pop(sensor_id)
                     client_socket.send(ACK if decoded_data else NACK)           
         except socket.timeout:
-            sensores[sensor_id] = "Desconectado"
+            if sensor_id is not None:
+                sensores[sensor_id] = "Desconectado"
             operativo = False
             estado = "Parado por sensores"
             break

@@ -9,43 +9,49 @@ id = 0
 
 def sendOk(socket_server):
     global OK, id
-    socket_server.send(create_message("SENSOR"))  # Identificación inicial
-    response = socket_server.recv(1024)
 
-    # Recibe ID del servidor
-    decoded_response = verify_message(response)
-    if decoded_response:
-        id = decoded_response
-    else:
-        print("Error: No se pudo asignar el ID")
-        return
-
-    # Envía OK/KO cada segundo
-    while True:
+    while True:  # Bucle infinito para intentar reconexiones
         try:
-            status = "OK" if OK else "KO"
-            message = create_message(f"{id}#{status}")
-            socket_server.send(message)
-            
-            # Verifica ACK/NACK
-            ack_response = socket_server.recv(1024)
-            if ack_response == NACK:
-                print("Error: Mensaje no fue recibido correctamente")
-            
-            time.sleep(1)
-        except Exception as e:
-            print(f"IMPOSIBLE CONECTARSE CON EL TAXI {id}, intentando reconexión...")
-            # Intenta reconectarse cada 5 segundos hasta que lo logre
+            # Crear y conectar el socket
+            socket_server = socket.socket()
+            socket_server.connect((sys.argv[1], int(sys.argv[2])))
+            print("Conexión establecida con el servidor.")
+
+            # Enviar mensaje de inicialización
+            socket_server.send(create_message("SENSOR"))
+            response = socket_server.recv(1024)
+
+            # Recibir y verificar ID del servidor
+            decoded_response = verify_message(response)
+            if decoded_response:
+                id = decoded_response
+                print(f"ID asignado por el servidor: {id}")
+            else:
+                print("Error al recibir ID. Cerrando conexión e intentando nuevamente.")
+                socket_server.close()
+                time.sleep(5)
+                continue  # Reintentar desde el inicio del bucle
+
+            # Comenzar el envío periódico de mensajes OK/KO
             while True:
                 try:
-                    time.sleep(5)
-                    socket_server = socket.socket()
-                    socket_server.connect((sys.argv[1], int(sys.argv[2])))
-                    print("Reconexión exitosa.")
-                    input("Presiona cualquier tecla para parar el taxi: ")
-                    break  # Sale del bucle de reconexión al lograr conectarse
-                except Exception as recon_error:
-                    print("Error en la reconexión, intentando de nuevo...")
+                    # Determinar el estado del sensor y enviar
+                    status = "OK" if OK else "KO"
+                    message = create_message(f"{id}#{status}")
+                    socket_server.send(message)
+
+                    # Verificar ACK/NACK del servidor
+                    ack_response = socket_server.recv(1024)
+                    if ack_response == NACK:
+                        print("Error: El mensaje no fue recibido correctamente por el taxi.")
+
+                    time.sleep(1)  # Esperar antes del próximo envío
+                except Exception as e:
+                    print(f"Desconexión detectada")
+                    break  # Salir del bucle interno y volver a intentar la conexión
+        except Exception as e:
+            print(f"Error al intentar conectar con el servidor")
+            time.sleep(5)  # Esperar antes de reintentar la conexión
 
 def sendAlert():
     global OK

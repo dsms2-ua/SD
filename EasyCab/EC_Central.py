@@ -78,15 +78,7 @@ def authenticate_taxi():
             id = consstream.recv(1024).decode('utf-8')
             print(f"Taxi {id} conectado")
             
-            #Recorremos la lista de taxis y comprobamos que no haya iniciado sesión previamente
-            '''
-            for taxi in TAXIS:
-                if taxi.getId() == int(id):
-                    consstream.send(b'KO')
-                    consstream.close()
-                    continue
-            '''
-            
+
             #Hacemos una petición GET a la API para ver si el texi está registrado o no
             response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certAppSD.pem')
             #print(f"Respuesta recibida: {response.status_code}")
@@ -108,16 +100,33 @@ def authenticate_taxi():
                 data = response.json()
                 
                 if password == data['password']:
+                    posicion = "1,1"
+                    existe = False
+                    aes_key = os.urandom(32)
+                    for taxi in TAXIS:
+                        if taxi.getId() == int(id):
+                            existe = True
+                            taxi.setVisible(True)
+                            posicion = str(taxi.getCasilla().getX()) + "," + str(taxi.getCasilla().getY())
+                            break
                     #Como la contraseñas coinciden, generamos el token y la clave AES
                     token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
-                    aes_key = os.urandom(32)  # Genera una clave AES de 256 bits
-
-                    # Guardar el token y la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
-                    taxi_keys[id] = aes_key
-                    taxi_tokens[id] = token
+                    if not existe:
+                        #creamos el objeto taxi
+                        taxi = Taxi(int(id))
+                        taxi.setCasilla(Casilla(1, 1))
+                        TAXIS.append(taxi)
+                        # Guardar la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
+                        taxi_keys[int(id)] = aes_key
+                    else:
+                        aes_key = taxi_keys[int(id)]
+                        print(aes_key)
+                        
+                    # Guardar el token en algún lugar seguro, como una base de datos o un diccionario en memoria
+                    taxi_tokens[int(id)] = token
                     
                     # Enviar el token y la clave AES al cliente
-                    consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")}'.encode('utf-8'))
+                    consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
                 else:
                     consstream.send(b'KO')
                     consstream.close()
@@ -127,53 +136,7 @@ def authenticate_taxi():
                 consstream.shutdown(socket.SHUT_RDWR)
                 consstream.close()
             client.close()
-        """
-        # Recibimos el mensaje en formato bytes
-        message = consstream.recv(1024)
-        
-        # Verificamos el mensaje
-        data = verify_message(message)
-        if data is None:
-            # Enviar un NACK si el mensaje es incorrecto
-            client.send(NACK)
-            client.close()
-            continue
-        try:
-            # Procesamos el ID del taxi
-            taxi_id = int(data)
-            if taxi_id in TAXIS_DISPONIBLES:
-                # Creamos el objeto taxi y lo ubicamos en una posición no ocupada
-                taxi = Taxi(taxi_id)
-                taxi.setCasilla(Casilla(1, 1))
-                TAXIS_DISPONIBLES.remove(taxi_id)
-                
-                # Añadimos el taxi a la lista de taxis y respondemos con "OK"
-                TAXIS.append(taxi)
-                key = generate_aes_key()
-                taxi_keys[taxi_id] = key
-                client.send(key)
-            #comprobamos si el taxi ya está autenticado pero esta en no visible
-            else:
-                aux = False
-                for t in TAXIS:
-                    if t.getId() == taxi_id and t.getVisible() == False:
-                        t.setVisible(True)
-                        key = generate_aes_key()
-                        taxi_keys[taxi_id] = key
-                        client.send(key)
-                        aux = True
-                        break
-
-                # Mandamos un mensaje al taxi de error
-                if not aux:
-                    response = create_message("ERROR")
-                    client.send(response)
-        except ValueError:
-            response = create_message("ERROR")
-            client.send(response)
-        finally:
-            client.close()
-            """
+       
 def escribirMapa(mapa):
     with open("mapa.txt", "w") as file:
         file.write(mapa)
@@ -301,7 +264,6 @@ def readTaxiUpdate():
         for message in consumer: 
             id,mensaje = message.value.decode('utf-8').split()
             mensaje_desencriptado = decrypt(mensaje, taxi_keys[int(id)],True)
-            print(f"Taxi {id} {mensaje_desencriptado}")
             estado, posX, posY = mensaje_desencriptado.split()
             estado = True if estado == "True" else False
             for taxi in TAXIS:

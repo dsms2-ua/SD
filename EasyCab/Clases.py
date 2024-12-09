@@ -537,9 +537,9 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
                 strTabla += "    OK.Parado" + "    |"
         elif taxi.getVisible():
             #Esto lo imprimimos en rojo
-            strTabla += Fore.RED + "    KO. Parado" + "   |"
+            strTabla += Fore.RED + "    KO. Parado" + "   |" + Style.RESET_ALL
         else:
-            strTabla += Fore.RED + "KO. Desconectado" + " |"
+            strTabla += Fore.RED + "KO. Desconectado" + " |" + Style.RESET_ALL
         #Ahora imprimimos la posicion
         pos = taxi.getCasilla()
         aux = False
@@ -860,6 +860,7 @@ def encrypt(message: str, key: bytes,isString: bool) -> str:
 # Función para descifrar un mensaje con AES
 def decrypt(encrypted_message: str, key: bytes, isString: bool) -> str:
     # Decodificamos el mensaje cifrado de base64
+    
     encrypted_data = base64.b64decode(encrypted_message)
     
     # El IV está al principio del mensaje cifrado, y el mensaje cifrado sigue después
