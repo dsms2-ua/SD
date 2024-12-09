@@ -53,10 +53,14 @@ def leerTaxis(taxis):
 #Creamos la función que gestiona la autenticación por sockets
 #Tenemos que crear un servidor seguro
 def authenticate_taxi():
-    cert = 'certificados/certServ.pem'
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    cert = 'certificados/certSocketsSans.pem'
+    key = 'certificados/keySans.pem'
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     port = int(sys.argv[1])
-    context.load_cert_chain(cert, cert)
+    context.load_cert_chain(certfile=cert, keyfile=key)
+    
+    #context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    #context.load_cert_chain(certfile="mycertfile", keyfile="mykeyfile")
     
     # Creamos el socket del servidor con la dirección pasada por parámetro
     server_socket = socket.socket()
@@ -68,20 +72,24 @@ def authenticate_taxi():
         client, addr = server_socket.accept()
         consstream = context.wrap_socket(client, server_side=True)
         
-        #Gesionamos el login
+        #Gestionamos el login
         try:
             #id = consstream.recv(1024).decode('utf-8')
-            id = repr(consstream.recv(1024))
+            id = consstream.recv(1024).decode('utf-8')
+            print(f"Taxi {id} conectado")
             
             #Recorremos la lista de taxis y comprobamos que no haya iniciado sesión previamente
+            '''
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
                     consstream.send(b'KO')
                     consstream.close()
                     continue
+            '''
             
             #Hacemos una petición GET a la API para ver si el texi está registrado o no
             response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certAppSD.pem')
+            #print(f"Respuesta recibida: {response.status_code}")
             
             if response.status_code == 404:
                 #Si no hemos encontrado el taxi
@@ -92,12 +100,14 @@ def authenticate_taxi():
                 consstream.send(b'OK')
                 
                 #Ahora recibimos la contraseña y comprobamos si coincide con la registrada
-                password = consstream.recv(1024)
+                password = consstream.recv(1024).decode('utf-8')
                 
                 #Hacemos un GET a la API por la contraseña
                 response = requests.get(f'https://localhost:3000/password/{id}', verify='certificados/certAppSD.pem')
                 
-                if password == response.text.encode('utf-8'):
+                data = response.json()
+                
+                if password == data['password']:
                     #Como la contraseñas coinciden, generamos el token y la clave AES
                     token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
                     aes_key = os.urandom(32)  # Genera una clave AES de 256 bits
@@ -113,8 +123,9 @@ def authenticate_taxi():
                     consstream.close()
                     continue    
         finally:
-            consstream.shutdown(socket.SHUT_RDWR)
-            consstream.close()
+            if consstream:
+                consstream.shutdown(socket.SHUT_RDWR)
+                consstream.close()
             client.close()
         """
         # Recibimos el mensaje en formato bytes
@@ -189,7 +200,7 @@ def sendMap():
         mapaArchivo += mapa.cadenaMapaArchivo() + "\n"
         escribirMapa(mapaArchivo)
         
-        os.system('cls')
+        #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
 
@@ -543,17 +554,18 @@ def weatherState():
     url = "http://localhost:3002/city"
     #Hacemos una request a la API expuesta desde EC_CTC
     while True:
-        response = requests.get(url)#, verify='certificados/certCTC.pem')
-        
-        if response.status_code == 200:
-            data = response.json()
-            city = data.get('city')
-            temperatura = data.get('temperature')
-            status = data.get('status')
+        try:
+            response = requests.get(url)#, verify='certificados/certCTC.pem')
+            if response.status_code == 200:
+                data = response.json()
+                city = data.get('city')
+                temperatura = data.get('temperature')
+                status = data.get('status')
 
-            estadoTrafico = status
-        time.sleep(10)
-
+                estadoTrafico = status
+                time.sleep(10)
+        except Exception as e:
+            pass
         
 def main():
     # Comprobar que se han pasado los argumentos correctos

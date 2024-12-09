@@ -40,7 +40,9 @@ def authenticateTaxi():
     central_port = int(sys.argv[2])
     taxi_id = int(sys.argv[5])
     
-    context = ssl._create_unverified_context()
+    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+    context.load_verify_locations('certificados/certSocketsSans.pem')
+    #context = ssl._create_unverified_context()
     
     with socket.create_connection((central_ip, central_port)) as sock:
         with context.wrap_socket(sock, server_hostname=central_ip) as ssock:
@@ -65,6 +67,8 @@ def authenticateTaxi():
                 print("Contraseña incorrecta")
                 return False
             else:
+                print("Contraseña correcta")
+                print(response.decode())
                 try:
                     tokenAes = response.decode()
                     token, aes = tokenAes.split()

@@ -235,7 +235,8 @@ class Mapa:
                 # Comprobamos si hay una posicion
                 for pos in self.posiciones:
                     if self.posiciones[pos].getX() == j and self.posiciones[pos].getY() == i:
-                        mapa_str += " " + pos + " "
+                        mapa_str += f'<span style="background-color: blue; color: black;"> {pos} </span>'
+                        #mapa_str += " " + pos + " "
                         isPos = True
                         break
                 if not isPos:
@@ -244,30 +245,38 @@ class Mapa:
                         if taxi.getX() == j and taxi.getY() == i and taxi.getVisible():
                             isTaxi = True
                             if not taxi.getEstado():
-                                mapa_str += " " + str(taxi.getId()) + "!"
+                                mapa_str += f'<span style="background-color: red; color: black;"> {taxi.getId()}! </span>'
+                                #mapa_str += " " + str(taxi.getId()) + "!"
                             elif not taxi.getOcupado():
-                                mapa_str += " " + str(taxi.getId()) + " "
+                                mapa_str += f'<span style="background-color: red; color: black;"> {taxi.getId()} </span>'
+                                #mapa_str += " " + str(taxi.getId()) + " "
                             elif not taxi.getEstado():
-                                mapa_str += " " + str(taxi.getId()) + "!"
+                                mapa_str += f'<span style="background-color: red; color: black;"> {taxi.getId()}! </span>'
+                                #mapa_str += " " + str(taxi.getId()) + "!"
                             elif taxi.getOcupado() and not taxi.getRecogido() and taxi.getCliente() is not None:
-                                mapa_str += " " + str(taxi.getId()) + " "
+                                mapa_str += f'<span style="background-color: green; color: black;"> {taxi.getId()} </span>'
+                                #mapa_str += " " + str(taxi.getId()) + " "
                             elif taxi.getOcupado() and taxi.getRecogido() and taxi.getCliente() is not None:
-                                mapa_str += " " + str(taxi.getId()) + taxi.getCliente()
+                                mapa_str += f'<span style="background-color: green; color: black;"> {taxi.getId()}{taxi.getCliente()} </span>'
+                                #mapa_str += " " + str(taxi.getId()) + taxi.getCliente()
                             else:
-                                mapa_str += " " + str(taxi.getId()) + " "
+                                mapa_str += f'<span style="background-color: red; color: black;"> {taxi.getId()} </span>'
+                                #mapa_str += " " + str(taxi.getId()) + " "
                             break  
 
                 # Comprobamos si hay un cliente, siempre que no haya un taxi
                 if not isTaxi and not isPos:
                     for cliente in self.clientes:
                         if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
-                            mapa_str += " " + cliente.getId() + " "
+                            mapa_str += f'<span style="background-color: yellow; color: black;"> {cliente.getId()} </span>'
+                            #mapa_str += " " + cliente.getId() + " "
                             isCliente = True
                             break
 
                 # Si no hay ningun elemento, añadimos un espacio con fondo blanco
                 if not isPos and not isTaxi and not isCliente:
-                    mapa_str += " . "
+                    mapa_str += f'<span style="background-color: white; color: black;"> . </span>'
+                    #mapa_str += " . "
 
                 # Añadir separador vertical entre las celdas
                 mapa_str += "|"
