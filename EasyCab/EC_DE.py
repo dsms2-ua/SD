@@ -153,7 +153,7 @@ def sendHeartbeat():
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
         mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
         coded_message = encrypt(mensaje, AES_KEY, True)
-        producer.send('taxiUpdate', value=f"{sys.argv[5]} {coded_message}".encode('utf-8'))
+        producer.send('taxiUpdate', value=f"{token} {coded_message}".encode('utf-8'))
         time.sleep(0.5)
     
 def sensoresStates():
@@ -312,7 +312,7 @@ def receiveServices(id):
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
-    global estado, operativo,posicion
+    global estado, operativo,posicion,token,operativo2
     #Creamos el producer de Kafka para mandar los movimientos
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -320,13 +320,12 @@ def receiveServices(id):
     for message in consumer:
         #Sólo podemos procesar los mensajes dirigidos a nosotros
 
-        id_recibida, mensaje = message.value.decode('utf-8').split()
-        print(f"ID recibida: {id_recibida}")
-        if int(id_recibida) == id:  
+        tk, mensaje = message.value.decode('utf-8').split()
+        if tk == token:  
             print("Mensaje recibido")          
             servicio = decrypt(mensaje, AES_KEY,False)
             #creamos producer de Kafka para notificar al cliente de la asignacion con el topic taxi_assigned
-            producer.send('taxi_assigned', value = f"{id} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
+            producer.send('taxi_assigned', value = f"{servicio.getTaxi()} {servicio.getCliente()} {servicio.getDestino()}".encode('utf-8'))
             
             origen = servicio.getOrigen()
             destino = servicio.getPosDestino()

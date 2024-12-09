@@ -31,7 +31,6 @@ city = ""
 
 #claves AES de los taxis
 taxi_keys = {}
-taxi_tokens = {}
 
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
@@ -123,7 +122,10 @@ def authenticate_taxi():
                         print(aes_key)
                         
                     # Guardar el token en algún lugar seguro, como una base de datos o un diccionario en memoria
-                    taxi_tokens[int(id)] = token
+                    for taxi in TAXIS:
+                        if taxi.getId() == int(id):
+                            taxi.setToken(token)
+                            break
                     
                     # Enviar el token y la clave AES al cliente
                     consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
@@ -228,7 +230,7 @@ def serviceRequest():
                     producer.send('service_assigned_client', value=f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
 
                     encrypted_service = encrypt(pickle.dumps(servicio), taxi_keys[taxi.getId()],False)
-                    mensaje = f"{taxi.getId()} {encrypted_service}"
+                    mensaje = f"{taxi.getToken()} {encrypted_service}"
                     # Mandamos el objeto servicio
                     print(mensaje)
                     producer.send('service_assigned_taxi', value=mensaje.encode('utf-8'))
@@ -241,19 +243,7 @@ def serviceRequest():
 
         if not asignado:
             producer.send('service_completed', value=f"{servicio.getCliente()} KO".encode('utf-8'))
-"""
-def readTaxiUpdate():
-    try:
-        consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-        for message in consumer:
-            print(f"Mensaje recibido: {message.value.decode('utf-8')}")
-            id, mensaje = message.value.decode('utf-8').split()
-            print(f"Taxi {id}")
-            print(f"Mensaje: {mensaje}")
-    except Exception as e:
-        print(f"Error al conectar con Kafka: {e}")
-
-"""     
+  
 def readTaxiUpdate():
     
     try:
@@ -262,12 +252,13 @@ def readTaxiUpdate():
         #Recibir los taxis
         
         for message in consumer: 
-            id,mensaje = message.value.decode('utf-8').split()
-            mensaje_desencriptado = decrypt(mensaje, taxi_keys[int(id)],True)
-            estado, posX, posY = mensaje_desencriptado.split()
-            estado = True if estado == "True" else False
+            token,mensaje = message.value.decode('utf-8').split()
+            
             for taxi in TAXIS:
-                if taxi.getId() == int(id):
+                if taxi.getToken() == token:
+                    mensaje_desencriptado = decrypt(mensaje, taxi_keys[taxi.getId()],True)
+                    estado, posX, posY = mensaje_desencriptado.split()
+                    estado = True if estado == "True" else False
                     taxi.setTimeout(0)
                     if not estado and taxi.getEstado() == True:
                         taxi.setEstado(False) #Establecemos el taxi con estado KO
@@ -305,9 +296,10 @@ def readTaxiUpdate():
                             taxi.setCliente(None)
                             taxi.setDestino(None)
                             taxi.setPosDestino(None)
-                    break
+                break
     except Exception as e:
         print(f"Error al conectar con Kafka: {e}")
+            
 
 """
 def readTaxiMovements():
