@@ -16,7 +16,8 @@ const crearTabla = `
 CREATE TABLE IF NOT EXISTS Taxis (
     idTaxi INTEGER PRIMARY KEY,
     password TEXT NOT NULL,
-    token TEXT
+    token TEXT,
+    aes TEXT
 );
 `;
 
@@ -29,5 +30,6 @@ db.run(crearTabla, (err) => {
         console.log('Tabla creada exitosamente.');
     }
 });
+
 
 db.close();

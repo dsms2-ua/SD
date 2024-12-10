@@ -101,32 +101,37 @@ def authenticate_taxi():
                 if password == data['password']:
                     posicion = "1,1"
                     existe = False
-                    aes_key = os.urandom(32)
+                    token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
                     for taxi in TAXIS:
                         if taxi.getId() == int(id):
                             existe = True
                             taxi.setVisible(True)
+                            taxi.setToken(token)
                             posicion = str(taxi.getCasilla().getX()) + "," + str(taxi.getCasilla().getY())
                             break
                     #Como la contraseñas coinciden, generamos el token y la clave AES
-                    token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
+                    
                     if not existe:
                         #creamos el objeto taxi
                         taxi = Taxi(int(id))
                         taxi.setCasilla(Casilla(1, 1))
+                        taxi.setToken(token)
                         TAXIS.append(taxi)
+                        aes_key = os.urandom(32)
                         # Guardar la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
                         taxi_keys[int(id)] = aes_key
                     else:
                         aes_key = taxi_keys[int(id)]
-                        print(aes_key)
                         
-                    # Guardar el token en algún lugar seguro, como una base de datos o un diccionario en memoria
-                    for taxi in TAXIS:
-                        if taxi.getId() == int(id):
-                            taxi.setToken(token)
-                            break
-                    
+                    data = {"aes":base64.b64encode(aes_key).decode("utf-8")}
+                    #Guardar clave AES en la API
+                    response = requests.put(f'https://localhost:3000/aes/{id}', json=data, verify='certificados/certAppSD.pem')
+
+                    data = {"token":token}
+
+                    #Guardar el token en la API
+                    response = requests.put(f'https://localhost:3000/token/{id}', json=data, verify='certificados/certAppSD.pem')
+
                     # Enviar el token y la clave AES al cliente
                     consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
                 else:
@@ -253,9 +258,10 @@ def readTaxiUpdate():
         
         for message in consumer: 
             token,mensaje = message.value.decode('utf-8').split()
-            
+            print(f"Mensaje recibido de: {token}")
             for taxi in TAXIS:
                 if taxi.getToken() == token:
+                    print(f"Taxi {taxi.getId()} actualizado")
                     mensaje_desencriptado = decrypt(mensaje, taxi_keys[taxi.getId()],True)
                     estado, posX, posY = mensaje_desencriptado.split()
                     estado = True if estado == "True" else False
@@ -296,7 +302,7 @@ def readTaxiUpdate():
                             taxi.setCliente(None)
                             taxi.setDestino(None)
                             taxi.setPosDestino(None)
-                break
+                
     except Exception as e:
         print(f"Error al conectar con Kafka: {e}")
             
@@ -457,6 +463,7 @@ def customerState():
                 if cliente.getId() == id:
                     cliente.setTimeout(0)
 
+
 def reconexion():
     start_time = time.time()
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -466,6 +473,54 @@ def reconexion():
         if message:
             for tp, messages in message.items():
                 for msg in messages:
+                    if time.time() - start_time >= 3:
+                        break
+                    token, mensaje = msg.value.decode('utf-8').split()
+
+                    #Obtenemos clave AES de la API usando el token
+                    response = requests.get(f'https://localhost:3000/aes/token/{token}', verify='certificados/certAppSD.pem')
+                    try:
+                        data = response.json()
+                    except requests.exceptions.JSONDecodeError:
+                        print("Error: La respuesta no contiene un JSON válido.")
+                        continue
+                    aux = False
+                    for taxi in TAXIS:
+                        if taxi.getToken() == token:
+                            aux = True
+                            break
+                    #si ya está autenticado, vamos al siguiente mensaje
+                    if not aux:          
+                        aes_key = base64.b64decode(data['aes'])
+                        mensaje_desencriptado = decrypt(mensaje, aes_key, True)
+                        estado, posX, posY = mensaje_desencriptado.split()
+                        estado = True if estado == "True" else False
+                        data = requests.get(f'https://localhost:3000/id/token/{token}', verify='certificados/certAppSD.pem')
+                        data = data.json()
+                        id = data['idTaxi']
+                        id = int(id)
+                        taxi = Taxi(id)
+                        taxi.setEstado(estado)
+                        taxi.setCasilla(Casilla(int(posX), int(posY)))
+                        taxi.setVisible(True)
+                        taxi.setToken(token)
+                        TAXIS.append(taxi)
+                        print(f"Taxi {id} reconectado")
+        if time.time() - start_time >= 3:
+            break  # Sale del bucle while si se excede el tiempo
+
+"""
+def reconexion():
+    start_time = time.time()
+    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    while time.time() - start_time < 3:
+        message = consumer.poll(timeout_ms=500)  
+        if message:
+            for tp, messages in message.items():
+                for msg in messages:
+
+
                     if time.time() - start_time >= 3:
                         break  # Sale del bucle for interno si se excede el tiempo
                     id, estado, posX, posY = msg.value.decode('utf-8').split()
@@ -482,30 +537,7 @@ def reconexion():
         if time.time() - start_time >= 3:
             break  # Sale del bucle while si se excede el tiempo
 """
-def reconexion():
-    start_time = time.time()
-    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
 
-    while time.time() - start_time < 3:
-        message = consumer.poll(timeout_ms=1000)  # Polling con tiempo de espera de 1 segundo
-        if message:
-            for tp, messages in message.items():
-                for msg in messages:
-                    if time.time() - start_time >= 3:
-                        break  # Sale del bucle for interno si se excede el tiempo
-                    id, estado, posX, posY = msg.value.decode('utf-8').split()
-                    taxi = Taxi(id)
-                    taxi.setEstado(estado)
-                    taxi.setCasilla(Casilla(int(posX), int(posY)))
-                    TAXIS.append(taxi)
-                    if id in TAXIS_DISPONIBLES:
-                        TAXIS_DISPONIBLES.remove(id)
-        else:
-            print("Esperando mensajes...")
-
-        if time.time() - start_time >= 3:
-            break  # Sale del bucle while si se excede el tiempo
-"""
 def weatherState():
     global estadoTrafico, temperatura, city
     url = "http://localhost:3002/city"
