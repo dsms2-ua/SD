@@ -6,9 +6,38 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 import os
 import base64
+from colorama import Fore, Back, Style
+
+#Clase que contendrá el control de temperatura
+class CTC:
+    def __init__(self, ciudad, temperatura, estado):
+        self.ciudad = ciudad
+        self.temperatura = temperatura
+        self.estado = estado
+        
+    def setCiudad(self, ciudad):
+        self.ciudad = ciudad
+        
+    def setTemperatura(self, temperatura):
+        self.temperatura = temperatura
+    
+    def setEstado(self, estado):
+        self.estado = estado
+        
+    def getCiudad(self):
+        return self.ciudad
+    
+    def getTemperatura(self):
+        return self.temperatura
+    
+    def getEstado(self):
+        return self.estado
+    
+    def cadenaCTC(self):
+        return f"CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
 
 class Mapa:
-    def __init__(self,posiciones,taxis,clientes):
+    def __init__(self,posiciones,taxis,clientes,ctc):
         self.ancho = 20
         self.alto = 20
         self.map = [[' ' for i in range(self.ancho)] for j in range(self.alto)]
@@ -492,7 +521,7 @@ class Servicio:
         self.posCliente = posCliente
     
 
-def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
+def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
     strTabla =  "___________________________________________________________________________\n"
     strTabla += "|                             ***EASYCAB***                               |\n"
     strTabla += "|-------------------------------------------------------------------------|\n"
@@ -614,6 +643,8 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
         strTabla += "\n"
     
     strTabla += "|_________________________________________________________________________|\n"
+    
+    strTabla += CTC.cadenaCTC()
 
     return strTabla
 

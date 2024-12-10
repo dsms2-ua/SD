@@ -29,8 +29,20 @@ estadoTrafico = "OK"
 temperatura = 0
 city = ""
 
+ctc = CTC(city, temperatura, estadoTrafico)
+
 #claves AES de los taxis
 taxi_keys = {}
+
+def escribirEventos(mensaje):
+    #Cogemos la hora y el día para poder escribirlo en el fichero
+    hora = time.strftime("%H:%M:%S")
+    dia = time.strftime("%Y/%m/%d")
+    str = f"{dia} {hora} => {mensaje}\n"
+    
+    #Abrimos el archivo en modo append y escribimos el mensaje
+    with open("eventos.txt", "a") as file:
+        file.write(str)
 
 #Creamos las funciones que nos sirven para leer los archivos de configuración
 def leerLocalizaciones(localizaciones):
@@ -42,12 +54,14 @@ def leerLocalizaciones(localizaciones):
             x, y = map(int, pos.split(','))
             localizaciones[id] = Casilla(x, y)
 
+'''
 def leerTaxis(taxis):
     with open("EC_Taxis.json", "r") as file:
         data = json.load(file)
         for item in data['Taxis']:
             id = item['Id']
             taxis.append(int(id))
+'''
 
 #Creamos la función que gestiona la autenticación por sockets
 #Tenemos que crear un servidor seguro
@@ -73,71 +87,81 @@ def authenticate_taxi():
         
         #Gestionamos el login
         try:
-            #id = consstream.recv(1024).decode('utf-8')
             id = consstream.recv(1024).decode('utf-8')
-            print(f"Taxi {id} conectado")
             
-
-            #Hacemos una petición GET a la API para ver si el texi está registrado o no
-            response = requests.get(f'https://localhost:3000/taxi/{id}', verify='certificados/certAppSD.pem')
-            #print(f"Respuesta recibida: {response.status_code}")
-            
-            if response.status_code == 404:
-                #Si no hemos encontrado el taxi
-                consstream.send(b'KO')
-                consstream.close()
-                continue
-            elif response.status_code == 200:
-                consstream.send(b'OK')
-                
-                #Ahora recibimos la contraseña y comprobamos si coincide con la registrada
-                password = consstream.recv(1024).decode('utf-8')
-                
-                #Hacemos un GET a la API por la contraseña
-                response = requests.get(f'https://localhost:3000/password/{id}', verify='certificados/certAppSD.pem')
-                
-                data = response.json()
-                
-                if password == data['password']:
-                    posicion = "1,1"
-                    existe = False
-                    token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
-                    for taxi in TAXIS:
-                        if taxi.getId() == int(id):
-                            existe = True
-                            taxi.setVisible(True)
-                            taxi.setToken(token)
-                            posicion = str(taxi.getCasilla().getX()) + "," + str(taxi.getCasilla().getY())
-                            break
-                    #Como la contraseñas coinciden, generamos el token y la clave AES
-                    
-                    if not existe:
-                        #creamos el objeto taxi
-                        taxi = Taxi(int(id))
-                        taxi.setCasilla(Casilla(1, 1))
-                        taxi.setToken(token)
-                        TAXIS.append(taxi)
-                        aes_key = os.urandom(32)
-                        # Guardar la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
-                        taxi_keys[int(id)] = aes_key
+            #Comprobamos que el taxi no hay iniciado sesión
+            for taxi in TAXIS:
+                if taxi.getId() == int(id):
+                    if taxi.getVisible():
+                        consstream.send(b'Logged')
+                        escribirEventos(f"Intento de conexión de taxi {id} ya conectado desde {addr}")
+                        consstream.close()
+                        continue
                     else:
-                        aes_key = taxi_keys[int(id)]
+                        print(f"Taxi {id} conectado")
                         
-                    data = {"aes":base64.b64encode(aes_key).decode("utf-8")}
-                    #Guardar clave AES en la API
-                    response = requests.put(f'https://localhost:3000/aes/{id}', json=data, verify='certificados/certAppSD.pem')
+                        #Hacemos una petición GET a la API para ver si el texi está registrado o no
+                        response = requests.get(f'http://localhost:3000/taxi/{id}')
+                        
+                        if response.status_code == 404:
+                            #Si no hemos encontrado el taxi
+                            consstream.send(b'KO')
+                            escribirEventos(f"Intento de conexión de taxi {id} no registrado desde {addr}")
+                            consstream.close()
+                            continue
+                        elif response.status_code == 200:
+                            consstream.send(b'OK')
+                            
+                            #Ahora recibimos la contraseña y comprobamos si coincide con la registrada
+                            password = consstream.recv(1024).decode('utf-8')
+                            
+                            #Hacemos un GET a la API por la contraseña
+                            response = requests.get(f'http://localhost:3000/password/{id}')
+                            
+                            data = response.json()
+                            
+                            if password == data['password']:
+                                escribirEventos(f"Taxi {id} ha iniciado sesión correctamente desde {addr}")
+                                posicion = "1,1"
+                                existe = False
+                                token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
+                                for taxi in TAXIS:
+                                    if taxi.getId() == int(id):
+                                        existe = True
+                                        taxi.setVisible(True)
+                                        taxi.setToken(token)
+                                        posicion = str(taxi.getCasilla().getX()) + "," + str(taxi.getCasilla().getY())
+                                        break
+                                    
+                                #Como la contraseñas coinciden, generamos el token y la clave AES 
+                                if not existe:
+                                    #creamos el objeto taxi
+                                    taxi = Taxi(int(id))
+                                    taxi.setCasilla(Casilla(1, 1))
+                                    taxi.setToken(token)
+                                    TAXIS.append(taxi)
+                                    aes_key = os.urandom(32)
+                                    # Guardar la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
+                                    taxi_keys[int(id)] = aes_key
+                                else:
+                                    aes_key = taxi_keys[int(id)]
+                                    
+                                data = {"aes":base64.b64encode(aes_key).decode("utf-8")}
+                                #Guardar clave AES en la API
+                                response = requests.put(f'http://localhost:3000/aes/{id}', json=data)
 
-                    data = {"token":token}
+                                data = {"token":token}
 
-                    #Guardar el token en la API
-                    response = requests.put(f'https://localhost:3000/token/{id}', json=data, verify='certificados/certAppSD.pem')
+                                #Guardar el token en la API
+                                response = requests.put(f'http://localhost:3000/token/{id}', json=data)
 
-                    # Enviar el token y la clave AES al cliente
-                    consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
-                else:
-                    consstream.send(b'KO')
-                    consstream.close()
-                    continue    
+                                # Enviar el token y la clave AES al cliente
+                                consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
+                            else:
+                                consstream.send(b'KO')
+                                escribirEventos(f"Intento de conexión de taxi {id} con contraseña incorrecta desde {addr}")
+                                consstream.close()
+                                continue    
         finally:
             if consstream:
                 consstream.shutdown(socket.SHUT_RDWR)
@@ -148,8 +172,8 @@ def escribirMapa(mapa):
     with open("mapa.txt", "w") as file:
         file.write(mapa)
 
-def escribirTemperatura():
-    cadena = "|      Estado del CTC => Ciudad: " + city + ", Temperatura: " + str(temperatura) + ", Estado: " + estadoTrafico + "         |\n"
+def escribirTemperatura(ctc):
+    cadena = ctc.CadenaCTC()
     return cadena
 
 #Función para enviar el mapa y para mostrar la tabla
@@ -163,7 +187,7 @@ def sendMap():
     while True:
         serialized = pickle.dumps(mapa)
         producer.send('map', serialized)
-        str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES)
+        str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES, ctc)
         
         #Escribimos el mapa en el fichero
         mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + escribirTemperatura() + "\n"
@@ -184,7 +208,8 @@ def readClients():
     for message in consumer:
         id = message.value.decode('utf-8')
         client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
-
+        
+        escribirEventos(f"Cliente {id} ha sido iniciado sesión")
         CLIENTES.append(client)
 
 def serviceRequest():
@@ -209,6 +234,7 @@ def serviceRequest():
                 for loc in LOCALIZACIONES:
                     if loc == destino:
                         servicio.setPosDestino(LOCALIZACIONES[loc])
+                        escribirEventos(f"Cliente {id} ha solicitado un taxi a {destino}")
 
         #Buscamos un taxi libre
         asignado = False
@@ -233,6 +259,7 @@ def serviceRequest():
                             taxi.setPosDestino(LOCALIZACIONES[loc])
 
                     producer.send('service_assigned_client', value=f"{servicio.getCliente()} OK {taxi.getId()} es el taxi asignado.".encode('utf-8'))
+                    escribirEventos(f"El taxi con id {taxi.getId()} ha sido asignado al cliente {servicio.getCliente()} para ir a {servicio.getDestino()}")
 
                     encrypted_service = encrypt(pickle.dumps(servicio), taxi_keys[taxi.getId()],False)
                     mensaje = f"{taxi.getToken()} {encrypted_service}"
@@ -248,6 +275,7 @@ def serviceRequest():
 
         if not asignado:
             producer.send('service_completed', value=f"{servicio.getCliente()} KO".encode('utf-8'))
+            escribirEventos(f"No se ha podido asignar un taxi al cliente {servicio.getCliente()} para ir a {servicio.getDestino()}")
   
 def readTaxiUpdate():
     
@@ -443,6 +471,7 @@ def taxiDisconection():
                 taxi.setDestino(None)
                 taxi.setPosDestino(None)
                 taxi.setVisible(False)
+                escribirEventos(f"Taxi {taxi.getId()} ha sido desconectado por inactividad")
         time.sleep(1)
         
 def customerDisconnection():
@@ -452,6 +481,7 @@ def customerDisconnection():
                 cliente.setTimeout(cliente.getTimeout() + 1)
             else:
                 CLIENTES.remove(cliente)
+                escribirEventos(f"Cliente {cliente.getId()} ha sido desconectado por inactividad")
         time.sleep(1)
         
 def customerState():
@@ -471,6 +501,7 @@ def reconexion():
     while time.time() - start_time < 3:
         message = consumer.poll(timeout_ms=500)  
         if message:
+            escribirEventos("La central se ha recuperado de un fallo")
             for tp, messages in message.items():
                 for msg in messages:
                     if time.time() - start_time >= 3:
@@ -478,7 +509,7 @@ def reconexion():
                     token, mensaje = msg.value.decode('utf-8').split()
 
                     #Obtenemos clave AES de la API usando el token
-                    response = requests.get(f'https://localhost:3000/aes/token/{token}', verify='certificados/certAppSD.pem')
+                    response = requests.get(f'http://localhost:3000/aes/token/{token}')
                     try:
                         data = response.json()
                     except requests.exceptions.JSONDecodeError:
@@ -495,7 +526,7 @@ def reconexion():
                         mensaje_desencriptado = decrypt(mensaje, aes_key, True)
                         estado, posX, posY = mensaje_desencriptado.split()
                         estado = True if estado == "True" else False
-                        data = requests.get(f'https://localhost:3000/id/token/{token}', verify='certificados/certAppSD.pem')
+                        data = requests.get(f'http://localhost:3000/id/token/{token}')
                         data = data.json()
                         id = data['idTaxi']
                         id = int(id)
@@ -539,20 +570,20 @@ def reconexion():
 """
 
 def weatherState():
-    global estadoTrafico, temperatura, city
+    global ctc, estadoTrafico
     url = "http://localhost:3002/city"
     #Hacemos una request a la API expuesta desde EC_CTC
     while True:
         try:
-            response = requests.get(url)#, verify='certificados/certCTC.pem')
+            response = requests.get(url)
             if response.status_code == 200:
                 data = response.json()
-                city = data.get('city')
-                temperatura = data.get('temperature')
-                status = data.get('status')
+                ctc.setCiudad(data.get('city'))
+                ctc.setTemperatura(data.get('temperature'))
+                ctc.setEstado(data.get('status'))
 
-                estadoTrafico = status
                 time.sleep(10)
+                escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.CadenaCTC()}")
         except Exception as e:
             pass
         
@@ -565,8 +596,6 @@ def main():
     
     # Leer las localizaciones y taxis disponibles
     leerLocalizaciones(LOCALIZACIONES)
-    leerTaxis(TAXIS_DISPONIBLES)
-
     reconexion()
 
     # Iniciar el servidor de autenticación en un hilo
