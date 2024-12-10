@@ -288,13 +288,14 @@ def process_commands():
     # Recibir los mensajes
     for message in consumer:
         print("Mensaje recibido")
-        data = decrypt(message.value.decode('utf-8'), AES_KEY, True).split()
-        print(data[0] + " " + data[1])
-        if data[0] == token:
-            if data[1] == "KO":
+        
+        tk,mensaje = message.value.decode('utf-8').split()
+        if tk == token:
+            mensaje = decrypt(mensaje, AES_KEY, True)
+            if mensaje == "KO":
                 centralStop = True
                 operativo = False
-            elif data[1] == "OK":
+            elif mensaje == "OK":
                 aux = False
                 for sensor in sensores:
                     if sensores[sensor] == "KO" or sensores[sensor] == "Desconectado":
@@ -307,7 +308,7 @@ def process_commands():
             else:
                 #creamos una casilla con las coordenadas del destino
                 operativo2 = False
-                destino = Casilla(int(data[1].split(",")[0]), int(data[1].split(",")[1]))
+                destino = Casilla(int(mensaje.split(",")[0]), int(mensaje.split(",")[1]))
                 irA(destino)
 
 def receiveServices(id):

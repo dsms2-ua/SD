@@ -522,6 +522,8 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES):
                 strTabla += Fore.RED + taxi.getCliente() + Style.RESET_ALL
             elif taxi.getCliente() is not None: 
                 strTabla += taxi.getCliente()
+            else:
+                strTabla += "-"
         else:
             if not taxi.getEstado():
                 strTabla += Fore.RED + taxi.getDestino() + Style.RESET_ALL

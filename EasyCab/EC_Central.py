@@ -155,6 +155,7 @@ def escribirTemperatura():
 #Función para enviar el mapa y para mostrar la tabla
 #Para la segunda entrega, escribimos el mapa en un archivo para exponerlo en la API
 def sendMap():
+    global estadoTrafico
     #Creamos el productor de Kafka
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Añadimos el mapa
@@ -173,7 +174,7 @@ def sendMap():
         #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
-
+        print("estadoTrafico: " + estadoTrafico)
         #Aquí esperamos un segundo y lo volvemos a mandar
         time.sleep(0.5)
 
@@ -258,10 +259,8 @@ def readTaxiUpdate():
         
         for message in consumer: 
             token,mensaje = message.value.decode('utf-8').split()
-            print(f"Mensaje recibido de: {token}")
             for taxi in TAXIS:
                 if taxi.getToken() == token:
-                    print(f"Taxi {taxi.getId()} actualizado")
                     mensaje_desencriptado = decrypt(mensaje, taxi_keys[taxi.getId()],True)
                     estado, posX, posY = mensaje_desencriptado.split()
                     estado = True if estado == "True" else False
@@ -366,14 +365,16 @@ def receiveCommand():
                         taxi.setOcupado(False)
                         taxi.setRecogido(False)
                         taxi.setDestino(None)
-                        mensaje = f"{taxi.getToken()} KO"
+                        token = taxi.getToken()
+                        mensaje = f"KO"
                         #producer.send('taxi_orders', value = f"{taxi_id} KO".encode('utf-8'))
                         break
             else:
                 for taxi in TAXIS:
                     if taxi.getId() == int(taxi_id):
                         taxi.setEstado(True)
-                        mensaje = f"{taxi.getToken()} OK"
+                        token = taxi.getToken()
+                        mensaje = f"OK"
                         #producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
                         break
         elif topic == "taxi_commands2":
@@ -386,11 +387,13 @@ def receiveCommand():
                     taxi.setOcupado(True)
                     dest = f"{action.split(',')[0]},{action.split(',')[1]}"
                     taxi.setDestino(dest)
-                    mensaje = f"{taxi.getToken()} {action}"
+                    token = taxi.getToken()
+                    mensaje = f"{action}"
                     #producer.send('taxi_orders', value = f"{taxi_id} {action} {inicioX} {inicioY}".encode('utf-8'))
-                    break    
+    
         mensaje = encrypt(mensaje, taxi_keys[int(taxi_id)],True)
-        producer.send('taxi_orders', value = mensaje.encode('utf-8'))
+        final = f"{token} {mensaje}"
+        producer.send('taxi_orders', value = final.encode('utf-8'))
 
 def handleCommands(ip,port):
         
@@ -509,34 +512,6 @@ def reconexion():
         if time.time() - start_time >= 3:
             break  # Sale del bucle while si se excede el tiempo
 
-"""
-def reconexion():
-    start_time = time.time()
-    consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-
-    while time.time() - start_time < 3:
-        message = consumer.poll(timeout_ms=500)  
-        if message:
-            for tp, messages in message.items():
-                for msg in messages:
-
-
-                    if time.time() - start_time >= 3:
-                        break  # Sale del bucle for interno si se excede el tiempo
-                    id, estado, posX, posY = msg.value.decode('utf-8').split()
-                    estado = True if estado == "True" else False
-                    id = int(id)
-                    taxi = Taxi(id)
-                    taxi.setEstado(estado)
-                    taxi.setCasilla(Casilla(int(posX), int(posY)))
-                    taxi.setVisible(True)
-                    if id in TAXIS_DISPONIBLES:
-                        TAXIS.append(taxi)
-                        TAXIS_DISPONIBLES.remove(id)
-                        print(f"Taxi {id} reconectado")
-        if time.time() - start_time >= 3:
-            break  # Sale del bucle while si se excede el tiempo
-"""
 
 def weatherState():
     global estadoTrafico, temperatura, city
@@ -551,7 +526,18 @@ def weatherState():
                 temperatura = data.get('temperature')
                 status = data.get('status')
 
-                estadoTrafico = status
+                if status == "KO" and estadoTrafico == "OK":
+                    estadoTrafico = "KO"
+                    print("Estado del tráfico malito")
+                    #mandamos todos los taxis a la base
+                    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+                    for taxi in TAXIS:
+                        taxi_id = taxi.getId()
+                        destino = "1,1"
+                        producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
+                elif status == "OK" and estadoTrafico == "KO":
+                    estadoTrafico = "OK"
                 time.sleep(10)
         except Exception as e:
             pass

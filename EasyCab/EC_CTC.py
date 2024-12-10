@@ -45,6 +45,7 @@ def get_temperature():
 
 @app.route('/city', methods=['GET'])
 def get_city_temperature():
+    global city
     temperatura = get_temperature()
     if temperatura is None or temperatura < 0:
         status = 'KO'
