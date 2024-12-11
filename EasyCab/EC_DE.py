@@ -63,7 +63,12 @@ def authenticateTaxi():
                     # Tenemos que introducir la contraseña, hacerle un HASH y enviarla
                     password = pwinput.pwinput(prompt="Introduce tu contraseña: ", mask="*")
                     hashed = hashlib.md5(password.encode()).hexdigest()
-                    ssock.send(hashed.encode())
+                    
+                    try:
+                        ssock.send(hashed.encode())
+                    except:
+                        print("Error al enviar la contraseña")
+                        return False
                     
                 # Recibimos si la contraseña es correcta o no
                 response = ssock.recv(1024)
@@ -123,8 +128,13 @@ def register(id):
     
 def borrarCuenta(id):
     #Hacemos una petición DELETE a la API
+    
+    #Introduce la contraseña para borrar la cuenta
+    password = pwinput.pwinput("Introduce tu contraseña: ", mask="*")
+    
     data = {
-        "id": id
+        'id': id,
+        'password': hashlib.md5(password.encode()).hexdigest()
     }
     
     response = requests.delete(f'https://localhost:3003/delete', json = data, verify='certificados/certRegistrySans.pem')
@@ -144,7 +154,7 @@ def showMenu(id):
     print("1. Registrarse")
     print("2. Acceder")
     print("3. Borrar mi cuenta")
-    print("3. Salir")
+    print("4. Salir")
     
     opcion = input("Introduce la opción deseada: ")
     if opcion == "1":

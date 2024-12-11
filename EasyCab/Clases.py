@@ -34,10 +34,10 @@ class CTC:
         return self.estado
     
     def cadenaCTC(self):
-        return f"CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
+        return f"    CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
 
 class Mapa:
-    def __init__(self,posiciones,taxis,clientes,ctc):
+    def __init__(self,posiciones,taxis,clientes):
         self.ancho = 20
         self.alto = 20
         self.map = [[' ' for i in range(self.ancho)] for j in range(self.alto)]
@@ -568,7 +568,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
                 strTabla += "    OK.Parado" + "    |"
         elif taxi.getVisible():
             #Esto lo imprimimos en rojo
-            strTabla += Fore.RED + "    KO. Parado" + "   |" + Style.RESET_ALL
+            strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
         else:
             strTabla += Fore.RED + "KO. Desconectado" + " |" + Style.RESET_ALL
         #Ahora imprimimos la posicion

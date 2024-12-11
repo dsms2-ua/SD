@@ -41,7 +41,7 @@ def escribirEventos(mensaje):
     str = f"{dia} {hora} => {mensaje}\n"
     
     #Abrimos el archivo en modo append y escribimos el mensaje
-    with open("eventos.txt", "a") as file:
+    with open("Auditoria/events.txt", "a") as file:
         file.write(str)
 
 #Creamos las funciones que nos sirven para leer los archivos de configuración
@@ -89,79 +89,86 @@ def authenticate_taxi():
         try:
             id = consstream.recv(1024).decode('utf-8')
             
+            isIn = False
+            isVisible = False
+            
             #Comprobamos que el taxi no hay iniciado sesión
+            print(f"Taxi {id} intenta conectarse")
             for taxi in TAXIS:
                 if taxi.getId() == int(id):
+                    isIn = True
                     if taxi.getVisible():
+                        isVisible = True
                         consstream.send(b'Logged')
                         escribirEventos(f"Intento de conexión de taxi {id} ya conectado desde {addr}")
                         consstream.close()
                         continue
+                    
+            if not isIn or not isVisible:
+                print(f"Taxi {id} conectado")
+                
+                #Hacemos una petición GET a la API para ver si el texi está registrado o no
+                response = requests.get(f'http://localhost:3000/taxi/{id}')
+                
+                if response.status_code == 404:
+                    #Si no hemos encontrado el taxi
+                    consstream.send(b'KO')
+                    escribirEventos(f"Intento de conexión de taxi {id} no registrado desde {addr}")
+                    consstream.close()
+                    continue
+                elif response.status_code == 200:
+                    consstream.send(b'OK')
+                    
+                    #Ahora recibimos la contraseña y comprobamos si coincide con la registrada
+                    password = consstream.recv(1024).decode('utf-8')
+                    
+                    #Hacemos un GET a la API por la contraseña
+                    response = requests.get(f'http://localhost:3000/password/{id}')
+                    
+                    data = response.json()
+                    
+                    if password == data['password']:
+                        escribirEventos(f"Taxi {id} ha iniciado sesión correctamente desde {addr}")
+                        posicion = "1,1"
+                        existe = False
+                        token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
+                        for taxi in TAXIS:
+                            if taxi.getId() == int(id):
+                                existe = True
+                                taxi.setVisible(True)
+                                taxi.setToken(token)
+                                posicion = str(taxi.getCasilla().getX()) + "," + str(taxi.getCasilla().getY())
+                                break
+                            
+                        #Como la contraseñas coinciden, generamos el token y la clave AES 
+                        if not existe:
+                            #creamos el objeto taxi
+                            taxi = Taxi(int(id))
+                            taxi.setCasilla(Casilla(1, 1))
+                            taxi.setToken(token)
+                            TAXIS.append(taxi)
+                            aes_key = os.urandom(32)
+                            # Guardar la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
+                            taxi_keys[int(id)] = aes_key
+                        else:
+                            aes_key = taxi_keys[int(id)]
+                            
+                        data = {"aes":base64.b64encode(aes_key).decode("utf-8")}
+                        #Guardar clave AES en la API
+                        response = requests.put(f'http://localhost:3000/aes/{id}', json=data)
+
+                        data = {"token":token}
+
+                        #Guardar el token en la API
+                        response = requests.put(f'http://localhost:3000/token/{id}', json=data)
+
+                        # Enviar el token y la clave AES al cliente
+                        consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
                     else:
-                        print(f"Taxi {id} conectado")
-                        
-                        #Hacemos una petición GET a la API para ver si el texi está registrado o no
-                        response = requests.get(f'http://localhost:3000/taxi/{id}')
-                        
-                        if response.status_code == 404:
-                            #Si no hemos encontrado el taxi
-                            consstream.send(b'KO')
-                            escribirEventos(f"Intento de conexión de taxi {id} no registrado desde {addr}")
-                            consstream.close()
-                            continue
-                        elif response.status_code == 200:
-                            consstream.send(b'OK')
-                            
-                            #Ahora recibimos la contraseña y comprobamos si coincide con la registrada
-                            password = consstream.recv(1024).decode('utf-8')
-                            
-                            #Hacemos un GET a la API por la contraseña
-                            response = requests.get(f'http://localhost:3000/password/{id}')
-                            
-                            data = response.json()
-                            
-                            if password == data['password']:
-                                escribirEventos(f"Taxi {id} ha iniciado sesión correctamente desde {addr}")
-                                posicion = "1,1"
-                                existe = False
-                                token = secrets.token_hex(16)  # Genera un token aleatorio de 32 caracteres (16 bytes)
-                                for taxi in TAXIS:
-                                    if taxi.getId() == int(id):
-                                        existe = True
-                                        taxi.setVisible(True)
-                                        taxi.setToken(token)
-                                        posicion = str(taxi.getCasilla().getX()) + "," + str(taxi.getCasilla().getY())
-                                        break
-                                    
-                                #Como la contraseñas coinciden, generamos el token y la clave AES 
-                                if not existe:
-                                    #creamos el objeto taxi
-                                    taxi = Taxi(int(id))
-                                    taxi.setCasilla(Casilla(1, 1))
-                                    taxi.setToken(token)
-                                    TAXIS.append(taxi)
-                                    aes_key = os.urandom(32)
-                                    # Guardar la clave AES en algún lugar seguro, como una base de datos o un diccionario en memoria
-                                    taxi_keys[int(id)] = aes_key
-                                else:
-                                    aes_key = taxi_keys[int(id)]
-                                    
-                                data = {"aes":base64.b64encode(aes_key).decode("utf-8")}
-                                #Guardar clave AES en la API
-                                response = requests.put(f'http://localhost:3000/aes/{id}', json=data)
-
-                                data = {"token":token}
-
-                                #Guardar el token en la API
-                                response = requests.put(f'http://localhost:3000/token/{id}', json=data)
-
-                                # Enviar el token y la clave AES al cliente
-                                consstream.send(f'{token} {base64.b64encode(aes_key).decode("utf-8")} {posicion}'.encode('utf-8'))
-                            else:
-                                consstream.send(b'KO')
-                                escribirEventos(f"Intento de conexión de taxi {id} con contraseña incorrecta desde {addr}")
-                                consstream.close()
-                                continue    
+                        consstream.send(b'KO')
+                        escribirEventos(f"Intento de conexión de taxi {id} con contraseña incorrecta desde {addr}")
+                        consstream.close()
+                        continue    
         finally:
             if consstream:
                 consstream.shutdown(socket.SHUT_RDWR)
@@ -173,7 +180,7 @@ def escribirMapa(mapa):
         file.write(mapa)
 
 def escribirTemperatura(ctc):
-    cadena = ctc.CadenaCTC()
+    cadena = ctc.cadenaCTC()
     return cadena
 
 #Función para enviar el mapa y para mostrar la tabla
@@ -191,7 +198,7 @@ def sendMap():
         str = generarTabla(TAXIS, CLIENTES,LOCALIZACIONES, ctc)
         
         #Escribimos el mapa en el fichero
-        mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + escribirTemperatura() + "\n"
+        mapaArchivo = generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES) + escribirTemperatura(ctc) + "\n"
         mapaArchivo += mapa.cadenaMapaArchivo() + "\n"
         escribirMapa(mapaArchivo)
         
@@ -541,6 +548,7 @@ def reconexion():
                         TAXIS.append(taxi)
                         print(f"Taxi {id} reconectado")
         if time.time() - start_time >= 3:
+            escribirEventos("Iniciando servicio de la central. Esperando conexiones")
             break  # Sale del bucle while si se excede el tiempo
 
 

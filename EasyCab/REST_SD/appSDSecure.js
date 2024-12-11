@@ -77,8 +77,8 @@ appSD.post("/taxis", (req, res) => {
 // Borrar un taxi
 appSD.delete("/taxis/:id",(req, res) => {
     console.log('Borrar taxi');
-    const { id } = req.body;
     const sql = "DELETE FROM TAXIS WHERE idTaxi = ?";
+    id = req.params.id;
     const params = [id];
     db.run(sql, params, function (err) {
         if (err) {
@@ -90,8 +90,8 @@ appSD.delete("/taxis/:id",(req, res) => {
             res.status(404).json({ message: "No se encontró el taxi" });
         }
         else {
-            res.status(200).send(`Taxi eliminado con ID: ${this.lastID}`);
-            console.log(`Taxi eliminado con ID: ${this.lastID}`);
+            res.status(200).send(`Taxi eliminado con ID: ${id}`);
+            console.log(`Taxi eliminado con ID: ${id}`);
         }
     });
 });
