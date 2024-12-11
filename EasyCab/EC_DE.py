@@ -56,6 +56,9 @@ def authenticateTaxi():
                 if response.decode() == "KO":
                     print("El taxi no está registrado en el sistema")
                     return False
+                elif response.decode() == "Logged":
+                    print("El id solicitado ya tiene una sesión activa")
+                    return False
                 else:
                     # Tenemos que introducir la contraseña, hacerle un HASH y enviarla
                     password = pwinput.pwinput(prompt="Introduce tu contraseña: ", mask="*")
@@ -103,32 +106,54 @@ def register(id):
         "password": hashed
     }
     #Hacemos la petición POST a la API
-    response = requests.post('https://localhost:3003/registry', json=data, verify='certificados/certRegistry.pem')
+    response = requests.post('https://localhost:3003/registry', json=data, verify='certificados/certRegistrySans.pem')
     
     #Si el intento de registro ha sido correcto, vamos directamente al login
     
     if response.status_code == 200:
         print("Taxi registrado correctamente")
         #Como el registro ha sido correcto, vamos al login
-        authenticateTaxi()
-        return True
+        return authenticateTaxi()
+    elif response.status_code == 404:
+        print("El taxi ya está registrado")
     else:
         print("Error en el registro del taxi")
-        return False
+    
+    return False
+    
+def borrarCuenta(id):
+    #Hacemos una petición DELETE a la API
+    data = {
+        "id": id
+    }
+    
+    response = requests.delete(f'https://localhost:3003/delete', json = data, verify='certificados/certRegistrySans.pem')
+    
+    if response.status_code == 200:
+        print("Cuenta borrada correctamente")
+    elif response.status_code == 404:
+        print("El taxi no está registrado")
+    else:
+        print("Error al borrar la cuenta")
+    
+    return False
         
 def showMenu(id):
     #La primera opción nos llevará al registry, la segunda a la central y la tercera cerrará el programa
     print("Bienvenido al sistema de EasyCab")
     print("1. Registrarse")
     print("2. Acceder")
+    print("3. Borrar mi cuenta")
     print("3. Salir")
     
     opcion = input("Introduce la opción deseada: ")
     if opcion == "1":
-        valid = register(id)   
+        return register(id)   
     elif opcion == "2":
-        authenticateTaxi()
+        return authenticateTaxi()
     elif opcion == "3":
+        return borrarCuenta(id)
+    elif opcion == "4":
         return False
 
 def sendHeartbeat():
@@ -390,8 +415,8 @@ def main():
     ID = int(sys.argv[5])
     
     #Primero mostramos el menú con la opción de registrarnos o de directamente acceder
-    if showMenu(ID) == 3:
-        return -1
+    if not showMenu(ID):
+        print("Saliendo del programa")
     else:
 
         #Creamos el hilo que comunica las alertas al consumidor

@@ -1,6 +1,4 @@
-const https = require('https');
 const express = require("express");
-const fs = require('fs');
 const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3");
 
@@ -21,30 +19,9 @@ const db = new sqlite3.Database('database.db', (error) => {
     }
 });
 
-// Verificar la carga de los certificados
-let key, cert;
-try {
-    key = fs.readFileSync('keyAppSD.pem');
-    cert = fs.readFileSync('certAppSD.pem');
-    console.log("Certificados cargados correctamente");
-} catch (error) {
-    console.error("Error al cargar los certificados:", error.message);
-    process.exit(1); // Salir si no se pueden cargar los certificados
-}
-
-// Arrancamos el servidor
-https
-    .createServer(
-        // Indicamos el certificado y la clave privada
-        {
-            key: key,
-            cert: cert
-        },
-        appSD
-    )
-    .listen(port, () => {
-        console.log(`Ejecutando la aplicación API REST de SD en el puerto ${port}`);
-    });
+appSD.listen(port, () => {
+    console.log(`Ejecutando la aplicación API REST de SD en el puerto ${port}`);
+});
 
 // Listado de todos los taxis
 appSD.get("/taxis", (req, res) => {
@@ -108,8 +85,12 @@ appSD.delete("/taxis/:id",(req, res) => {
             res.status(500).send("Error al eliminar el taxi");
             console.error(err.message);
         }
+        //En principio esta opcion no se da porque hacemos una comprobacion previa
+        else if (this.changes === 0) {
+            res.status(404).json({ message: "No se encontró el taxi" });
+        }
         else {
-            res.send(`Taxi eliminado con ID: ${this.lastID}`);
+            res.status(200).send(`Taxi eliminado con ID: ${this.lastID}`);
             console.log(`Taxi eliminado con ID: ${this.lastID}`);
         }
     });
