@@ -81,7 +81,7 @@ def authenticateTaxi():
                         return False
             finally:
                 ssock.close()
-
+                
 
 #Falta encriptar todas las comunicaciones con Registry
 def register(id):
@@ -310,6 +310,11 @@ def process_commands():
                 operativo2 = False
                 destino = Casilla(int(mensaje.split(",")[0]), int(mensaje.split(",")[1]))
                 irA(destino)
+                if mensaje == "1,1":
+                    estado = "Taxi ha llegado a la central. Cerrando programa"
+                    time.sleep(5)                    
+                    os._exit(0)
+                    
 
 def receiveServices(id):
     #Creamos el consumer de Kafka
@@ -388,13 +393,29 @@ def main():
     if showMenu(ID) == 3:
         return -1
     else:
-        #Creamos el hilo que lleva al consumidor Kafka del mapa
-        map_thread = threading.Thread(target=receiveMap)
-        map_thread.start()
 
         #Creamos el hilo que comunica las alertas al consumidor
         alert_thread = threading.Thread(target=sendAlerts, args = (ID, ))
         alert_thread.start()
+        """
+        #preguntamos si quiere conectar sensores al taxi
+        print("¿Desea conectar sensores al taxi? ([S]/N)")
+        respuesta = input()
+        #ponemos la respuesta en minúsculas
+        respuesta = respuesta.lower()
+        #valor por defecto S
+        if respuesta != "n": 
+            respuesta = "s"
+        hostname = socket.gethostname()
+        local_ip = socket.gethostbyname(hostname)
+
+        if respuesta == "s":
+            #abrir una terminal con EC_S.py
+            os.system(f"start cmd /k python EC_S.py {local_ip} {4999 + ID}")
+        """
+        #Creamos el hilo que lleva al consumidor Kafka del mapa
+        map_thread = threading.Thread(target=receiveMap)
+        map_thread.start()
 
         #Creamos el hilo que lleva al consumidor Kafka de los servicios asignados
         services_thread = threading.Thread(target=receiveServices, args=(ID, ))
