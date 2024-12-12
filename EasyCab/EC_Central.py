@@ -217,6 +217,10 @@ def readClients():
     for message in consumer:
         id = message.value.decode('utf-8')
         
+        client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
+        CLIENTES.append(client)
+        
+        '''
         isIn = False
         
         for cliente in CLIENTES:
@@ -232,6 +236,8 @@ def readClients():
             CLIENTES.append(client)
             producer.send('clients', value = f"{id} OK".encode('utf-8'))
             escribirEventos(f"Cliente {id} ha iniciado sesión")
+        '''
+        
 
 def serviceRequest():
     #Crear un consumidor de Kafka
