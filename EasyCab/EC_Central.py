@@ -313,11 +313,9 @@ def readTaxiUpdate():
         
         for message in consumer: 
             token,mensaje = message.value.decode('utf-8').split()
-            print(f"Mensaje recibido: {token}{mensaje}")
             for taxi in TAXIS:
                 if taxi.getToken() == token:
                     mensaje_desencriptado = decrypt(mensaje, taxi_keys[taxi.getId()],True)
-                    print(f"Mensaje desencriptado: {mensaje_desencriptado}")
                     estado, posX, posY = mensaje_desencriptado.split()
                     estado = True if estado == "True" else False
                     taxi.setTimeout(0)

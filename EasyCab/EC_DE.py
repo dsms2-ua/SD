@@ -237,14 +237,14 @@ def handleAlerts(client_socket, producer, id):
 
     client_socket.settimeout(1.0)
 
+    sensor_id = None
+
     while True:
-        sensor_id = None
         try:
             data = client_socket.recv(1024)
             decoded_data = verify_message(data)
             if decoded_data:
                 fields = decoded_data.split("#")
-                
                 # Mensaje de conexión inicial (un campo, ej.: SENSOR)
                 if len(fields) == 1:
                     aux = False

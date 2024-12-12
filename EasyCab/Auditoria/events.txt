@@ -3796,3 +3796,106 @@ CTC => Ciudad: Madrid - Temperatura: 6.88 - Estado: OK
 2024/12/12 12:11:58 => El estado del tiempo ha sido actualizado:     
 CTC => Ciudad: Madrid - Temperatura: 6.88 - Estado: OK 
 
+2024/12/12 12:14:43 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:14:46 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:14:53 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 55734)
+2024/12/12 12:14:58 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:15:10 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:15:22 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:15:30 => Cliente a ha solicitado un taxi a A
+2024/12/12 12:15:34 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:15:36 => No se ha podido asignar un taxi al cliente a para ir a A
+2024/12/12 12:15:40 => Cliente a ha solicitado un taxi a B
+2024/12/12 12:15:46 => No se ha podido asignar un taxi al cliente a para ir a B
+2024/12/12 12:15:46 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:15:50 => Cliente a ha solicitado un taxi a C
+2024/12/12 12:15:56 => No se ha podido asignar un taxi al cliente a para ir a C
+2024/12/12 12:15:59 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:16:00 => Cliente a ha solicitado un taxi a F
+2024/12/12 12:17:06 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:17:08 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:17:17 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 56315)
+2024/12/12 12:17:20 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:17:29 => Cliente a ha solicitado un taxi a A
+2024/12/12 12:17:29 => El taxi con id 1 ha sido asignado al cliente a para ir a A
+2024/12/12 12:17:32 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:17:44 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:17:46 => Cliente a ha solicitado un taxi a B
+2024/12/12 12:17:52 => No se ha podido asignar un taxi al cliente a para ir a B
+2024/12/12 12:17:56 => Cliente a ha solicitado un taxi a C
+2024/12/12 12:17:57 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:18:02 => No se ha podido asignar un taxi al cliente a para ir a C
+2024/12/12 12:18:03 => Taxi 2 ha iniciado sesión correctamente desde ('127.0.0.1', 56681)
+2024/12/12 12:18:06 => Cliente a ha solicitado un taxi a F
+2024/12/12 12:18:09 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:18:12 => El taxi con id 2 ha sido asignado al cliente a para ir a F
+2024/12/12 12:18:21 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:18:30 => Cliente a ha solicitado un taxi a D
+2024/12/12 12:18:30 => El taxi con id 2 ha sido asignado al cliente a para ir a D
+2024/12/12 12:18:33 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:18:44 => Cliente a ha solicitado un taxi a E
+2024/12/12 12:18:44 => El taxi con id 2 ha sido asignado al cliente a para ir a E
+2024/12/12 12:18:45 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:18:54 => Cliente a ha solicitado un taxi a A
+2024/12/12 12:18:54 => El taxi con id 2 ha sido asignado al cliente a para ir a A
+2024/12/12 12:18:57 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:19:06 => Cliente a ha solicitado un taxi a B
+2024/12/12 12:19:06 => El taxi con id 2 ha sido asignado al cliente a para ir a B
+2024/12/12 12:19:10 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:19:19 => Cliente a ha solicitado un taxi a C
+2024/12/12 12:19:19 => El taxi con id 2 ha sido asignado al cliente a para ir a C
+2024/12/12 12:20:07 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:20:09 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:20:13 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 57827)
+2024/12/12 12:20:22 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:27:48 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:27:50 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:27:55 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 58108)
+2024/12/12 12:28:02 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 12:28:14 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
