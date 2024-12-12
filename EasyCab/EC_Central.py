@@ -203,7 +203,7 @@ def sendMap():
         mapaArchivo += mapa.cadenaMapaArchivo() + "\n"
         escribirMapa(mapaArchivo)
         
-        os.system('cls')
+        #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
         print("estadoTrafico: " + estadoTrafico)
@@ -228,23 +228,30 @@ def readClients():
                 if cliente.getVisible():
                     isVisible = True
                     break
-                
+        time.sleep(2)
         if not isIn:
             client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
             CLIENTES.append(client)
-            
-            producer.send(f'clients_{id}', value = f"{id} OK".encode('utf-8'))
+            print("not in")
+            producer.send('client_accepted', value = f"{id} OK".encode('utf-8'))
+            producer.flush()
             escribirEventos(f"Cliente {id} ha iniciado sesión")
+            print(f"Mensaje enviado: {id} OK")
         elif isIn and not isVisible:
+            print("in not visible")
             for cliente in CLIENTES:
                 if cliente.getId() == id:
+                    print("in not visible, exist")
                     cliente.setVisible(True)
-                    producer.send(f'clients_{id}', value = f"{id} OK".encode('utf-8'))
+                    producer.send(f'client_accepted', value = f"{id} OK".encode('utf-8'))
                     escribirEventos(f"Cliente {id} ha iniciado sesión otra vez")
+                    print(f"Mensaje enviado: {id} OK")
                     break
         else:
-            producer.send(f'clients_{id}', value = f"{id} KO".encode('utf-8'))
+            print("none")
+            producer.send(f'client_accepted', value = f"{id} KO".encode('utf-8'))
             escribirEventos(f"Cliente {id} ya está conectado")
+            print(f"Mensaje enviado: {id} KO")
         
         
 
