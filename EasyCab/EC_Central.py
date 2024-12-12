@@ -574,7 +574,7 @@ def weatherState():
     while True:
         try:
             response = requests.get(url)
-            escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.CadenaCTC()}")
+            escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.cadenaCTC()}")
             if response.status_code == 200:
                 data = response.json()
                 status = data.get('status')
@@ -596,6 +596,7 @@ def weatherState():
                     estadoTrafico = "OK"
                 time.sleep(10)
         except Exception as e:
+            print(f"Error al conectar con la API del tiempo: {e}")
             #Si no podemos acceder al CTC porque esta desconectado, modificamos la ciudad
             #para que se muestre un mensaje de error
             ctc.setCiudad("Error")

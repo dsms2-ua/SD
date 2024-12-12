@@ -894,3 +894,22 @@
 2024/12/12 09:09:11 => Taxi 1 ha sido desconectado por inactividad
 2024/12/12 09:09:12 => Taxi 1 ha sido desconectado por inactividad
 2024/12/12 09:09:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:19:34 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:20:13 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:27:17 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:27:59 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:28:47 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:28:50 => El estado del tiempo ha sido actualizado:     CTC => Ciudad:  - Temperatura: 0 - Estado: OK 
+
+2024/12/12 11:29:30 => El estado del tiempo ha sido actualizado:    La conexión con el módulo CTC no ha podido establecerse. Se volverá a intentar dentro de 10 segundos 
+
+2024/12/12 11:29:42 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:29:55 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:30:07 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:30:19 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:30:31 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+

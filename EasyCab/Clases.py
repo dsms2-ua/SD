@@ -34,7 +34,7 @@ class CTC:
         return self.estado
     
     def cadenaCTC(self):
-        if self.ciudad is not "Error":
+        if self.ciudad != "Error":
             return f"    CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
         else:
             return f"   La conexión con el módulo CTC no ha podido establecerse. Se volverá a intentar dentro de 10 segundos \n"
