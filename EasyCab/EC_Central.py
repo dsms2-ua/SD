@@ -33,6 +33,7 @@ ctc = CTC(city, temperatura, estadoTrafico)
 
 #claves AES de los taxis
 taxi_keys = {}
+modified_keys = []
 
 def escribirEventos(mensaje):
     #Cogemos la hora y el día para poder escribirlo en el fichero
@@ -202,7 +203,7 @@ def sendMap():
         mapaArchivo += mapa.cadenaMapaArchivo() + "\n"
         escribirMapa(mapaArchivo)
         
-        #os.system('cls')
+        os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
         print("estadoTrafico: " + estadoTrafico)
@@ -320,90 +321,60 @@ def readTaxiUpdate():
         #Recibir los taxis
         
         for message in consumer: 
-            token,mensaje = message.value.decode('utf-8').split()
-            for taxi in TAXIS:
-                if taxi.getToken() == token:
-                    mensaje_desencriptado = decrypt(mensaje, taxi_keys[taxi.getId()],True)
-                    estado, posX, posY = mensaje_desencriptado.split()
-                    estado = True if estado == "True" else False
-                    taxi.setTimeout(0)
-                    if not estado and taxi.getEstado() == True:
-                        taxi.setEstado(False) #Establecemos el taxi con estado KO
-                        taxi.setOcupado(False)
-                        taxi.setRecogido(False)
-                        taxi.setCliente(None)
-                        #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
-                    elif estado and taxi.getEstado() == False:
-                        taxi.setEstado(True)
-                        taxi.setCasilla(Casilla(int(posX), int(posY)))
-                    elif estado and taxi.getEstado() == True and taxi.getCliente() == None:
-                        taxi.setCasilla(Casilla(int(posX), int(posY)))
-                    elif estado and taxi.getEstado() == True and taxi.getCliente() != None: 
-                        taxi.setCasilla(Casilla(int(posX), int(posY)))
-                        if taxi.getRecogido():
-                            #Tenemos que actualizar la posición del cliente
-                            for cliente in CLIENTES:
-                                if cliente.getId() == taxi.getCliente():
-                                    cliente.setPosicion(taxi.getCasilla())
-                                    break
-                        if taxi.getPosCliente() == taxi.getCasilla():
-                            taxi.setRecogido(True)
-                        
-                        if taxi.getPosDestino() == taxi.getCasilla():
-                            #El cliente ya ha llegado y tenemos que actualizar todos los datos
-                            for cliente in CLIENTES:
-                                if cliente.getId() == taxi.getCliente():
-                                    cliente.setDestino(None)
-                                    break
-                            #Tengo que notificar al cliente que ha llegado a la posición y puedo procesar la siguiente petición
-                            producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-                            producer.send('service_completed', value = f"{taxi.getCliente()} OK".encode('utf-8'))
+            try:
+                token,mensaje = message.value.decode('utf-8').split()
+                for taxi in TAXIS:
+                    if taxi.getToken() == token:
+                        if not taxi.getVisible():
+                            taxi.setVisible(True)
+                        id = taxi.getId()
+                        mensaje_desencriptado = decrypt(mensaje, taxi_keys[id],True)
+                        estado, posX, posY = mensaje_desencriptado.split()
+                        estado = True if estado == "True" else False
+                        taxi.setTimeout(0)
+                        if not estado and taxi.getEstado() == True:
+                            taxi.setEstado(False) #Establecemos el taxi con estado KO
                             taxi.setOcupado(False)
                             taxi.setRecogido(False)
                             taxi.setCliente(None)
-                            taxi.setDestino(None)
-                            taxi.setPosDestino(None)
+                            #TODO: ¿Qué hacemos con el cliente cuando está subido a un taxi y se para?
+                        elif estado and taxi.getEstado() == False:
+                            taxi.setEstado(True)
+                            taxi.setCasilla(Casilla(int(posX), int(posY)))
+                        elif estado and taxi.getEstado() == True and taxi.getCliente() == None:
+                            taxi.setCasilla(Casilla(int(posX), int(posY)))
+                        elif estado and taxi.getEstado() == True and taxi.getCliente() != None: 
+                            taxi.setCasilla(Casilla(int(posX), int(posY)))
+                            if taxi.getRecogido():
+                                #Tenemos que actualizar la posición del cliente
+                                for cliente in CLIENTES:
+                                    if cliente.getId() == taxi.getCliente():
+                                        cliente.setPosicion(taxi.getCasilla())
+                                        break
+                            if taxi.getPosCliente() == taxi.getCasilla():
+                                taxi.setRecogido(True)
+                            
+                            if taxi.getPosDestino() == taxi.getCasilla():
+                                #El cliente ya ha llegado y tenemos que actualizar todos los datos
+                                for cliente in CLIENTES:
+                                    if cliente.getId() == taxi.getCliente():
+                                        cliente.setDestino(None)
+                                        break
+                                #Tengo que notificar al cliente que ha llegado a la posición y puedo procesar la siguiente petición
+                                producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+                                producer.send('service_completed', value = f"{taxi.getCliente()} OK".encode('utf-8'))
+                                taxi.setOcupado(False)
+                                taxi.setRecogido(False)
+                                taxi.setCliente(None)
+                                taxi.setDestino(None)
+                                taxi.setPosDestino(None)
+            except Exception as e:
+                print(f"Error al desencriptar el mensaje del taxi {id}")
                 
     except Exception as e:
         print(f"Error al conectar con Kafka: {e}")
             
 
-"""
-def readTaxiMovements():
-    #Crear un consumidor de Kafka
-    consumer = KafkaConsumer('taxiMovements', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-
-    for message in consumer:
-        id, x, y = message.value.decode('utf-8').split()
-        for taxi in TAXIS:
-            if taxi.getId() == int(id):
-                taxi.setCasilla(Casilla(int(x), int(y)))
-                if taxi.getRecogido():
-                    #Tenemos que actualizar la posición del cliente
-                    for cliente in CLIENTES:
-                        if cliente.getId() == taxi.getCliente():
-                            cliente.setPosicion(taxi.getCasilla())
-                            break
-
-                if taxi.getPosCliente() == taxi.getCasilla():
-                    taxi.setRecogido(True)
-
-                if taxi.getPosDestino() == taxi.getCasilla():
-                    #El cliente ya ha llegado y tenemos que actualizar todos los datos
-                    for cliente in CLIENTES:
-                        if cliente.getId() == taxi.getCliente():
-                            cliente.setDestino(None)
-                            break
-                    
-                    #Tengo que notificar al cliente que ha llegado a la posición y puedo procesar la siguiente petición
-                    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-                    producer.send('service_completed', value = f"{taxi.getCliente()} OK".encode('utf-8'))
-
-                    taxi.setOcupado(False)
-                    taxi.setRecogido(False)
-                    taxi.setCliente(None)
-                break
-"""
 def receiveCommand():
     
     #creamos consumer dekafka
@@ -471,6 +442,8 @@ def handleCommands(ip,port):
             print("2. Reanudar")
             print("3. Ir a destino")
             print("4. Volver a base")
+            print("=====================================")
+            print("5. Activar/Desactivar cifrado")
             
             command = input("Ingrese una opción : ")
             taxi_id = input("Ingrese el ID del taxi: ")
@@ -496,6 +469,9 @@ def handleCommands(ip,port):
             elif command == "4":
                 destino = "1,1"
                 producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
+            elif command == "5":
+                #mandamos mensaje por Kafka con ID del taxi
+                producer.send('cifrar', value = f"{taxi_id}".encode('utf-8'))
             else:
                 print("Comando no válido")
                 continue
@@ -549,7 +525,6 @@ def customerState():
                 if cliente.getId() == id:
                     cliente.setTimeout(0)
 
-
 def reconexion():
     start_time = time.time()
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -599,6 +574,34 @@ def reconexion():
             escribirEventos("Iniciando servicio de la central. Esperando conexiones")
             break  # Sale del bucle while si se excede el tiempo
 
+def cifrar():
+    consumer = KafkaConsumer('cifrar', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    for message in consumer:
+        id = message.value.decode('utf-8')
+        id = int(id)
+        #comprobamos si el taxi está en la lista de taxis: TAXIS
+        aux = False
+        for taxi in TAXIS:
+            if taxi.getId() == id:
+                aux = True
+                break
+        
+        if not aux:
+            print(f"El taxi con ID {id} no está autenticado")
+            continue
+        if id in modified_keys:
+            # Si la clave ya está estropeada, la arreglamos
+            taxi_keys[id] = bytes((byte - 1) % 256 for byte in taxi_keys[id])
+            modified_keys.remove(id)
+            print(f"Clave para ID {id} arreglada: {taxi_keys[id]}")
+        else:
+            # Si la clave no está estropeada, la estropeamos
+            taxi_keys[id] = bytes((byte + 1) % 256 for byte in taxi_keys[id])
+            modified_keys.append(id)
+            print(f"Clave para ID {id} estropeada: {taxi_keys[id]}")
+            
+
 
 def weatherState():
     global ctc, estadoTrafico
@@ -643,8 +646,8 @@ def weatherState():
                 destino = "1,1"
                 producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
             
-            time.sleep(10)
-        
+            time.sleep(10)    
+
 def main():
     # Comprobar que se han pasado los argumentos correctos
     if len(sys.argv) != 4:
@@ -694,6 +697,9 @@ def main():
     customerState_thread = threading.Thread(target=customerState)
     customerState_thread.start()
 
+    cifrar_thread = threading.Thread(target=cifrar)
+    cifrar_thread.start()
+
     auth_thread.join()
     map_thread.join()
     clients_thread.join()
@@ -704,6 +710,7 @@ def main():
     customerDisconnection_thread.join()
     customerState_thread.join()
     weather_thread.join()
+    cifrar_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":
