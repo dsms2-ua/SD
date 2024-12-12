@@ -913,3 +913,64 @@
 
 2024/12/12 11:30:31 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
 
+2024/12/12 11:30:43 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:30:56 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:31:08 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:31:20 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:31:32 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:31:44 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:31:57 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:32:09 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:32:21 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:32:33 => El estado del tiempo ha sido actualizado:     CTC => Ciudad: Madrid - Temperatura: 5.73 - Estado: OK 
+
+2024/12/12 11:32:47 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:32:50 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:33:02 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:36:24 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:36:26 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:37:02 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:37:04 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:37:17 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:37:29 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:37:41 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:37:53 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:38:05 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:38:18 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:38:30 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:38:42 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:38:54 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:39:06 => El estado del tiempo ha sido actualizado: None
+2024/12/12 11:39:20 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:39:22 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:42:10 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:42:12 => El estado del tiempo ha sido actualizado:     
+[32mCTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+ [0m
+2024/12/12 11:42:24 => El estado del tiempo ha sido actualizado:     
+[32mCTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+ [0m
+2024/12/12 11:42:37 => El estado del tiempo ha sido actualizado:     
+[32mCTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+ [0m
+2024/12/12 11:42:46 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:42:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:43:01 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+
+2024/12/12 11:43:13 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+

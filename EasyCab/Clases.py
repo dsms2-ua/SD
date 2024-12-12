@@ -33,11 +33,13 @@ class CTC:
     def getEstado(self):
         return self.estado
     
-    def cadenaCTC(self):
+    def cadenaCTC(self):  
         if self.ciudad != "Error":
-            return f"    CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
+            cadena =  f"    \nCTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
         else:
-            return f"   La conexión con el módulo CTC no ha podido establecerse. Se volverá a intentar dentro de 10 segundos \n"
+            cadena = f"   \nLa conexión con el módulo CTC no ha podido establecerse. Se volverá a intentar dentro de 10 segundos \n"
+            
+        return cadena
 
 class Mapa:
     def __init__(self,posiciones,taxis,clientes):

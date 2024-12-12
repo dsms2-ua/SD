@@ -26,8 +26,8 @@ TAXIS = []
 CLIENTES = []
 
 estadoTrafico = "OK"
-temperatura = 0
-city = ""
+temperatura = 1
+city = "Madrid"
 
 ctc = CTC(city, temperatura, estadoTrafico)
 
