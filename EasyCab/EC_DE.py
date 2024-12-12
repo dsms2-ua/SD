@@ -180,6 +180,8 @@ def sendHeartbeat():
                     operativo = False
                     break
         if aux and not centralStop:
+            if estado == "Parado por sensores":
+                estado = "Esperando asignación"
             operativo = True
             estadoTaxi = "OK"
         else:
@@ -415,7 +417,6 @@ def centralState():
         time.sleep(1)
         centralTimeout += 1
 
-
 def main():
     #Comprobamos que los argumetos sean correctos
     if len(sys.argv) != 6:
@@ -432,22 +433,7 @@ def main():
         #Creamos el hilo que comunica las alertas al consumidor
         alert_thread = threading.Thread(target=sendAlerts, args = (ID, ))
         alert_thread.start()
-        """
-        #preguntamos si quiere conectar sensores al taxi
-        print("¿Desea conectar sensores al taxi? ([S]/N)")
-        respuesta = input()
-        #ponemos la respuesta en minúsculas
-        respuesta = respuesta.lower()
-        #valor por defecto S
-        if respuesta != "n": 
-            respuesta = "s"
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
 
-        if respuesta == "s":
-            #abrir una terminal con EC_S.py
-            os.system(f"start cmd /k python EC_S.py {local_ip} {4999 + ID}")
-        """
         #Creamos el hilo que lleva al consumidor Kafka del mapa
         map_thread = threading.Thread(target=receiveMap)
         map_thread.start()
@@ -466,13 +452,13 @@ def main():
         centralState_thread = threading.Thread(target=centralState)
         centralState_thread.start()
 
+
         map_thread.join()
         #alert_thread.join()
         services_thread.join()
         command_thread.join()
         heartbeat_thread.join()
         centralState_thread.join()
-
 
 # Ejecución principal
 if __name__ == "__main__":

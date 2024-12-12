@@ -4001,3 +4001,619 @@ CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK
 2024/12/12 12:43:02 => El estado del tiempo ha sido actualizado:     
 CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
 
+2024/12/12 12:49:33 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:49:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:49:43 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 59443)
+2024/12/12 12:49:47 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+
+2024/12/12 12:49:59 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+
+2024/12/12 12:50:12 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+
+2024/12/12 12:50:24 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+
+2024/12/12 12:50:36 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+
+2024/12/12 12:50:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+
+2024/12/12 12:50:50 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:51 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:52 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:53 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:54 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:55 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:56 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:57 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:58 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:50:59 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:51:00 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 12:51:00 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 59906)
+2024/12/12 12:51:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.46 - Estado: KO 
+
+2024/12/12 13:15:46 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:15:49 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:16:00 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 60409)
+2024/12/12 13:16:01 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:16:13 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:16:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:25 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:16:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:16:32 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 60563)
+2024/12/12 13:16:37 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:16:49 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:17:02 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:17:14 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:17:26 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:17:38 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:19:21 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:19:23 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:19:29 => Intento de conexión de taxi 1 con contraseña incorrecta desde ('127.0.0.1', 61183)
+2024/12/12 13:19:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:19:35 => Intento de conexión de taxi 1 con contraseña incorrecta desde ('127.0.0.1', 61191)
+2024/12/12 13:19:47 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:19:49 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 61200)
+2024/12/12 13:20:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:20:12 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.82 - Estado: OK 
+
+2024/12/12 13:20:46 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:20:49 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:20:53 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 61510)
+2024/12/12 13:21:01 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.59 - Estado: OK 
+
+2024/12/12 13:24:19 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:24:21 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:24:29 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 61716)
+2024/12/12 13:24:34 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:24:46 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:24:58 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:25:10 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:25:22 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:25:34 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:25:47 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:26:01 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:26:03 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:26:05 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 62390)
+2024/12/12 13:26:15 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:26:27 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.11 - Estado: OK 
+
+2024/12/12 13:26:45 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:26:47 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:26:50 => Intento de conexión de taxi 1 con contraseña incorrecta desde ('127.0.0.1', 62695)
+2024/12/12 13:26:55 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 62700)
+2024/12/12 13:27:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:27:12 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:27:24 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:27:36 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:27:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:28:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:28:13 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:28:25 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:28:37 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:28:49 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:29:01 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:29:13 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:29:26 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:29:38 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:29:50 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:30:02 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:30:14 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:30:26 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:30:39 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:30:51 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:31:03 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:31:15 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:31:27 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:31:39 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:31:56 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:31:58 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:32:11 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:32:12 => Taxi 5 ha iniciado sesión correctamente desde ('127.0.0.1', 64773)
+2024/12/12 13:32:23 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:32:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:32:47 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:33:01 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:33:03 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:33:14 => Taxi 6 ha iniciado sesión correctamente desde ('127.0.0.1', 65143)
+2024/12/12 13:33:15 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:33:27 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:33:39 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:33:51 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 8.89 - Estado: OK 
+
+2024/12/12 13:34:04 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:34:16 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:34:28 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:34:40 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:34:52 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:35:11 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:35:13 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:35:23 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 49873)
+2024/12/12 13:35:26 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:35:38 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:35:50 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:36:02 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:36:14 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:36:26 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:36:39 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:36:57 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:36:59 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:37:02 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 50554)
+2024/12/12 13:37:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:11 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:37:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:23 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:37:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:32 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:33 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:34 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:35 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:37:36 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:37 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:38 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:39 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:40 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:41 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:42 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:43 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:44 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:45 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:46 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:47 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:37:48 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:49 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:50 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:51 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:52 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:53 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:54 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:55 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:56 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:57 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:58 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:37:59 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:38:00 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:01 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:02 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:03 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:04 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:05 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:06 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:07 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:08 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:09 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:12 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:38:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:24 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:38:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:32 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:33 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:40 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:38:43 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:38:48 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 51297)
+2024/12/12 13:38:55 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:38:56 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:57 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:58 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:38:59 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:00 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:01 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:03 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:04 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:05 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:06 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:07 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:07 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:39:08 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:09 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:19 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:39:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:31 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:39:32 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:33 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:34 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:35 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:36 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:37 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:38 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:39 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:40 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:41 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:42 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:43 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:43 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:39:44 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:45 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:46 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:47 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:48 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:49 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:50 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:51 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:52 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:53 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:54 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:55 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:56 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:56 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:39:57 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:58 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:39:59 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:00 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:01 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:02 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:03 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:04 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:05 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:06 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:07 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:08 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:08 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:40:09 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:20 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:40:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:40:40 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:40:42 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:40:47 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 52088)
+2024/12/12 13:40:54 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:41:06 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:41:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:41:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:41:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:41:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:41:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:41:18 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:41:30 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:41:43 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:41:55 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:42:07 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:42:26 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:42:28 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:42:34 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 52741)
+2024/12/12 13:42:40 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:42:43 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:42:44 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:42:45 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:42:46 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:42:47 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:42:48 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:42:52 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.44 - Estado: OK 
+
+2024/12/12 13:43:04 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.44 - Estado: OK 
+
+2024/12/12 13:43:16 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.44 - Estado: OK 
+
+2024/12/12 13:43:29 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.44 - Estado: OK 
+
+2024/12/12 13:43:41 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9.44 - Estado: OK 
+
+2024/12/12 13:43:53 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:44:05 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:44:23 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 13:44:26 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 13:44:28 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 53525)
+2024/12/12 13:44:35 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:36 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:37 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:38 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
+2024/12/12 13:44:38 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:39 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:40 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:41 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 13:44:50 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 9 - Estado: OK 
+
