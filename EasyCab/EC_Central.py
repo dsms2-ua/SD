@@ -307,9 +307,11 @@ def readTaxiUpdate():
         
         for message in consumer: 
             token,mensaje = message.value.decode('utf-8').split()
+            print(f"Mensaje recibido: {token}{mensaje}")
             for taxi in TAXIS:
                 if taxi.getToken() == token:
                     mensaje_desencriptado = decrypt(mensaje, taxi_keys[taxi.getId()],True)
+                    print(f"Mensaje desencriptado: {mensaje_desencriptado}")
                     estado, posX, posY = mensaje_desencriptado.split()
                     estado = True if estado == "True" else False
                     taxi.setTimeout(0)
@@ -535,6 +537,7 @@ def reconexion():
 
                     #Obtenemos clave AES de la API usando el token
                     response = requests.get(f'http://localhost:3000/aes/token/{token}')
+
                     try:
                         data = response.json()
                     except requests.exceptions.JSONDecodeError:
@@ -555,6 +558,7 @@ def reconexion():
                         data = data.json()
                         id = data['idTaxi']
                         id = int(id)
+                        taxi_keys[id] = aes_key
                         taxi = Taxi(id)
                         taxi.setEstado(estado)
                         taxi.setCasilla(Casilla(int(posX), int(posY)))

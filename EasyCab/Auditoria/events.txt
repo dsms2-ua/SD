@@ -974,3 +974,284 @@ CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK
 2024/12/12 11:43:13 => El estado del tiempo ha sido actualizado:     
 CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
 
+2024/12/12 11:45:36 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:45:38 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:45:50 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+
+2024/12/12 11:45:58 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 51625)
+2024/12/12 11:46:03 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+
+2024/12/12 11:46:15 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+
+2024/12/12 11:46:27 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+
+2024/12/12 11:46:39 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.03 - Estado: OK 
+
+2024/12/12 11:46:51 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.05 - Estado: OK 
+
+2024/12/12 11:47:07 => La central se ha recuperado de un fallo
+2024/12/12 11:47:08 => La central se ha recuperado de un fallo
+2024/12/12 11:47:09 => La central se ha recuperado de un fallo
+2024/12/12 11:47:09 => La central se ha recuperado de un fallo
+2024/12/12 11:47:10 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:47:12 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:47:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:47:32 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:47:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:47:41 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 52336)
+2024/12/12 11:47:47 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.05 - Estado: OK 
+
+2024/12/12 11:47:59 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.05 - Estado: OK 
+
+2024/12/12 11:48:04 => Taxi 2 ha iniciado sesión correctamente desde ('127.0.0.1', 52514)
+2024/12/12 11:48:11 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.05 - Estado: OK 
+
+2024/12/12 11:48:23 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.05 - Estado: OK 
+
+2024/12/12 11:48:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 6.05 - Estado: OK 
+
+2024/12/12 11:51:21 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:51:23 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:51:27 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 53137)
+2024/12/12 11:51:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:51:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:52:03 => La central se ha recuperado de un fallo
+2024/12/12 11:52:04 => La central se ha recuperado de un fallo
+2024/12/12 11:52:04 => La central se ha recuperado de un fallo
+2024/12/12 11:52:05 => La central se ha recuperado de un fallo
+2024/12/12 11:52:05 => La central se ha recuperado de un fallo
+2024/12/12 11:52:06 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:52:08 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:52:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:20 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:52:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:32 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:32 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:52:33 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:34 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:35 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:36 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:37 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:38 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:39 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:40 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:41 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:42 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:43 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:44 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:45 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:52:45 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:46 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:47 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:48 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:49 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:50 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:51 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:52 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:53 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:54 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:55 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:56 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:57 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:52:57 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:58 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:52:59 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:00 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:01 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:02 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:03 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:04 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:05 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:06 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:07 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:08 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:09 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:53:09 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:16 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:17 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:18 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:19 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:20 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:21 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:21 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:53:22 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:23 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:32 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:33 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:33 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:53:34 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:35 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:36 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:37 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:38 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:39 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:40 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:41 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:42 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:43 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:44 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:45 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:45 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:53:46 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:47 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:48 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:49 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:50 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:51 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:52 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:53 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:54 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:55 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:56 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:57 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:58 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:53:58 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:53:59 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:00 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:01 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:02 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:03 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:04 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:05 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:06 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:07 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:08 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:09 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:10 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:54:10 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:11 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:12 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:13 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:14 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:15 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:54:27 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:54:29 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:54:41 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:54:43 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 54445)
+2024/12/12 11:54:53 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:55:05 => La central se ha recuperado de un fallo
+2024/12/12 11:55:06 => La central se ha recuperado de un fallo
+2024/12/12 11:55:07 => La central se ha recuperado de un fallo
+2024/12/12 11:55:07 => La central se ha recuperado de un fallo
+2024/12/12 11:55:08 => La central se ha recuperado de un fallo
+2024/12/12 11:55:08 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 11:55:10 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 11:55:22 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:55:24 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:25 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:26 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:27 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:28 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:29 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:30 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:31 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:32 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:33 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:34 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:34 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
+
+2024/12/12 11:55:35 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:36 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:37 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:38 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:39 => Taxi 1 ha sido desconectado por inactividad
+2024/12/12 11:55:40 => Taxi 1 ha sido desconectado por inactividad
