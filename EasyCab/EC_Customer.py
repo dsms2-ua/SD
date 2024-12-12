@@ -144,6 +144,8 @@ def main():
     consumer = KafkaConsumer('clients', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     conexion = False
     
+    '''
+    
     for message in consumer:
         mes = message.value.decode('utf-8')
         if mes.split()[0] == id:
@@ -154,6 +156,9 @@ def main():
                 conexion = True
                 print("Conexión con la central establecida")
                 break
+    '''
+            
+    conexion = True
 
     if conexion:
         #Creamos el hilo que recibe el mapa
