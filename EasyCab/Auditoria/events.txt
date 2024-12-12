@@ -3899,3 +3899,105 @@ CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO
 2024/12/12 12:28:14 => El estado del tiempo ha sido actualizado:     
 CTC => Ciudad: oymyakon - Temperatura: -37.72 - Estado: KO 
 
+2024/12/12 12:31:38 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:31:40 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:31:44 => Taxi 1 ha iniciado sesión correctamente desde ('127.0.0.1', 58350)
+2024/12/12 12:31:53 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:32:05 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:32:17 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:32:29 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:32:41 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:32:53 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:37:56 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:37:58 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:38:11 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:38:23 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:38:33 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:38:35 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:38:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:39:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:39:13 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:39:15 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:39:28 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:39:40 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:39:52 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:40:04 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:40:17 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:40:19 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:40:31 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:40:46 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:40:48 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:41:00 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:41:12 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:41:24 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:41:39 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:41:41 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:41:53 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:42:06 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:42:18 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:42:30 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.49 - Estado: KO 
+
+2024/12/12 12:42:48 => Iniciando servicio de la central. Esperando conexiones
+2024/12/12 12:42:50 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: Madrid - Temperatura: 1 - Estado: OK 
+
+2024/12/12 12:43:02 => El estado del tiempo ha sido actualizado:     
+CTC => Ciudad: oymyakon - Temperatura: -37.99 - Estado: KO 
+

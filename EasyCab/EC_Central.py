@@ -432,6 +432,7 @@ def receiveCommand():
                         #producer.send('taxi_orders', value = f"{taxi_id} OK".encode('utf-8'))
                         break
         elif topic == "taxi_commands2":
+
             for taxi in TAXIS:
                 if taxi.getId() == int(taxi_id):
                     taxi.setPosDestino(Casilla(int(action.split(',')[0]), int(action.split(',')[1])))
@@ -466,13 +467,24 @@ def handleCommands(ip,port):
             command = input("Ingrese una opción : ")
             taxi_id = input("Ingrese el ID del taxi: ")
 
+            #comprobamos el formato del ID
+            if not taxi_id.isdigit():
+                print("Formato de ID incorrecto")
+                continue
+
             if command == "1":
                 producer.send('taxi_commands', value = f"{taxi_id} KO".encode('utf-8'))
             elif command == "2":
                 producer.send('taxi_commands', value = f"{taxi_id} OK".encode('utf-8'))
             elif command == "3":
                 destino = input("Ingrese el destino x,y: ")
-                producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
+                #comprobamos formato de la acción y que este dentro del mapa
+                if len(destino.split(',')) != 2:
+                    print("Formato de acción incorrecto")
+                elif int(destino.split(',')[0]) < 1 or int(destino.split(',')[0]) > 20 or int(destino.split(',')[1]) < 1 or int(destino.split(',')[1]) > 20:
+                    print("Formato de acción incorrecto")
+                else:
+                    producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
             elif command == "4":
                 destino = "1,1"
                 producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
