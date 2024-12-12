@@ -34,7 +34,10 @@ class CTC:
         return self.estado
     
     def cadenaCTC(self):
-        return f"    CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
+        if self.ciudad is not "Error":
+            return f"    CTC => Ciudad: {self.ciudad} - Temperatura: {self.temperatura} - Estado: {self.estado} \n"
+        else:
+            return f"   La conexión con el módulo CTC no ha podido establecerse. Se volverá a intentar dentro de 10 segundos \n"
 
 class Mapa:
     def __init__(self,posiciones,taxis,clientes):
@@ -570,7 +573,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
         else:
-            strTabla += Fore.RED + "KO. Desconectado" + Style.RESET_ALL + " |"
+            strTabla += Fore.RED + " KO. Desconectado" + Style.RESET_ALL + "|"
         #Ahora imprimimos la posicion
         pos = taxi.getCasilla()
         aux = False

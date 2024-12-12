@@ -494,6 +494,8 @@ def taxiDisconection():
                 taxi.setDestino(None)
                 taxi.setPosDestino(None)
                 taxi.setVisible(False)
+                
+            if taxi.getTimeout() == 5:
                 escribirEventos(f"Taxi {taxi.getId()} ha sido desconectado por inactividad")
         time.sleep(1)
         
@@ -594,7 +596,20 @@ def weatherState():
                     estadoTrafico = "OK"
                 time.sleep(10)
         except Exception as e:
-            pass
+            #Si no podemos acceder al CTC porque esta desconectado, modificamos la ciudad
+            #para que se muestre un mensaje de error
+            ctc.setCiudad("Error")
+            
+            #Restringimos el funcionamiento del sistema
+            estadoTrafico = "KO"
+            producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+            
+            for taxi in TAXIS:
+                taxi_id = taxi.getId()
+                destino = "1,1"
+                producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
+            
+            time.sleep(10)
         
 def main():
     # Comprobar que se han pasado los argumentos correctos

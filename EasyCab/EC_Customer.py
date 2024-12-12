@@ -143,6 +143,7 @@ def main():
     #Recogemos la respuesta de la central por saber si nos podemos conectar
     consumer = KafkaConsumer('clients', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     conexion = False
+    
     for message in consumer:
         mes = message.value.decode('utf-8')
         if mes.split()[0] == id:

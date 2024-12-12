@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 import sqlite3
-import ssl
 
 # Definimos el puerto
 port = 3000
@@ -57,10 +56,12 @@ def borrar_taxi(id):
     print('Borrar taxi')
     conn = get_db_connection()
     try:
-        conn.execute("DELETE FROM Taxis WHERE idTaxi = ?", (id,))
+        result = conn.execute("DELETE FROM Taxis WHERE idTaxi = ?", (id,))
         conn.commit()
         conn.close()
-        return jsonify({"message": f"Taxi eliminado con ID: {id}"})
+        if result.rowcount == 0:
+            return jsonify({"message": "No se encontró el taxi"}), 404
+        return jsonify({"message": f"Taxi eliminado con ID: {id}"}), 200
     except sqlite3.Error as e:
         conn.close()
         return jsonify({"message": "Error al eliminar el taxi", "error": str(e)}), 500
@@ -76,6 +77,81 @@ def recuperar_password(id):
         return jsonify({"message": "No se encontró el taxi"}), 404
     return jsonify(dict(password))
 
+# Recuperar token de un taxi con id
+@appSD.route("/token/<int:id>", methods=['GET'])
+def recuperar_token(id):
+    print('Recuperar token taxi')
+    conn = get_db_connection()
+    token = conn.execute("SELECT token FROM Taxis WHERE idTaxi = ?", (id,)).fetchone()
+    conn.close()
+    if token is None:
+        return jsonify({"message": "No se encontró el taxi"}), 404
+    return jsonify(dict(token))
+
+# Recuperar aes de un taxi con id
+@appSD.route("/aes/<int:id>", methods=['GET'])
+def recuperar_aes(id):
+    print('Recuperar aes taxi')
+    conn = get_db_connection()
+    aes = conn.execute("SELECT aes FROM Taxis WHERE idTaxi = ?", (id,)).fetchone()
+    conn.close()
+    if aes is None:
+        return jsonify({"message": "No se encontró el taxi"}), 404
+    return jsonify(dict(aes))
+
+# Recuperar aes de un taxi con token
+@appSD.route("/aes/token/<string:token>", methods=['GET'])
+def recuperar_aes_por_token(token):
+    print('Recuperar aes taxi')
+    conn = get_db_connection()
+    aes = conn.execute("SELECT aes FROM Taxis WHERE token = ?", (token,)).fetchone()
+    conn.close()
+    if aes is None:
+        return jsonify({"message": "No se encontró el taxi"}), 404
+    return jsonify(dict(aes))
+
+# Actualizar token de un taxi
+@appSD.route("/token/<int:id>", methods=['PUT'])
+def actualizar_token(id):
+    print('Actualizar token taxi')
+    data = request.json
+    token = data.get('token')
+    conn = get_db_connection()
+    try:
+        conn.execute("UPDATE Taxis SET token = ? WHERE idTaxi = ?", (token, id))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": f"Token actualizado con ID: {id}"}), 200
+    except sqlite3.Error as e:
+        conn.close()
+        return jsonify({"message": "Error al actualizar el token", "error": str(e)}), 500
+
+# Actualizar aes de un taxi
+@appSD.route("/aes/<int:id>", methods=['PUT'])
+def actualizar_aes(id):
+    print('Actualizar aes taxi')
+    data = request.json
+    aes = data.get('aes')
+    conn = get_db_connection()
+    try:
+        conn.execute("UPDATE Taxis SET aes = ? WHERE idTaxi = ?", (aes, id))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": f"AES actualizado con ID: {id}"}), 200
+    except sqlite3.Error as e:
+        conn.close()
+        return jsonify({"message": "Error al actualizar el aes", "error": str(e)}), 500
+
+# Recuperar id de un taxi con token
+@appSD.route("/id/token/<string:token>", methods=['GET'])
+def recuperar_id_por_token(token):
+    print('Recuperar id taxi')
+    conn = get_db_connection()
+    id_taxi = conn.execute("SELECT idTaxi FROM Taxis WHERE token = ?", (token,)).fetchone()
+    conn.close()
+    if id_taxi is None:
+        return jsonify({"message": "No se encontró el taxi"}), 404
+    return jsonify(dict(id_taxi))
+
 if __name__ == '__main__':
-    context = ('certAppSD.pem', 'keyAppSD.pem')  # Ruta a tus archivos de certificado y clave
-    appSD.run(port=port, ssl_context=context, debug=True)
+    appSD.run(port=port, debug=True)
