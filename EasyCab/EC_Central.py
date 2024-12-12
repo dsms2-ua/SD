@@ -169,11 +169,11 @@ def authenticate_taxi():
                         escribirEventos(f"Intento de conexión de taxi {id} con contraseña incorrecta desde {addr}")
                         consstream.close()
                         continue    
-        finally:
-            if consstream:
-                consstream.shutdown(socket.SHUT_RDWR)
-                consstream.close()
-            client.close()
+        except:
+            print("Error en la autenticación")
+            consstream.send(b'KO')
+            consstream.close()
+            continue
        
 def escribirMapa(mapa):
     with open("mapa.txt", "w") as file:
@@ -212,13 +212,26 @@ def sendMap():
 def readClients():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('clients', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     #Recibir los clientes
     for message in consumer:
         id = message.value.decode('utf-8')
-        client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
         
-        escribirEventos(f"Cliente {id} ha sido iniciado sesión")
-        CLIENTES.append(client)
+        isIn = False
+        
+        for cliente in CLIENTES:
+            if cliente.getId() == id:
+                isIn = True
+                break
+                
+        if isIn:
+            escribirEventos(f"Cliente {id} ya está conectado")
+            producer.send('clients', value = f"{id} KO".encode('utf-8'))
+        else:
+            client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
+            CLIENTES.append(client)
+            producer.send('clients', value = f"{id} OK".encode('utf-8'))
+            escribirEventos(f"Cliente {id} ha iniciado sesión")
 
 def serviceRequest():
     #Crear un consumidor de Kafka
@@ -559,6 +572,7 @@ def weatherState():
     while True:
         try:
             response = requests.get(url)
+            escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.CadenaCTC()}")
             if response.status_code == 200:
                 data = response.json()
                 status = data.get('status')
@@ -579,7 +593,6 @@ def weatherState():
                 elif status == "OK" and estadoTrafico == "KO":
                     estadoTrafico = "OK"
                 time.sleep(10)
-                escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.CadenaCTC()}")
         except Exception as e:
             pass
         

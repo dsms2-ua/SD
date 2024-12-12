@@ -93,7 +93,7 @@ def pagina_principal():
                 const response = await fetch('/actualizarMapa'); // Solicita el mapa al servidor
                 const data = await response.json();   // Convierte la respuesta a JSON
                 document.getElementById('mapa').textContent = data.mapa.join('\\n'); // Actualiza el contenido
-            }}, 1000); // Cada 1000ms (1 segundo)
+            }}, 1000); // Cada 500ms (1 segundo)
         </script>
     </body>
     </html>

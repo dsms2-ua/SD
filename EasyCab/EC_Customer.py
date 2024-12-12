@@ -139,35 +139,52 @@ def main():
     #Comunicamos por Kafka la existencia del cliente
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     producer.send('clients', value = f"{id}".encode('utf-8'))
-
-
-    #Creamos el hilo que recibe el mapa
-    map_thread = threading.Thread(target=receiveMap)
-    map_thread.start()
-
-    #Creamos el hilo que recibe los servicios
-    service_thread = threading.Thread(target=receiveService, args=(id, ))
-    service_thread.start()
-
-    #Creamos el hilo que envía los servicios
-    services_thread = threading.Thread(target=services, args=(id, ))
-    services_thread.start()
-
-    taxi_thread = threading.Thread(target=receiveTaxiUpdates)
-    taxi_thread.start()
     
-    centralState_thread = threading.Thread(target=centralState)
-    centralState_thread.start()
-    
-    sendOK_thread = threading.Thread(target=sendState, args=id,)
-    sendOK_thread.start()
+    #Recogemos la respuesta de la central por saber si nos podemos conectar
+    consumer = KafkaConsumer('clients', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+    conexion = False
+    for message in consumer:
+        mes = message.value.decode('utf-8')
+        if mes.split()[0] == id:
+            if mes.split()[1] == "KO":
+                print("No se ha podido conectar con la central")
+                sys.exit(1)
+            elif mes.split()[1] == "OK":
+                conexion = True
+                print("Conexión con la central establecida")
+                break
 
-    map_thread.join()
-    service_thread.join()
-    services_thread.join()
-    taxi_thread.join()
-    centralState_thread.join()
-    sendOK_thread.join()
+    if conexion:
+        #Creamos el hilo que recibe el mapa
+        map_thread = threading.Thread(target=receiveMap)
+        map_thread.start()
+
+        #Creamos el hilo que recibe los servicios
+        service_thread = threading.Thread(target=receiveService, args=(id, ))
+        service_thread.start()
+
+        #Creamos el hilo que envía los servicios
+        services_thread = threading.Thread(target=services, args=(id, ))
+        services_thread.start()
+
+        taxi_thread = threading.Thread(target=receiveTaxiUpdates)
+        taxi_thread.start()
+        
+        centralState_thread = threading.Thread(target=centralState)
+        centralState_thread.start()
+        
+        sendOK_thread = threading.Thread(target=sendState, args=id,)
+        sendOK_thread.start()
+
+        map_thread.join()
+        service_thread.join()
+        services_thread.join()
+        taxi_thread.join()
+        centralState_thread.join()
+        sendOK_thread.join()
+        
+    else:
+        print("Error al conectar por la central debido a que el identificador ya esta en uso")
 
 if __name__ == "__main__":
     main()

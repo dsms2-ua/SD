@@ -570,7 +570,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
             #Esto lo imprimimos en rojo
             strTabla += Fore.RED + "    KO. Parado" + Style.RESET_ALL + "   |"
         else:
-            strTabla += Fore.RED + "KO. Desconectado" + " |" + Style.RESET_ALL
+            strTabla += Fore.RED + "KO. Desconectado" + Style.RESET_ALL + " |"
         #Ahora imprimimos la posicion
         pos = taxi.getCasilla()
         aux = False
