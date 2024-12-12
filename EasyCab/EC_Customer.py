@@ -16,6 +16,7 @@ finished = False
 centralTimeout = 0
 taxi_updates = ""
 
+
 def receiveMap():
     global taxi_updates, centralTimeout
 
@@ -29,7 +30,7 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
-                    os.system('cls')
+                    #os.system('cls')
                     print(f"Cliente {sys.argv[3]}")
                     cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
                     print(cadena)
@@ -133,32 +134,35 @@ def main():
         print("Uso: python EC_Customer.py <Bootstrap_IP> <Bootstrap_Port> <ID>")
         sys.exit(1)
 
-    id = sys.argv[3]
+    id = str(sys.argv[3])
     print(f"Cliente {id} conectado")
 
     #Comunicamos por Kafka la existencia del cliente
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     producer.send('clients', value = f"{id}".encode('utf-8'))
     
+    topics = f'clients_{id}'
+    print(f"El topic es {topics}.")
+    
     #Recogemos la respuesta de la central por saber si nos podemos conectar
-    consumer = KafkaConsumer('clients', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
+    consumer = KafkaConsumer(f'clients_{id}', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     conexion = False
     
-    '''
+    print("Esperando respuesta de la central...")
+    time.sleep(5)
     
     for message in consumer:
         mes = message.value.decode('utf-8')
-        if mes.split()[0] == id:
-            if mes.split()[1] == "KO":
-                print("No se ha podido conectar con la central")
-                sys.exit(1)
-            elif mes.split()[1] == "OK":
-                conexion = True
-                print("Conexión con la central establecida")
-                break
-    '''
+        print(mes)
+        if mes.split()[1] == "KO":
+            print("No se ha podido conectar con la central")
+            break
+        elif mes.split()[1] == "OK":
+            conexion = True
+            print("Conexión con la central establecida")            
+            break
             
-    conexion = True
+    #conexion = True
 
     if conexion:
         #Creamos el hilo que recibe el mapa

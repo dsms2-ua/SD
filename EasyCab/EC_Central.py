@@ -213,30 +213,38 @@ def readClients():
     #Crear un consumidor de Kafka
     consumer = KafkaConsumer('clients', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     producer = KafkaProducer(bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    
     #Recibir los clientes
     for message in consumer:
         id = message.value.decode('utf-8')
         
-        client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
-        CLIENTES.append(client)
-        
-        '''
         isIn = False
+        isVisible = False
         
         for cliente in CLIENTES:
             if cliente.getId() == id:
                 isIn = True
-                break
+                if cliente.getVisible():
+                    isVisible = True
+                    break
                 
-        if isIn:
-            escribirEventos(f"Cliente {id} ya está conectado")
-            producer.send('clients', value = f"{id} KO".encode('utf-8'))
-        else:
+        if not isIn:
             client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
             CLIENTES.append(client)
-            producer.send('clients', value = f"{id} OK".encode('utf-8'))
+            
+            producer.send(f'clients_{id}', value = f"{id} OK".encode('utf-8'))
             escribirEventos(f"Cliente {id} ha iniciado sesión")
-        '''
+        elif isIn and not isVisible:
+            for cliente in CLIENTES:
+                if cliente.getId() == id:
+                    cliente.setVisible(True)
+                    producer.send(f'clients_{id}', value = f"{id} OK".encode('utf-8'))
+                    escribirEventos(f"Cliente {id} ha iniciado sesión otra vez")
+                    break
+        else:
+            producer.send(f'clients_{id}', value = f"{id} KO".encode('utf-8'))
+            escribirEventos(f"Cliente {id} ya está conectado")
+        
         
 
 def serviceRequest():
@@ -523,7 +531,12 @@ def customerDisconnection():
             if cliente.getTimeout() < 5:
                 cliente.setTimeout(cliente.getTimeout() + 1)
             else:
-                CLIENTES.remove(cliente)
+                #En vez de eliminarlo lo ponemos en not visible
+                #Asi se sigue mostrando en la tabla pero no en el mapa
+                cliente.setVisible(False)
+                #CLIENTES.remove(cliente)
+            
+            if cliente.getTimeout() == 5:
                 escribirEventos(f"Cliente {cliente.getId()} ha sido desconectado por inactividad")
         time.sleep(1)
         

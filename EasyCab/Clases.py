@@ -227,7 +227,7 @@ class Mapa:
                 # Comprobamos si hay un cliente, siempre que no haya un taxi
                 if not isTaxi and not isPos:
                     for cliente in self.clientes:
-                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
+                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and cliente.getVisible():
                             mapa_str += Back.YELLOW + " " + Fore.BLACK + cliente.getId() + " " + Style.RESET_ALL
                             isCliente = True
                             break
@@ -294,7 +294,7 @@ class Mapa:
                 # Comprobamos si hay un cliente, siempre que no haya un taxi
                 if not isTaxi and not isPos:
                     for cliente in self.clientes:
-                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i:
+                        if cliente.getPosicion().getX() == j and cliente.getPosicion().getY() == i and cliente.getVisible():
                             mapa_str += " " + cliente.getId() + " "
                             isCliente = True
                             break
@@ -435,6 +435,7 @@ class Cliente():
         self.posicion = generarAleatoria(locs, taxis, clientes)
         self.destino = None
         self.timeout = 0
+        self.visible = True
 
     def setDestino(self, destino):
         self.destino = destino
@@ -444,6 +445,9 @@ class Cliente():
     
     def setTimeout(self, timeout):
         self.timeout = timeout
+        
+    def setVisible(self, visible):
+        self.visible = visible
     
     def getId(self):
         return self.id
@@ -456,6 +460,9 @@ class Cliente():
     
     def getTimeout(self):
         return self.timeout
+    
+    def getVisible(self):
+        return self.visible
         
 
 def generarAleatoria(locs, taxis, clientes):
@@ -600,7 +607,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
     strTabla += "|                                CLIENTES                                 |\n"
     strTabla += "|-------------------------------------------------------------------------|\n"
     strTabla += "|      ID     |        Destino      |      Estado     |      Posicion     |\n"
-    for cliente in CLIENTES:
+    for cliente in CLIENTES:        
         strTabla += "|      " + cliente.getId() + "      |" + "           "
 
         if cliente.getDestino() is None:
@@ -618,8 +625,8 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
                 asignado = True
                 break
         
-        if cliente.getTimeout() > 10:
-            strTabla += Fore. RED + "    Sin conexión  |" + Style.RESET_ALL
+        if cliente.getTimeout() == 5:
+            strTabla += Fore. RED + "   Sin conexión" + Style.RESET_ALL + "  |" 
         elif asignado:
             strTabla += "    OK.Taxi " + str(id) + "    |"
         else:
