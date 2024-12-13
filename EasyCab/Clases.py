@@ -559,23 +559,26 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
 
         #Ahora imprimimos el destino
         strTabla += "|           "
-        if not taxi.getOcupado():
-            if not taxi.getEstado():
-                strTabla += Fore.RED + "-" + Style.RESET_ALL
+        if taxi.getDestino() is not None:
+            if not taxi.getOcupado():
+                if not taxi.getEstado():
+                    strTabla += Fore.RED + "-" + Style.RESET_ALL
+                else:
+                    strTabla += "-"
+            elif not taxi.getRecogido():
+                if not taxi.getEstado() and taxi.getCliente() is not None:
+                    strTabla += Fore.RED + taxi.getCliente() + Style.RESET_ALL
+                elif taxi.getCliente() is not None: 
+                    strTabla += taxi.getCliente()
+                else:
+                    strTabla += "-"
             else:
-                strTabla += "-"
-        elif not taxi.getRecogido():
-            if not taxi.getEstado() and taxi.getCliente() is not None:
-                strTabla += Fore.RED + taxi.getCliente() + Style.RESET_ALL
-            elif taxi.getCliente() is not None: 
-                strTabla += taxi.getCliente()
-            else:
-                strTabla += "-"
+                if not taxi.getEstado():
+                    strTabla += Fore.RED + taxi.getDestino() + Style.RESET_ALL
+                else:
+                    strTabla += taxi.getDestino()
         else:
-            if not taxi.getEstado():
-                strTabla += Fore.RED + taxi.getDestino() + Style.RESET_ALL
-            else:
-                strTabla += taxi.getDestino()
+            strTabla += "-"
         strTabla += "         |"
 
         #Ahora imprimimos el estado
@@ -688,21 +691,24 @@ def generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES):
 
         #Ahora imprimimos el destino
         strTabla += "|           "
-        if not taxi.getOcupado():
-            if not taxi.getEstado():
-                strTabla += "-"
+        if taxi.getDestino() is not None:
+            if not taxi.getOcupado():
+                if not taxi.getEstado():
+                    strTabla += "-"
+                else:
+                    strTabla += "-"
+            elif not taxi.getRecogido():
+                if not taxi.getEstado() and taxi.getCliente() is not None:
+                    strTabla += taxi.getCliente()
+                elif taxi.getCliente() is not None: 
+                    strTabla += taxi.getCliente()
             else:
-                strTabla += "-"
-        elif not taxi.getRecogido():
-            if not taxi.getEstado() and taxi.getCliente() is not None:
-                strTabla += taxi.getCliente()
-            elif taxi.getCliente() is not None: 
-                strTabla += taxi.getCliente()
+                if not taxi.getEstado():
+                    strTabla += taxi.getDestino()
+                else:
+                    strTabla += taxi.getDestino()
         else:
-            if not taxi.getEstado():
-                strTabla += taxi.getDestino()
-            else:
-                strTabla += taxi.getDestino()
+            strTabla += "-"
         strTabla += "         |"
 
         #Ahora imprimimos el estado

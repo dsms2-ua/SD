@@ -16,15 +16,18 @@ finished = False
 centralTimeout = 0
 taxi_updates = ""
 
+centralState = False
 posicion = None
 
 def receiveMap():
-    global taxi_updates, centralTimeout, posicion
+    global taxi_updates, centralTimeout, posicion,centralState
 
      #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
     while True:
+        if not centralState:
+            centralState = True
         message = consumer.poll(timeout_ms=1000)
         if message:
             centralTimeout = 0
@@ -38,6 +41,7 @@ def receiveMap():
                     print(cadena)
         else:
             if centralTimeout > 5:
+                centralState = False
                 os.system('cls')
                 imprimirErrorCentral()
 
@@ -86,9 +90,6 @@ def services(id):
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     consumer = KafkaConsumer('service_completed', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
 
-    completed = False #Nos marca si el servicio ha sido completado
-    #Leemos el archivo servicios.txt y lo recorremos para pedir servicios con kafka
-
     #Converitmos de id a numero: a -> 1
     number = ord(id) - 96
 
@@ -96,21 +97,24 @@ def services(id):
     with open(fileName, "r") as file:
         data = json.load(file)
         for request in data['Requests']:
+            completed = False
             request_id = request['Id']
             taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Solicitud de servicio a destino {request_id}{Style.RESET_ALL}"
             producer.send('service_requests', value=f"{id} {request_id}".encode('utf-8'))
-
-            while not completed:
-                for message in consumer:
-                    data = message.value.decode('utf-8').split()
-                    # Comprobamos que el mensaje es para nosotros
-                    if data[0] == id:
-                            # El viaje se ha completado y puedo procesar el siguiente
-                            completed = True
-                            time.sleep(4)
-                            break
+            start_time = time.time()
+            while not completed and time.time() - start_time < 15:
+                message = consumer.poll(timeout_ms=500)  # Espera hasta 1 segundo por un mensaje
+                if message:
+                    for tp, messages in message.items():
+                        for msg in messages:
+                            data = msg.value.decode('utf-8').split()
+                            # Comprobamos que el mensaje es para nosotros
+                            if data[0] == id:
+                                # El viaje se ha completado y puedo procesar el siguiente
+                                completed = True
+                                time.sleep(4)
+                                break
                 if completed:
-                    completed = False  # Reset completed for the next request
                     break
     taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Todos los servicios han sido completados{Style.RESET_ALL}"
     finished = True
