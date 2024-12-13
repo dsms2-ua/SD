@@ -16,9 +16,10 @@ finished = False
 centralTimeout = 0
 taxi_updates = ""
 
+posicion = None
 
 def receiveMap():
-    global taxi_updates, centralTimeout
+    global taxi_updates, centralTimeout, posicion
 
      #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
@@ -30,6 +31,7 @@ def receiveMap():
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
+                    posicion = mapa.getPosCliente(str(sys.argv[3]))
                     #os.system('cls')
                     print(f"Cliente {sys.argv[3]}")
                     cadena = mapa.cadenaMapaCustomer(str(sys.argv[3])) + taxi_updates
@@ -124,9 +126,16 @@ def centralState():
         time.sleep(1)
         
 def sendState(id):
+    global posicion
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     while not finished:
-        producer.send('customerOK', value=f"{id} OK".encode("utf-8"))
+        if posicion is not None:
+            pos = f"{posicion.getX()},{posicion.getY()}"
+        else:
+            pos = "0,0"
+        producer.send('customerOK', value=f"{id} {pos}".encode("utf-8"))
+        print(f"Cliente {id} ha enviado su posición: {pos}")
+        time.sleep(0.5)
                         
 
 def main():

@@ -18,6 +18,7 @@ sensorOut = False
 centralStop = False
 operativo = True
 operativo2 = True
+centralDesconectada = False
 estado="Esperando asignación"
 sensores = {} #Aquí guardamos los sensores y su estado
 centralOperativa = True
@@ -28,6 +29,7 @@ city=""
 token=""
 #AES key in bytes
 AES_KEY = b''
+cliente = ""
 
 init(autoreset=True)
 
@@ -186,9 +188,11 @@ def sendHeartbeat():
             estadoTaxi = "OK"
         else:
             operativo = False
-        
+
         producer = KafkaProducer(bootstrap_servers=f'{sys.argv[3]}:{sys.argv[4]}')
         mensaje = f"{operativo} {posicion.getX()} {posicion.getY()}"
+        if centralDesconectada and cliente != "":
+            mensaje += f" {cliente}"
         coded_message = encrypt(mensaje, AES_KEY, True)
         producer.send('taxiUpdate', value=f"{token} {coded_message}".encode('utf-8'))
         time.sleep(0.5)
@@ -204,7 +208,7 @@ def sensoresStates():
             
     
 def receiveMap():
-    global estado, centralTimeout
+    global estado, centralTimeout, centralDesconectada
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('map', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -212,6 +216,9 @@ def receiveMap():
         message = consumer.poll(timeout_ms=1000)
         if message:
             centralTimeout = 0
+            if centralDesconectada:
+                time.sleep(2)
+                centralDesconectada = False
             for tp, messages in message.items():
                 for message in messages:
                     mapa = pickle.loads(message.value)
@@ -232,6 +239,7 @@ def receiveMap():
         else:
             if centralTimeout > 5:
                 os.system('cls')
+                centralDesconectada = True
                 imprimirErrorCentral()
 
 def handleAlerts(client_socket, producer, id):
@@ -357,7 +365,7 @@ def receiveServices(id):
     #Creamos el consumer de Kafka
     consumer = KafkaConsumer('service_assigned_taxi', bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
-    global estado, operativo,posicion,token,operativo2
+    global estado, operativo,posicion,token,operativo2,cliente
     #Creamos el producer de Kafka para mandar los movimientos
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
 
@@ -375,6 +383,7 @@ def receiveServices(id):
             origen = servicio.getOrigen()
             destino = servicio.getPosDestino()
             posCliente = servicio.getPosCliente()
+            cliente = servicio.getCliente()
 
             Pos = origen
             estado = f"Yendo a recoger al cliente {servicio.getCliente()}"

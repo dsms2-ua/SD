@@ -54,6 +54,12 @@ class Mapa:
 
     from colorama import Fore, Back, Style
 
+    def getPosCliente(self,cliente):
+        for c in self.clientes:
+            if c.getId() == cliente:
+                return c.getPosicion()
+        return None
+
     # Metodo para generar el mapa del taxista
     def cadenaMapaTaxi(self,idTaxi):
         mapa_str = ""

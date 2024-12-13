@@ -527,6 +527,7 @@ def customerState():
     consumer = KafkaConsumer('customerOK', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     while True:
         for message in consumer:
+            print("llegan!")
             id, st = message.value.decode('utf-8').split()
             for cliente in CLIENTES:
                 if cliente.getId() == id:
@@ -535,14 +536,14 @@ def customerState():
 def reconexion():
     start_time = time.time()
     consumer = KafkaConsumer('taxiUpdate', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
-
-    while time.time() - start_time < 3:
+    taxi_client = None
+    while time.time() - start_time < 2:
         message = consumer.poll(timeout_ms=500)  
         if message:
             escribirEventos("La central se ha recuperado de un fallo")
             for tp, messages in message.items():
                 for msg in messages:
-                    if time.time() - start_time >= 3:
+                    if time.time() - start_time >= 2:
                         break
                     token, mensaje = msg.value.decode('utf-8').split()
 
@@ -563,23 +564,61 @@ def reconexion():
                     if not aux:          
                         aes_key = base64.b64decode(data['aes'])
                         mensaje_desencriptado = decrypt(mensaje, aes_key, True)
-                        estado, posX, posY = mensaje_desencriptado.split()
-                        estado = True if estado == "True" else False
                         data = requests.get(f'http://localhost:3000/id/token/{token}')
                         data = data.json()
                         id = data['idTaxi']
                         id = int(id)
                         taxi_keys[id] = aes_key
                         taxi = Taxi(id)
+    
+                        if mensaje_desencriptado.split().length == 4:
+                            estado, posX, posY,cliente_taxi = mensaje_desencriptado.split()
+                            taxi_client += f"{id} {cliente_taxi} /"
+                            taxi.setCliente(cliente_taxi)
+                            taxi.setOcupado(True)
+                            taxi.setRecogido(True)
+                        else:
+                            estado, posX, posY = mensaje_desencriptado.split()
+                        estado = True if estado == "True" else False
                         taxi.setEstado(estado)
                         taxi.setCasilla(Casilla(int(posX), int(posY)))
                         taxi.setVisible(True)
                         taxi.setToken(token)
                         TAXIS.append(taxi)
                         print(f"Taxi {id} reconectado")
-        if time.time() - start_time >= 3:
+        if time.time() - start_time >= 2:
             escribirEventos("Iniciando servicio de la central. Esperando conexiones")
             break  # Sale del bucle while si se excede el tiempo
+    
+    #reconectamos taxis
+    consumer = KafkaConsumer('customerOK', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+    start_time = time.time()
+    while time.time() - start_time < 2:
+
+        message = consumer.poll(timeout_ms=500)  
+        if message:
+            print("llegan!")
+            for tp, messages in message.items():
+                for msg in messages:
+                    if time.time() - start_time >= 2:
+                        break
+                    id,pos = msg.value.decode('utf-8')
+                    aux2 = False
+                    #buscamos el id en la lista de taxis con clientes
+                    for taxi_client in taxi_client.split("/"):
+                        if taxi_client.split()[1] == id:
+                            aux2 = True
+                            break
+
+                    if not aux:
+                        cliente = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
+                        if not aux2:
+                            cliente.setPosicion(Casilla(int(pos.split(",")[0]), int(pos.split(",")[1])))
+                            print("suuuu")                 
+                        CLIENTES.append(cliente)
+                        print(f"Cliente {id} reconectado")
+        if time.time() - start_time >= 2:
+            break
 
 def cifrar():
     consumer = KafkaConsumer('cifrar', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
