@@ -97,6 +97,7 @@ def services(id):
     with open(fileName, "r") as file:
         data = json.load(file)
         for request in data['Requests']:
+            time.sleep(4)
             completed = False
             request_id = request['Id']
             taxi_updates = f"\n{Back.WHITE}{Fore.BLACK}Solicitud de servicio a destino {request_id}{Style.RESET_ALL}"

@@ -419,7 +419,17 @@ def receiveServices(id):
                     break
             if operativo and operativo2:
                 estado = f"Servicio completado. Esperando asignación"
-            
+
+def completedService():
+
+    global estado
+
+    producer = KafkaProducer(bootstrap_servers = f'{sys.argv[3]}:{sys.argv[4]}')
+    while True:
+        if estado == "Servicio completado. Esperando asignación":
+            producer.send('completed', value = f"{sys.argv[5]}".encode('utf-8'))
+        time.sleep(2)
+        
 def centralState():
     global centralTimeout
     while True:
@@ -460,14 +470,17 @@ def main():
         
         centralState_thread = threading.Thread(target=centralState)
         centralState_thread.start()
-
-
+        
+        completedService_thread = threading.Thread(target=completedService)
+        completedService_thread.start()
+        
         map_thread.join()
         #alert_thread.join()
         services_thread.join()
         command_thread.join()
         heartbeat_thread.join()
         centralState_thread.join()
+        completedService_thread.join()
 
 # Ejecución principal
 if __name__ == "__main__":

@@ -629,7 +629,24 @@ def reconexion():
         if time.time() - start_time >= 1:
             escribirEventos("Iniciando servicio de la central. Esperando conexiones")
             break  # Sale del bucle while si se excede el tiempo
-    
+
+def serviceCompleted():
+
+    consumer = KafkaConsumer('completed', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
+
+    for message in consumer:
+        id = message.value.decode('utf-8')
+        for taxi in TAXIS:
+            if taxi.getId() == int(id):
+                if taxi.getRecogido() or taxi.getOcupado():
+                    #Tenemos que actualizar la posición del cliente   
+                    taxi.setOcupado(False)
+                    taxi.setRecogido(False)
+                    taxi.setCliente(None)
+                    taxi.setDestino(None)
+                    taxi.setPosDestino(None)
+                    break
+
 
 def cifrar():
     consumer = KafkaConsumer('cifrar', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
@@ -756,7 +773,10 @@ def main():
 
     cifrar_thread = threading.Thread(target=cifrar)
     cifrar_thread.start()
-
+    
+    serviceCompleted_thread = threading.Thread(target=serviceCompleted)
+    serviceCompleted_thread.start()
+    
     auth_thread.join()
     map_thread.join()
     clients_thread.join()
@@ -768,6 +788,7 @@ def main():
     customerState_thread.join()
     weather_thread.join()
     cifrar_thread.join()
+    serviceCompleted_thread.join()
 
 # Iniciar el servidor de autenticación y el manejo de Kafka en paralelo
 if __name__ == "__main__":
