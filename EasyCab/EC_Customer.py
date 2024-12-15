@@ -135,15 +135,19 @@ def sendState(id):
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
     while not finished:
         if posicion is not None:
-            pos = f"{posicion.getX()},{posicion.getY()}"
+            cx = posicion.getX()
+            cy = posicion.getY()
         else:
-            pos = "0,0"
-        producer.send('customerOK', value=f"{id} {pos}".encode("utf-8"))
-        print(f"Cliente {id} ha enviado su posición: {pos}")
+            cx = 0
+            cy = 0
+        producer.send('customerOK', value=f"{id} {cx} {cy}".encode("utf-8"))
+        #print(f"Cliente {id} ha enviado su posición: {pos}")
         time.sleep(0.5)
                         
 
 def main():
+    global posicion
+    
     if len(sys.argv) != 4:
         print("Uso: python EC_Customer.py <Bootstrap_IP> <Bootstrap_Port> <ID>")
         sys.exit(1)
@@ -151,9 +155,12 @@ def main():
     id = str(sys.argv[3])
     print(f"Cliente {id} conectado")
 
-    #Comunicamos por Kafka la existencia del cliente
+    #Comunicamos por Kafka la existencia del cliente y le mandamos la posición inicial
+    cx, cy = input("Introduce tu posición (x y): "). split()
+    posicion = Casilla(int(cx), int(cy))
+    
     producer = KafkaProducer(bootstrap_servers = f'{sys.argv[1]}:{sys.argv[2]}')
-    producer.send('clients', value = f"{id}".encode('utf-8'))
+    producer.send('clients', value = f"{id} {cx} {cy}".encode('utf-8'))
     
     #Recogemos la respuesta de la central por saber si nos podemos conectar
     consumer = KafkaConsumer(

@@ -206,7 +206,6 @@ def sendMap():
         #os.system('cls')
         print(str)
         print(mapa.cadenaMapa())
-        print("estadoTrafico: " + estadoTrafico)
         #Aquí esperamos un segundo y lo volvemos a mandar
         time.sleep(0.5)
 
@@ -217,7 +216,8 @@ def readClients():
     
     #Recibir los clientes
     for message in consumer:
-        id = message.value.decode('utf-8')
+        print(f"message.value: {message.value.decode('utf-8')}.")
+        id, cx, cy = message.value.decode('utf-8').split()
         
         isIn = False
         isVisible = False
@@ -230,28 +230,29 @@ def readClients():
                     break
         time.sleep(2)
         if not isIn:
-            client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
+            client = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES, int(cx), int(cy))
             CLIENTES.append(client)
-            print("not in")
+            #print("not in")
             producer.send('client_accepted', value = f"{id} OK".encode('utf-8'))
             producer.flush()
             escribirEventos(f"Cliente {id} ha iniciado sesión")
-            print(f"Mensaje enviado: {id} OK")
+            #print(f"Mensaje enviado: {id} OK")
         elif isIn and not isVisible:
-            print("in not visible")
+            #print("in not visible")
             for cliente in CLIENTES:
                 if cliente.getId() == id:
-                    print("in not visible, exist")
+                    #print("in not visible, exist")
                     cliente.setVisible(True)
+                    cliente.setPosicion(Casilla(int(cx), int(cy)))
                     producer.send(f'client_accepted', value = f"{id} OK".encode('utf-8'))
                     escribirEventos(f"Cliente {id} ha iniciado sesión otra vez")
-                    print(f"Mensaje enviado: {id} OK")
+                    #print(f"Mensaje enviado: {id} OK")
                     break
         else:
-            print("none")
+            #print("none")
             producer.send(f'client_accepted', value = f"{id} KO".encode('utf-8'))
             escribirEventos(f"Cliente {id} ya está conectado")
-            print(f"Mensaje enviado: {id} KO")
+            #print(f"Mensaje enviado: {id} KO")
         
         
 
@@ -375,6 +376,8 @@ def readTaxiUpdate():
                                 taxi.setCliente(None)
                                 taxi.setDestino(None)
                                 taxi.setPosDestino(None)
+                                
+                                escribirEventos(f"El cliente {taxi.getCliente()} ha llegado a su destino con el taxi {taxi.getId()}")
             except Exception as e:
                 print(f"Error al desencriptar el mensaje del taxi {id}")
                 
@@ -527,8 +530,8 @@ def customerState():
     consumer = KafkaConsumer('customerOK', bootstrap_servers=f'{sys.argv[2]}:{sys.argv[3]}')
     while True:
         for message in consumer:
-            print("llegan!")
-            id, st = message.value.decode('utf-8').split()
+            #print("llegan!")
+            id, cx, cy = message.value.decode('utf-8').split()
             for cliente in CLIENTES:
                 if cliente.getId() == id:
                     cliente.setTimeout(0)
@@ -541,12 +544,12 @@ def reconexion():
 
         message = consumer.poll(timeout_ms=500)  
         if message:
-            print("llegan!")
+            #print("llegan!")
             for tp, messages in message.items():
                 for msg in messages:
                     if time.time() - start_time >= 1:
                         break
-                    id,pos = msg.value.decode('utf-8').split()
+                    id, cx, cy = msg.value.decode('utf-8').split()
                     aux3 = True
                     for cliente in CLIENTES:
                         if cliente.getId() == id:
@@ -562,7 +565,7 @@ def reconexion():
                                     break
                         """
                         
-                        cliente = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES)
+                        cliente = Cliente(id, LOCALIZACIONES, TAXIS, CLIENTES, int(cx), int(cy))
                         """if not aux2:
                             cliente.setPosicion(Casilla(int(pos.split(",")[0]), int(pos.split(",")[1])))
                         """
@@ -684,7 +687,7 @@ def weatherState():
     while True:
         try:
             response = requests.get(url)
-            escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.cadenaCTC()}")
+            
             if response.status_code == 200:
                 data = response.json()
                 status = data.get('status')
@@ -704,9 +707,11 @@ def weatherState():
                         producer.send('taxi_commands2', value = f"{taxi_id} {destino}".encode('utf-8'))
                 elif status == "OK" and estadoTrafico == "KO":
                     estadoTrafico = "OK"
+                    
+                escribirEventos(f"El estado del tiempo ha sido actualizado: {ctc.cadenaCTC()}")
                 time.sleep(10)
         except Exception as e:
-            print(f"Error al conectar con la API del tiempo: {e}")
+            #print(f"Error al conectar con la API del tiempo: {e}")
             #Si no podemos acceder al CTC porque esta desconectado, modificamos la ciudad
             #para que se muestre un mensaje de error
             ctc.setCiudad("Error")

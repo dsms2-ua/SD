@@ -79,7 +79,7 @@ def authenticateTaxi():
                     return False
                 else:
                     print("Contraseña correcta")
-                    print(response.decode())
+                    #print(response.decode())
                     try:
                         tokenAesPos = response.decode()
                         token, aes, pos = tokenAesPos.split()
@@ -120,6 +120,10 @@ def register(id):
     if response.status_code == 200:
         print("Taxi registrado correctamente")
         #Como el registro ha sido correcto, vamos al login
+        
+        os.system('cls')
+        print("El registro se ha completado correctamente. Inserta tu contraseña para iniciar sesión")
+        
         return authenticateTaxi()
     elif response.status_code == 404:
         print("El taxi ya está registrado")

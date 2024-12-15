@@ -436,9 +436,9 @@ class Taxi:
     
     
 class Cliente():
-    def __init__(self, id, locs, taxis, clientes):
+    def __init__(self, id, locs, taxis, clientes, cx, cy):
         self.id = id
-        self.posicion = generarAleatoria(locs, taxis, clientes)
+        self.posicion = Casilla(cx, cy)
         self.destino = None
         self.timeout = 0
         self.visible = True
@@ -598,7 +598,7 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
         for loc in LOCALIZACIONES:
             if LOCALIZACIONES[loc] == pos:
                 aux = True
-                strTabla += "         " + loc + "     "
+                strTabla += "       " + loc + "       "
                 break  
         if not aux:
             strTabla += "       " + str(taxi.getCasilla())
@@ -728,7 +728,7 @@ def generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES):
         for loc in LOCALIZACIONES:
             if LOCALIZACIONES[loc] == pos:
                 aux = True
-                strTabla += "         " + loc + "     "
+                strTabla += "       " + loc + "       "
                 break  
         if not aux:
             strTabla += "       " + str(taxi.getCasilla())
