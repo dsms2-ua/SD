@@ -25,7 +25,7 @@ def sendOk(socket_server):
             decoded_response = verify_message(response)
             if decoded_response:
                 id = decoded_response
-                print(f"ID asignado por el servidor: {id}")
+                print(f"\nID asignado por el servidor: {id}")
             else:
                 print("Error al recibir ID. Cerrando conexión e intentando nuevamente.")
                 socket_server.close()
@@ -55,6 +55,7 @@ def sendOk(socket_server):
 
 def sendAlert():
     global OK
+    time.sleep(3)
     #Cuando nos conectamos por primera vez, se nos asigna un ID y luego lo utilizamos para mandar el mensaje
     
     #Si presionamos cualquier tecla se envía un mensaje

@@ -19,7 +19,7 @@ const db = new sqlite3.Database('database.db', (error) => {
     }
 });
 
-appSD.listen(port, () => {
+appSD.listen(port, '0.0.0.0', () => {
     console.log(`Ejecutando la aplicación API REST de SD en el puerto ${port}`);
 });
 

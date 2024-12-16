@@ -598,17 +598,17 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
         for loc in LOCALIZACIONES:
             if LOCALIZACIONES[loc] == pos:
                 aux = True
-                strTabla += "       " + loc + "       "
+                strTabla += "         " + loc + "     "
                 break  
         if not aux:
-            strTabla += "       " + str(taxi.getCasilla())
+            strTabla += "     " + str(taxi.getCasilla())
         
             if taxi.getCasilla().getX() < 10 and taxi.getCasilla().getY() < 10:
                 strTabla += "  "
             elif taxi.getCasilla().getX() < 10 or taxi.getCasilla().getY() < 10:
                 strTabla += " "
               
-        strTabla += "    |"
+        strTabla += "      |"
 
         strTabla += "\n"
     
@@ -654,14 +654,14 @@ def generarTabla(TAXIS, CLIENTES, LOCALIZACIONES, CTC):
                 break
         
         if not aux:
-            strTabla += "       " + str(cliente.getPosicion())
+            strTabla += "         " + str(cliente.getPosicion())
             
             if cliente.getPosicion().getX() < 10 and cliente.getPosicion().getY() < 10:
                 strTabla += "  "
             elif cliente.getPosicion().getX() < 10 or cliente.getPosicion().getY() < 10:
                 strTabla += " "
               
-        strTabla += "    |"
+        strTabla += "  |"
         
         strTabla += "\n"
     
@@ -728,7 +728,7 @@ def generarTablaArchivo(TAXIS, CLIENTES, LOCALIZACIONES):
         for loc in LOCALIZACIONES:
             if LOCALIZACIONES[loc] == pos:
                 aux = True
-                strTabla += "       " + loc + "       "
+                strTabla += "           " + loc + "   "
                 break  
         if not aux:
             strTabla += "       " + str(taxi.getCasilla())

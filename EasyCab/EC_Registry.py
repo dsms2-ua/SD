@@ -68,7 +68,7 @@ def delete():
 def exposeAPI():
     #Exponemos la API  
     context = ('certificados/certRegistrySans.pem', 'certificados/keySans.pem')
-    app.run(port=3003, debug=True, ssl_context=context)
+    app.run(host='0.0.0.0', port=3003, debug=True, ssl_context=context)
     
 def main():
     exposeAPI()
